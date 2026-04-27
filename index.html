@@ -2,138 +2,80 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>クラスショップ</title>
+<title>ショップ復元版</title>
 
 <style>
 body{font-family:sans-serif;text-align:center;margin:0;}
-#home{display:none;}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
-.box{
-  border:1px solid #ccc;
-  padding:10px;
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
+.box{border:1px solid #ccc;padding:10px;}
 button{margin:5px;}
 </style>
 </head>
 
 <body>
 
-<!-- ログイン -->
-<div id="login">
-<h2>登録 / ログイン</h2>
-
-<input id="name" placeholder="名前"><br>
-<input id="pass" type="password" placeholder="パスワード"><br>
-
-<button onclick="register()">登録</button>
-<button onclick="login()">ログイン</button>
-
-<p id="msg"></p>
-</div>
-
-<!-- ホーム -->
-<div id="home">
-
-<h3 id="user"></h3>
-
+<h2>ショップ</h2>
 <div>ポイント: <span id="points">100</span></div>
 
-<button onclick="adminLogin()">管理者</button>
+<button onclick="useCode()">コード入力</button>
 
 <div class="grid" id="shop"></div>
 
-</div>
-
 <script>
 
-let currentUser = null;
-let isAdmin = false;
 let points = 100;
 
-// ===== 20枠（完全固定）=====
+// ===== 商品（あなたの内容そのまま）=====
 let items = [
-  {name:"かのあのTikTok", price:50, message:"k514915", active:true},
-  {name:"板谷りんかのTikTok", price:40, message:"rinka75431", active:true},
-  {name:"あやののTikTok", price:40, message:"taaaaaaaiyakl", active:true},
-  {name:"ねねのTikTok", price:40, message:"n4_e2ne1", active:true},
-  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた", active:true},
+  {name:"かのあのTiktok", price:50, message:"k514915"},
+  {name:"板谷りんかのTiktok", price:40, message:"rinka75431"},
+  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl"},
+  {name:"ねねのTiktok", price:40, message:"n4_e2ne1"},
+  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"},
 
-  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた 現豊田こうすけ", active:true},
+  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ"},
 
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
 
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
 
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false},
-  {name:"商品なし", price:0, message:"メッセージなし", active:false}
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"},
+  {name:"商品なし", price:0, message:"メッセージなし"}
 ];
 
-// ===== 登録 =====
-function register(){
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
+// ===== 固定コード100個（変化なし）=====
+let codes = [
+"aa1b2c","bb2c3d","cc3d4e","dd4e5f","ee5f6g",
+"ff6g7h","gg7h8i","hh8i9j","ii9j0k","jj0k1l",
+"kk1l2m","ll2m3n","mm3n4o","nn4o5p","oo5p6q",
+"pp6q7r","qq7r8s","rr8s9t","ss9t0u","tt0u1v",
+"uu1v2w","vv2w3x","ww3x4y","xx4y5z","yy5z6a",
+"zz6a7b","ab7c8d","cd8e9f","ef9g0h","gh0i1j",
+"ij1k2l","kl2m3n","mn3o4p","op4q5r","qr5s6t",
+"st6u7v","uv7w8x","wx8y9z","yz9a0b","za0b1c",
+"1a2b3c","2b3c4d","3c4d5e","4d5e6f","5e6f7g",
+"6f7g8h","7g8h9i","8h9i0j","9i0j1k","0j1k2l",
+"lm2n3o","no3p4q","op4r5s","pq5t6u","qr6v7w",
+"rs7x8y","st8z9a","tu9b0c","uv0d1e","vw1f2g",
+"wx2h3i","xy3j4k","yz4l5m","za5n6o","ab6p7q",
+"bc7r8s","cd8t9u","de9v0w","ef0x1y","fg1z2a",
+"gh2b3c","hi3d4e","ij4f5g","jk5h6i","kl6j7k",
+"lm7k8l","mn8l9m","no9n0o","op0p1q","pq1r2s",
+"qr2t3u","rs3v4w","st4x5y","tu5z6a","uv6b7c",
+"vw7d8e","wx8f9g","xy9h0i","yz0j1k","za1l2m"
+];
 
-  if(!name || !pass){
-    alert("入力して");
-    return;
-  }
-
-  localStorage.setItem(name, pass);
-
-  alert("登録完了");
-}
-
-// ===== ログイン =====
-function login(){
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
-
-  const saved = localStorage.getItem(name);
-
-  if(saved !== pass){
-    alert("ログイン失敗");
-    return;
-  }
-
-  currentUser = name;
-
-  document.getElementById("login").style.display="none";
-  document.getElementById("home").style.display="block";
-
-  document.getElementById("user").innerText=name;
-
-  render();
-}
-
-// ===== 管理者 =====
-function adminLogin(){
-
-  const code = prompt("管理者コード");
-
-  if(code==="582854"){
-    isAdmin = true;
-    alert("管理者ON");
-  } else {
-    alert("違う");
-  }
-}
-
-// ===== ショップ表示 =====
+// ===== 表示 =====
 function render(){
 
   let html="";
@@ -142,12 +84,9 @@ function render(){
 
     html+=`
     <div class="box">
-
       <b>${item.name}</b><br>
       ${item.price}pt<br>
-
       <button onclick="buy(${i})">購入</button>
-
     </div>
     `;
   });
@@ -158,12 +97,7 @@ function render(){
 // ===== 購入 =====
 function buy(i){
 
-  const item = items[i];
-
-  if(!item.active){
-    alert("未登録商品");
-    return;
-  }
+  let item = items[i];
 
   if(points < item.price){
     alert("ポイント不足");
@@ -177,9 +111,31 @@ function buy(i){
   alert(
     "購入完了！\n\n" +
     item.name + "\n\n" +
-    "💬 " + item.message
+    item.message
   );
 }
+
+// ===== コード使用（1回）=====
+function useCode(){
+
+  let input = prompt("コード入力");
+
+  let index = codes.indexOf(input);
+
+  if(index === -1){
+    return alert("無効コード");
+  }
+
+  codes.splice(index,1);
+
+  points += 100;
+
+  document.getElementById("points").innerText = points;
+
+  alert("100ポイント獲得！");
+}
+
+render();
 
 </script>
 
