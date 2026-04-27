@@ -15,7 +15,12 @@ button{ padding:10px; margin:5px; }
 .blue{ background:blue; color:white; }
 .green{ background:green; color:white; }
 
-#content{ padding:10px; }
+#topbar{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#eee;
+}
 </style>
 </head>
 
@@ -23,33 +28,39 @@ button{ padding:10px; margin:5px; }
 
 <!-- ログイン -->
 <div id="login">
-<h2>ログイン</h2>
+<h2>ログイン / 登録</h2>
 
 <input id="name" placeholder="名前"><br>
 <input id="password" type="password" placeholder="パスワード"><br>
 
+<button onclick="register()">登録</button>
 <button onclick="login()">ログイン</button>
+
 <p id="msg"></p>
 </div>
 
 <!-- ホーム -->
 <div id="home">
 
-<h2 id="user"></h2>
+<div id="topbar">
+<div id="user"></div>
+<div>ポイント: <span id="points">0</span></div>
+</div>
 
 <button class="red" onclick="openShop()">ショップ</button>
 <button class="blue" onclick="showPoint()">ポイント</button>
 <button class="green" onclick="admin()">管理者</button>
 
 <div id="content"></div>
+
 </div>
 
 <script>
 
 let currentUser = null;
-let points = 100;
+let points = 0;
 
-// ===== 登録（簡易）=====
+// ===== 登録（100pt付与）=====
 function register(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("password").value;
@@ -59,11 +70,13 @@ function register(){
     return;
   }
 
-  localStorage.setItem("user", JSON.stringify({
+  const user = {
     name:name,
     pass:pass,
     points:100
-  }));
+  };
+
+  localStorage.setItem("user", JSON.stringify(user));
 
   msg.innerText = "登録完了 +100pt";
 }
@@ -76,19 +89,23 @@ function login(){
   const pass = document.getElementById("password").value;
 
   if(!data){
-    alert("未登録");
+    alert("まだ登録されてない");
     return;
   }
 
   if(name === data.name && pass === data.pass){
+
     currentUser = data;
     points = data.points;
 
     document.getElementById("login").style.display="none";
     document.getElementById("home").style.display="block";
-    document.getElementById("user").innerText=data.name;
+
+    document.getElementById("user").innerText = data.name;
+    document.getElementById("points").innerText = points;
+
   } else {
-    alert("失敗");
+    alert("ログイン失敗");
   }
 }
 
@@ -96,8 +113,24 @@ function login(){
 function openShop(){
   document.getElementById("content").innerHTML=`
     <h3>ショップ</h3>
-    <p>まだ商品なし</p>
+    <p>まだ商品はありません</p>
+    <button onclick="addProduct()">管理者追加</button>
   `;
+}
+
+// ===== 商品追加（管理者）=====
+function addProduct(){
+  const code = prompt("コード入力");
+
+  if(code !== "582854"){
+    alert("違う");
+    return;
+  }
+
+  const name = prompt("商品名");
+  const price = prompt("値段");
+
+  alert("商品追加（仮）: " + name + " / " + price);
 }
 
 // ===== ポイント表示 =====
@@ -109,9 +142,11 @@ function showPoint(){
 function admin(){
   const code = prompt("コード");
 
-  if(code==="582854"){
-    const msg = prompt("購入成功メッセージ");
+  if(code === "582854"){
+    const msg = prompt("購入成功メッセージ設定");
+
     localStorage.setItem("adminMsg", msg);
+
     alert("設定完了");
   } else {
     alert("違う");
