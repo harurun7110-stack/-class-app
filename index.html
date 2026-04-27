@@ -14,76 +14,61 @@ button{padding:10px;margin:5px;}
 
 <body>
 
-<!-- ログイン -->
 <div id="login">
-<h2>ログイン / 登録</h2>
+<h2>ログイン</h2>
 
 <input id="name" placeholder="名前"><br>
 <input id="pass" type="password" placeholder="パスワード"><br>
 
-<button onclick="register()">登録</button>
 <button onclick="login()">ログイン</button>
-
-<p id="msg"></p>
 </div>
 
-<!-- ホーム -->
 <div id="home">
+
 <h2 id="user"></h2>
 
 <button onclick="openShop()">ショップ</button>
 <button onclick="admin()">管理者</button>
 
 <div id="content"></div>
+
 </div>
 
 <script>
 
 let products = [];
 
-// ===== 登録 =====
-function register(){
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
-
-  localStorage.setItem("user", JSON.stringify({
-    name:name,
-    pass:pass
-  }));
-
-  document.getElementById("msg").innerText="登録OK";
-}
-
 // ===== ログイン =====
 function login(){
-  const data = JSON.parse(localStorage.getItem("user"));
+  document.getElementById("login").style.display="none";
+  document.getElementById("home").style.display="block";
 
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
-
-  if(data && name===data.name && pass===data.pass){
-    document.getElementById("login").style.display="none";
-    document.getElementById("home").style.display="block";
-    document.getElementById("user").innerText=name;
-  } else {
-    alert("失敗");
-  }
+  document.getElementById("user").innerText=
+    document.getElementById("name").value;
 }
 
-// ===== ショップ =====
+// ===== ショップ表示（常に最新）=====
 function openShop(){
+  renderShop();
+}
+
+function renderShop(){
   let html="<h3>ショップ</h3>";
 
-  products.forEach((p,i)=>{
+  if(products.length === 0){
+    html+="<p>商品なし</p>";
+  }
+
+  products.forEach(p=>{
     html+=`
     <div class="item">
-      <b>${p.name}</b><br>
-      ${p.price}円<br>
+      ${p.name}<br>
+      ${p.price}円
     </div>
     `;
   });
 
-  html+=`<button onclick="addProduct()">商品追加</button>`;
+  html+=`<br><button onclick="addProduct()">商品追加</button>`;
 
   document.getElementById("content").innerHTML=html;
 }
@@ -94,7 +79,8 @@ function addProduct(){
   const price = prompt("値段");
 
   products.push({name,price});
-  openShop();
+
+  renderShop(); // ←これが超重要
 }
 
 // ===== 管理者 =====
@@ -106,9 +92,10 @@ function admin(){
     const price = prompt("値段");
 
     products.push({name,price});
-    alert("管理者で追加完了");
-  } else {
-    alert("違う");
+
+    renderShop(); // ←これが超重要
+
+    alert("追加完了");
   }
 }
 
