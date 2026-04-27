@@ -2,10 +2,11 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>20枠ショップ</title>
+<title>クラスショップ</title>
 
 <style>
 body{font-family:sans-serif;text-align:center;margin:0;}
+#home{display:none;}
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -16,32 +17,53 @@ body{font-family:sans-serif;text-align:center;margin:0;}
   border:1px solid #ccc;
   padding:10px;
 }
-input{width:90%;margin:3px;}
-button{margin-top:5px;}
+button{margin:5px;}
 </style>
 </head>
 
 <body>
 
-<h2>ショップ（20枠）</h2>
+<!-- ログイン -->
+<div id="login">
+<h2>登録 / ログイン</h2>
+
+<input id="name" placeholder="名前"><br>
+<input id="pass" type="password" placeholder="パスワード"><br>
+
+<button onclick="register()">登録</button>
+<button onclick="login()">ログイン</button>
+
+<p id="msg"></p>
+</div>
+
+<!-- ホーム -->
+<div id="home">
+
+<h3 id="user"></h3>
 
 <div>ポイント: <span id="points">100</span></div>
 
+<button onclick="adminLogin()">管理者</button>
+
 <div class="grid" id="shop"></div>
+
+</div>
 
 <script>
 
+let currentUser = null;
+let isAdmin = false;
 let points = 100;
 
-// ===== 20枠 =====
+// ===== 20枠（完全固定）=====
 let items = [
-  {name:"かのあのTiktok", price:50, message:"k514915", active:true},
-  {name:"板谷りんかのTiktok", price:40, message:"rinka75431", active:true},
-  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl", active:true},
-  {name:"ねねのTiktok", price:40, message:"n4_e2ne1", active:true},
+  {name:"かのあのTikTok", price:50, message:"k514915", active:true},
+  {name:"板谷りんかのTikTok", price:40, message:"rinka75431", active:true},
+  {name:"あやののTikTok", price:40, message:"taaaaaaaiyakl", active:true},
+  {name:"ねねのTikTok", price:40, message:"n4_e2ne1", active:true},
   {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた", active:true},
 
-  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ", active:true},
+  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた 現豊田こうすけ", active:true},
 
   {name:"商品なし", price:0, message:"メッセージなし", active:false},
   {name:"商品なし", price:0, message:"メッセージなし", active:false},
@@ -61,7 +83,57 @@ let items = [
   {name:"商品なし", price:0, message:"メッセージなし", active:false}
 ];
 
-// ===== 表示 =====
+// ===== 登録 =====
+function register(){
+  const name = document.getElementById("name").value;
+  const pass = document.getElementById("pass").value;
+
+  if(!name || !pass){
+    alert("入力して");
+    return;
+  }
+
+  localStorage.setItem(name, pass);
+
+  alert("登録完了");
+}
+
+// ===== ログイン =====
+function login(){
+  const name = document.getElementById("name").value;
+  const pass = document.getElementById("pass").value;
+
+  const saved = localStorage.getItem(name);
+
+  if(saved !== pass){
+    alert("ログイン失敗");
+    return;
+  }
+
+  currentUser = name;
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("home").style.display="block";
+
+  document.getElementById("user").innerText=name;
+
+  render();
+}
+
+// ===== 管理者 =====
+function adminLogin(){
+
+  const code = prompt("管理者コード");
+
+  if(code==="582854"){
+    isAdmin = true;
+    alert("管理者ON");
+  } else {
+    alert("違う");
+  }
+}
+
+// ===== ショップ表示 =====
 function render(){
 
   let html="";
@@ -71,18 +143,9 @@ function render(){
     html+=`
     <div class="box">
 
-      <input value="${item.name}"
-      onchange="items[${i}].name=this.value">
+      <b>${item.name}</b><br>
+      ${item.price}pt<br>
 
-      <input type="number" value="${item.price}"
-      onchange="items[${i}].price=Number(this.value)">
-
-      <input value="${item.message}"
-      onchange="items[${i}].message=this.value">
-
-      <br>
-
-      <button onclick="activate(${i})">有効化</button>
       <button onclick="buy(${i})">購入</button>
 
     </div>
@@ -92,39 +155,10 @@ function render(){
   document.getElementById("shop").innerHTML=html;
 }
 
-// ===== 有効化 =====
-function activate(i){
-
-  let name = items[i].name;
-  let price = items[i].price;
-  let message = items[i].message;
-
-  if(items[i].active){
-    alert("もう登録済み");
-    return;
-  }
-
-  if(name==="商品なし"){
-    name = prompt("商品名");
-    price = prompt("値段");
-    message = prompt("メッセージ");
-  }
-
-  items[i] = {
-    name,
-    price:Number(price),
-    message,
-    active:true
-  };
-
-  alert("登録完了");
-  render();
-}
-
 // ===== 購入 =====
 function buy(i){
 
-  let item = items[i];
+  const item = items[i];
 
   if(!item.active){
     alert("未登録商品");
@@ -137,16 +171,15 @@ function buy(i){
   }
 
   points -= item.price;
+
   document.getElementById("points").innerText = points;
 
   alert(
     "購入完了！\n\n" +
     item.name + "\n\n" +
-    item.message
+    "💬 " + item.message
   );
 }
-
-render();
 
 </script>
 
