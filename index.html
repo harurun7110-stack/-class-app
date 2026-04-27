@@ -33,15 +33,16 @@ button{margin-top:5px;}
 
 let points = 100;
 
-// ===== 20枠を最初から全部作成 =====
+// ===== 20枠 =====
 let items = [
-  {name:"かのあのTiktok", price:50, message:"k514915", active:false},
-  {name:"板谷りんかのTiktok", price:40, message:"rinka75431", active:false},
-  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl", active:false},
-  {name:"ねねのTiktok", price:40, message:" n4_e2ne1", active:false},
-  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた", active:false},
+  {name:"かのあのTiktok", price:50, message:"k514915", active:true},
+  {name:"板谷りんかのTiktok", price:40, message:"rinka75431", active:true},
+  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl", active:true},
+  {name:"ねねのTiktok", price:40, message:"n4_e2ne1", active:true},
+  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた", active:true},
 
-  {name:太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ", active:false},
+  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ", active:true},
+
   {name:"商品なし", price:0, message:"メッセージなし", active:false},
   {name:"商品なし", price:0, message:"メッセージなし", active:false},
   {name:"商品なし", price:0, message:"メッセージなし", active:false},
@@ -91,17 +92,17 @@ function render(){
   document.getElementById("shop").innerHTML=html;
 }
 
-// ===== 枠を有効化（商品追加扱い）=====
+// ===== 有効化 =====
 function activate(i){
+
+  let name = items[i].name;
+  let price = items[i].price;
+  let message = items[i].message;
 
   if(items[i].active){
     alert("もう登録済み");
     return;
   }
-
-  let name = items[i].name;
-  let price = items[i].price;
-  let message = items[i].message;
 
   if(name==="商品なし"){
     name = prompt("商品名");
@@ -126,7 +127,7 @@ function buy(i){
   let item = items[i];
 
   if(!item.active){
-    alert("未登録商品です");
+    alert("未登録商品");
     return;
   }
 
@@ -136,7 +137,6 @@ function buy(i){
   }
 
   points -= item.price;
-
   document.getElementById("points").innerText = points;
 
   alert(
@@ -146,7 +146,6 @@ function buy(i){
   );
 }
 
-// 初期表示
 render();
 
 </script>
