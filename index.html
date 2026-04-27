@@ -4,108 +4,186 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>クラスアプリ</title>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <style>
-body { font-family: sans-serif; text-align: center; }
-button { padding: 10px; margin: 5px; font-size: 16px; }
+body{font-family:sans-serif;margin:0;}
 
-#home { display:none; }
+#top{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  background:#eee;
+}
 
-.red { background:red; color:white; }
-.blue { background:blue; color:white; }
-.green { background:green; color:white; }
+button{margin:5px;padding:10px;}
 
-/* 🔶オレンジマーク */
-#mark {
-  margin-top: 10px;
-  font-size: 40px;
-  color: orange;
-  font-weight: bold;
+.red{background:red;color:white;}
+.blue{background:blue;color:white;}
+.green{background:green;color:white;}
+
+#home{display:none;}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
+}
+
+.item{
+  border:1px solid #ccc;
+  padding:10px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- ログイン -->
 <div id="login">
-<h2>ログイン / 登録</h2>
-
-<input id="name" placeholder="ユーザーネーム"><br>
-<input id="email" placeholder="メール"><br>
+<h2>ログイン</h2>
+<input id="name" placeholder="名前"><br>
 <input id="password" type="password" placeholder="パスワード"><br>
 
-<button onclick="register()">登録</button>
-
-<!-- 🔶ここが追加 -->
-<div id="mark">●●●</div>
-
-<button onclick="loginUser()">ログイン</button>
-
+<button onclick="login()">ログイン</button>
 <p id="msg"></p>
 </div>
 
+<!-- ホーム -->
 <div id="home">
-<h2 id="username"></h2>
+
+<div id="top">
+<div id="user"></div>
+<div>ポイント: <span id="points">0</span></div>
+</div>
 
 <button class="red" onclick="openShop()">ショップ</button>
 <button class="blue" onclick="showPoint()">ポイント</button>
-<button class="green" onclick="openAdmin()">管理者</button>
+<button class="green" onclick="admin()">管理者</button>
 
 <div id="content"></div>
 </div>
 
 <script>
 
-function register(){
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+};
 
-  if(!name || !email || !password){
-    document.getElementById("msg").innerText = "全部入力して";
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let currentUser = null;
+let products = [];
+let myPoints = 100;
+
+// ===== ログイン =====
+function login(){
+  const name = document.getElementById("name").value;
+  const pass = document.getElementById("password").value;
+
+  if(!name||!pass){
+    msg.innerText="入力して";
     return;
   }
 
-  localStorage.setItem("user", JSON.stringify({name, email, password}));
+  currentUser = name;
 
-  document.getElementById("msg").innerText = "登録完了";
+  document.getElementById("login").style.display="none";
+  document.getElementById("home").style.display="block";
+  document.getElementById("user").innerText=name;
+
+  loadProducts();
+  loadPoints();
 }
 
-function loginUser(){
-  const savedUser = JSON.parse(localStorage.getItem("user"));
-
-  const name = document.getElementById("name").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if(savedUser && name === savedUser.name && password === savedUser.password){
-    document.getElementById("login").style.display="none";
-    document.getElementById("home").style.display="block";
-    document.getElementById("username").innerText=savedUser.name;
-  } else {
-    alert("ログイン失敗");
-  }
+// ===== 商品読み込み（全員共有）=====
+function loadProducts(){
+  db.collection("products").onSnapshot((snap)=>{
+    products=[];
+    snap.forEach(doc=>{
+      products.push({id:doc.id,...doc.data()});
+    });
+    openShop();
+  });
 }
 
+// ===== ポイント読み込み（仮共有）=====
+function loadPoints(){
+  db.collection("points").doc(currentUser).onSnapshot(doc=>{
+    if(doc.exists){
+      myPoints = doc.data().value;
+    }
+    document.getElementById("points").innerText=myPoints;
+  });
+}
+
+// ===== ショップ =====
 function openShop(){
-  document.getElementById("content").innerHTML=`
-  <h3>ショップ</h3>
-  <button onclick="buyItem()">情報（10pt）</button>
-  `;
+  let html="<h3>ショップ</h3><div class='shopGrid'>";
+
+  products.forEach(p=>{
+    html+=`
+    <div class="item">
+      <img src="${p.img}" width="100"><br>
+      ${p.name}<br>
+      ${p.price}pt<br>
+      <button onclick="buy('${p.id}',${p.price})">購入</button>
+    </div>`;
+  });
+
+  html+="</div><button onclick='addProduct()'>追加(管理者)</button>";
+
+  content.innerHTML=html;
 }
 
-function buyItem(){
-  alert("購入ありがとう！");
+// ===== 購入 =====
+function buy(id,price){
+  if(myPoints<price){
+    alert("ポイント不足");
+    return;
+  }
+
+  const ok = confirm("購入しますか？");
+  if(!ok) return;
+
+  myPoints -= price;
+
+  db.collection("points").doc(currentUser).set({
+    value: myPoints
+  });
+
+  db.collection("products").doc(id).delete();
+
+  alert("購入完了");
 }
 
+// ===== 管理者追加 =====
+function addProduct(){
+  const code = prompt("コード");
+  if(code!=="582854") return;
+
+  const name = prompt("商品名");
+  const price = prompt("値段");
+  const img = prompt("画像URL");
+
+  db.collection("products").add({name,price,img});
+}
+
+// ===== ポイント表示 =====
 function showPoint(){
-  alert("ポイント：100");
+  alert("あなたのポイント: " + myPoints);
 }
 
-function openAdmin(){
-  const code = prompt("コード入力");
+// ===== 管理者 =====
+function admin(){
+  const code = prompt("コード");
   if(code==="582854"){
     alert("管理者OK");
-  } else {
-    alert("違う");
   }
 }
 
