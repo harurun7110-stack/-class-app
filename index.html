@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>クラスショップゲーム</title>
+<title>クラスアプリ</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -11,18 +11,8 @@
 body{font-family:sans-serif;margin:0;text-align:center;}
 #home{display:none;}
 button{padding:10px;margin:5px;}
-
-.shopGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
-
-.item{
-  border:1px solid #ccc;
-  padding:10px;
-}
+.item{border:1px solid #ccc;margin:5px;padding:10px;}
+.shopGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
 </style>
 </head>
 
@@ -45,7 +35,7 @@ button{padding:10px;margin:5px;}
 <div id="home">
 
 <h3 id="user"></h3>
-<div>ポイント: <span id="points">100</span></div>
+<div>ポイント: <span id="points">0</span></div>
 
 <button onclick="openShop()">ショップ</button>
 <button onclick="admin()">管理者</button>
@@ -68,7 +58,7 @@ const db = firebase.firestore();
 
 let currentUser = null;
 let isAdmin = false;
-let points = 100;
+let points = 0;
 let products = [];
 
 // ===== 登録 =====
@@ -90,23 +80,30 @@ function login(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("pass").value;
 
-  currentUser = name;
-
   db.collection("users").doc(name).get().then(doc=>{
-    if(doc.exists && doc.data().pass === pass){
-
-      points = doc.data().points;
-
-      document.getElementById("login").style.display="none";
-      document.getElementById("home").style.display="block";
-      document.getElementById("user").innerText=name;
-
-      loadProducts();
-      openShop();
-
-    } else {
-      alert("ログイン失敗");
+    if(!doc.exists){
+      alert("登録されてない");
+      return;
     }
+
+    const data = doc.data();
+
+    if(data.pass !== pass){
+      alert("パスワード違う");
+      return;
+    }
+
+    currentUser = name;
+    points = data.points || 0;
+
+    document.getElementById("login").style.display="none";
+    document.getElementById("home").style.display="block";
+
+    document.getElementById("user").innerText=name;
+    document.getElementById("points").innerText=points;
+
+    loadProducts();
+    renderShop();
   });
 }
 
@@ -116,13 +113,13 @@ function admin(){
 
   if(code==="582854"){
     isAdmin = true;
-    alert("管理者モード");
+    alert("管理者ON");
   } else {
     alert("違う");
   }
 }
 
-// ===== 商品読み込み（全員共有）=====
+// ===== 商品取得 =====
 function loadProducts(){
   db.collection("products").onSnapshot(snap=>{
     products=[];
@@ -144,7 +141,7 @@ function renderShop(){
   products.forEach(p=>{
     html+=`
     <div class="item">
-      ${p.name}<br>
+      <b>${p.name}</b><br>
       ${p.price}pt<br>
 
       <button onclick="buy('${p.id}',${p.price},'${p.owner}')">
@@ -158,53 +155,61 @@ function renderShop(){
     html+=`<button onclick="addProduct()">商品追加</button>`;
   }
 
+  html+="</div>";
   content.innerHTML=html;
 }
 
-// ===== 商品追加（管理者 or 一般）=====
+// ===== 商品追加（メッセージ付き）=====
 function addProduct(){
   const name = prompt("商品名");
   const price = prompt("値段");
+  const message = prompt("購入者へのメッセージ");
 
   db.collection("products").add({
     name,
     price:Number(price),
+    message,
     owner:currentUser
   });
 }
 
-// ===== 購入処理 =====
+// ===== 購入（ポイント＋メッセージ）=====
 function buy(id,price,owner){
 
   if(points < price){
-    alert("ポイント不足");
+    alert("ポイントが足りません");
     return;
   }
 
   const ok = confirm("購入しますか？");
   if(!ok) return;
 
-  // 購入者から減る
   points -= price;
-
-  // 出品者にポイント追加
-  if(owner){
-    db.collection("users").doc(owner).get().then(doc=>{
-      if(doc.exists){
-        let p = doc.data().points || 0;
-
-        db.collection("users").doc(owner).update({
-          points: p + price
-        });
-      }
-    });
-  }
 
   db.collection("users").doc(currentUser).update({
     points: points
   });
 
-  alert("購入完了");
+  // 出品者にポイント
+  if(owner){
+    db.collection("users").doc(owner).get().then(doc=>{
+      if(doc.exists){
+        db.collection("users").doc(owner).update({
+          points: (doc.data().points || 0) + price
+        });
+      }
+    });
+  }
+
+  // ⭐ 出品者メッセージ表示
+  db.collection("products").doc(id).get().then(doc=>{
+    if(doc.exists){
+      const data = doc.data();
+      alert("購入完了！\n\n出品者メッセージ：\n" + (data.message || "なし"));
+    }
+  });
+
+  document.getElementById("points").innerText = points;
 }
 
 </script>
