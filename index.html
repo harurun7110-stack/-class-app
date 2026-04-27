@@ -66,6 +66,11 @@ function register(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("pass").value;
 
+  if(!name || !pass){
+    msg.innerText="入力して";
+    return;
+  }
+
   db.collection("users").doc(name).set({
     name,
     pass,
@@ -147,8 +152,7 @@ function renderShop(){
       <button onclick="buy('${p.id}',${p.price},'${p.owner}')">
         購入
       </button>
-    </div>
-    `;
+    </div>`;
   });
 
   if(isAdmin){
@@ -159,21 +163,28 @@ function renderShop(){
   content.innerHTML=html;
 }
 
-// ===== 商品追加（メッセージ付き）=====
+// ===== 商品追加（個別メッセージ）=====
 function addProduct(){
   const name = prompt("商品名");
+  if(!name) return;
+
   const price = prompt("値段");
-  const message = prompt("購入者へのメッセージ");
+  if(!price) return;
+
+  const afterMessage = prompt("購入後メッセージ（この商品専用）");
+  if(afterMessage === null) return;
 
   db.collection("products").add({
     name,
     price:Number(price),
-    message,
+    afterMessage,
     owner:currentUser
   });
+
+  alert("商品追加完了");
 }
 
-// ===== 購入（ポイント＋メッセージ）=====
+// ===== 購入処理 =====
 function buy(id,price,owner){
 
   if(points < price){
@@ -190,7 +201,7 @@ function buy(id,price,owner){
     points: points
   });
 
-  // 出品者にポイント
+  // 出品者にポイント付与
   if(owner){
     db.collection("users").doc(owner).get().then(doc=>{
       if(doc.exists){
@@ -201,11 +212,16 @@ function buy(id,price,owner){
     });
   }
 
-  // ⭐ 出品者メッセージ表示
+  // ⭐購入後メッセージ表示
   db.collection("products").doc(id).get().then(doc=>{
     if(doc.exists){
       const data = doc.data();
-      alert("購入完了！\n\n出品者メッセージ：\n" + (data.message || "なし"));
+
+      alert(
+        "購入完了！\n\n" +
+        "📦 " + data.name + "\n\n" +
+        "💬 " + (data.afterMessage || "メッセージなし")
+      );
     }
   });
 
