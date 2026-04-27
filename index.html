@@ -13,23 +13,36 @@ button { padding: 10px; margin: 5px; font-size: 16px; }
 .red { background:red; color:white; }
 .blue { background:blue; color:white; }
 .green { background:green; color:white; }
+
+/* 🔶オレンジマーク */
+#mark {
+  margin-top: 10px;
+  font-size: 40px;
+  color: orange;
+  font-weight: bold;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ログイン画面 -->
 <div id="login">
 <h2>ログイン / 登録</h2>
+
 <input id="name" placeholder="ユーザーネーム"><br>
 <input id="email" placeholder="メール"><br>
 <input id="password" type="password" placeholder="パスワード"><br>
+
 <button onclick="register()">登録</button>
+
+<!-- 🔶ここが追加 -->
+<div id="mark">●●●</div>
+
 <button onclick="loginUser()">ログイン</button>
+
 <p id="msg"></p>
 </div>
 
-<!-- ホーム -->
 <div id="home">
 <h2 id="username"></h2>
 
@@ -37,122 +50,65 @@ button { padding: 10px; margin: 5px; font-size: 16px; }
 <button class="blue" onclick="showPoint()">ポイント</button>
 <button class="green" onclick="openAdmin()">管理者</button>
 
-<p id="point"></p>
 <div id="content"></div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBxxDI8P9JS69swA5hI4sxioyBeW2c6nQA",
-  authDomain: "nen3zyouhouy.firebaseapp.com",
-  projectId: "nen3zyouhouy"
-};
+function register(){
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
+  if(!name || !email || !password){
+    document.getElementById("msg").innerText = "全部入力して";
+    return;
+  }
 
-let uid = "";
+  localStorage.setItem("user", JSON.stringify({name, email, password}));
 
-// 登録
-window.register = async () => {
-  const name = nameInput.value;
-  const email = emailInput.value;
-  const pass = passwordInput.value;
-
-  const user = await createUserWithEmailAndPassword(auth, email, pass);
-  uid = user.user.uid;
-
-  await setDoc(doc(db,"users",uid),{
-    name:name,
-    point:100
-  });
-
-  msg.innerText="登録成功";
+  document.getElementById("msg").innerText = "登録完了";
 }
 
-// ログイン
-window.loginUser = async () => {
-  const email = emailInput.value;
-  const pass = passwordInput.value;
+function loginUser(){
+  const savedUser = JSON.parse(localStorage.getItem("user"));
 
-  const user = await signInWithEmailAndPassword(auth, email, pass);
-  uid = user.user.uid;
+  const name = document.getElementById("name").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  loadUser();
+  if(savedUser && name === savedUser.name && password === savedUser.password){
+    document.getElementById("login").style.display="none";
+    document.getElementById("home").style.display="block";
+    document.getElementById("username").innerText=savedUser.name;
+  } else {
+    alert("ログイン失敗");
+  }
 }
 
-// ユーザー読み込み
-async function loadUser(){
-  const snap = await getDoc(doc(db,"users",uid));
-  const data = snap.data();
-
-  login.style.display="none";
-  home.style.display="block";
-
-  username.innerText = data.name;
-  point.innerText = "ポイント："+data.point;
-}
-
-// ショップ
-window.openShop = () => {
-  content.innerHTML = `
+function openShop(){
+  document.getElementById("content").innerHTML=`
   <h3>ショップ</h3>
   <button onclick="buyItem()">情報（10pt）</button>
   `;
 }
 
-// 購入
-window.buyItem = async () => {
-  const ref = doc(db,"users",uid);
-  const snap = await getDoc(ref);
-  let p = snap.data().point;
-
-  if(p >= 10){
-    if(confirm("購入しますか？")){
-      await updateDoc(ref,{point:p-10});
-      alert("購入ありがとう！");
-      loadUser();
-    }
-  } else {
-    alert("ポイント足りない");
-  }
+function buyItem(){
+  alert("購入ありがとう！");
 }
 
-// ポイント表示
-window.showPoint = async () => {
-  const snap = await getDoc(doc(db,"users",uid));
-  alert("ポイント："+snap.data().point);
+function showPoint(){
+  alert("ポイント：100");
 }
 
-// 管理者
-window.openAdmin = () => {
+function openAdmin(){
   const code = prompt("コード入力");
-  if(code === "582854"){
-    content.innerHTML = `
-    <h3>管理者</h3>
-    <button onclick="addPoint()">+10ポイント</button>
-    `;
+  if(code==="582854"){
+    alert("管理者OK");
   } else {
     alert("違う");
   }
 }
 
-// ポイント追加
-window.addPoint = async () => {
-  const ref = doc(db,"users",uid);
-  const snap = await getDoc(ref);
-  let p = snap.data().point;
-
-  await updateDoc(ref,{point:p+10});
-  loadUser();
-}
 </script>
 
 </body>
