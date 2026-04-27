@@ -2,232 +2,152 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>クラスショップ</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<title>20枠ショップ</title>
 
 <style>
-body{font-family:sans-serif;margin:0;text-align:center;}
-#home{display:none;}
-button{padding:10px;margin:5px;}
-.item{border:1px solid #ccc;margin:5px;padding:10px;}
-.shopGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
+body{font-family:sans-serif;text-align:center;margin:0;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
+}
+.box{
+  border:1px solid #ccc;
+  padding:10px;
+}
+input{width:90%;margin:3px;}
+button{margin-top:5px;}
 </style>
 </head>
 
 <body>
 
-<!-- ログイン -->
-<div id="login">
-<h2>ログイン / 登録</h2>
+<h2>ショップ（20枠）</h2>
 
-<input id="name" placeholder="名前"><br>
-<input id="pass" type="password" placeholder="パスワード"><br>
+<div>ポイント: <span id="points">100</span></div>
 
-<button onclick="register()">登録</button>
-<button onclick="login()">ログイン</button>
-
-<p id="msg"></p>
-</div>
-
-<!-- ホーム -->
-<div id="home">
-
-<h3 id="user"></h3>
-<div>ポイント: <span id="points">0</span></div>
-
-<button onclick="openShop()">ショップ</button>
-<button onclick="admin()">管理者</button>
-
-<div id="content"></div>
-
-</div>
+<div class="grid" id="shop"></div>
 
 <script>
 
-// ===== Firebase =====
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-};
+let points = 100;
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ===== 20枠を最初から全部作成 =====
+let items = [
+  {name:"かのあのTiktok", price:50, message:"k514915", active:false},
+  {name:"板谷りんかのTiktok", price:40, message:"rinka75431", active:false},
+  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl", active:false},
+  {name:"ねねのTiktok", price:40, message:" n4_e2ne1", active:false},
+  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた", active:false},
 
-// ===== 状態 =====
-let currentUser = null;
-let isAdmin = false;
-let points = 0;
-let products = [];
+  {name:太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
 
-// ===== 登録 =====
-function register(){
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
 
-  db.collection("users").doc(name).set({
-    name,
-    pass,
-    points:100
-  });
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false},
+  {name:"商品なし", price:0, message:"メッセージなし", active:false}
+];
 
-  msg.innerText="登録完了 +100pt";
-}
+// ===== 表示 =====
+function render(){
 
-// ===== ログイン =====
-function login(){
-  const name = document.getElementById("name").value;
-  const pass = document.getElementById("pass").value;
+  let html="";
 
-  db.collection("users").doc(name).get().then(doc=>{
-    if(!doc.exists){
-      alert("登録されてない");
-      return;
-    }
+  items.forEach((item,i)=>{
 
-    const data = doc.data();
-
-    if(data.pass !== pass){
-      alert("パスワード違う");
-      return;
-    }
-
-    currentUser = name;
-
-    points = isAdmin ? 999999 : (data.points || 0);
-
-    document.getElementById("login").style.display="none";
-    document.getElementById("home").style.display="block";
-
-    document.getElementById("user").innerText=name;
-    document.getElementById("points").innerText=points;
-
-    loadProducts();
-    renderShop();
-  });
-}
-
-// ===== 管理者 =====
-function admin(){
-  const code = prompt("コード");
-
-  if(code==="582854"){
-    isAdmin = true;
-    alert("管理者ON");
-  } else {
-    alert("違う");
-  }
-}
-
-// ===== 商品取得（全員共有）=====
-function loadProducts(){
-  db.collection("products").onSnapshot(snap=>{
-    products=[];
-    snap.forEach(d=>{
-      products.push({id:d.id,...d.data()});
-    });
-    renderShop();
-  });
-}
-
-// ===== ショップ =====
-function openShop(){
-  renderShop();
-}
-
-function renderShop(){
-  let html="<h3>ショップ</h3><div class='shopGrid'>";
-
-  products.forEach(p=>{
     html+=`
-    <div class="item">
-      <b>${p.name}</b><br>
-      ${p.price}pt<br>
+    <div class="box">
 
-      <button onclick="buy('${p.id}',${p.price},'${p.owner}')">
-        購入
-      </button>
-    </div>`;
+      <input value="${item.name}"
+      onchange="items[${i}].name=this.value">
+
+      <input type="number" value="${item.price}"
+      onchange="items[${i}].price=Number(this.value)">
+
+      <input value="${item.message}"
+      onchange="items[${i}].message=this.value">
+
+      <br>
+
+      <button onclick="activate(${i})">有効化</button>
+      <button onclick="buy(${i})">購入</button>
+
+    </div>
+    `;
   });
 
-  if(isAdmin){
-    html+=`<button onclick="addProduct()">商品追加</button>`;
-  }
-
-  html+="</div>";
-  content.innerHTML=html;
+  document.getElementById("shop").innerHTML=html;
 }
 
-// ===== 商品追加（メッセージ付き・共有）=====
-function addProduct(){
-  const name = prompt("商品名");
-  const price = prompt("値段");
-  const afterMessage = prompt("購入後メッセージ");
+// ===== 枠を有効化（商品追加扱い）=====
+function activate(i){
 
-  db.collection("products").add({
-    name,
-    price:Number(price),
-    afterMessage,
-    owner:currentUser
-  });
-
-  alert("商品追加完了");
-}
-
-// ===== ポイント付与 =====
-function addPoints(owner,amount){
-  if(!owner) return;
-
-  const ref = db.collection("users").doc(owner);
-
-  ref.get().then(doc=>{
-    if(doc.exists){
-      ref.update({
-        points:(doc.data().points || 0) + amount
-      });
-    }
-  });
-}
-
-// ===== 購入（完全共有）=====
-function buy(id,price,owner){
-
-  if(points < price){
-    alert("ポイントが足りません");
+  if(items[i].active){
+    alert("もう登録済み");
     return;
   }
 
-  const ok = confirm("購入しますか？");
-  if(!ok) return;
+  let name = items[i].name;
+  let price = items[i].price;
+  let message = items[i].message;
 
-  points -= price;
-
-  db.collection("users").doc(currentUser).update({
-    points: points
-  });
-
-  addPoints(owner, price);
-
-  const item = products.find(p => p.id === id);
-
-  if(item){
-    alert(
-      "購入完了！\n\n" +
-      "📦 " + item.name + "\n\n" +
-      "💬 " + (item.afterMessage || "なし")
-    );
+  if(name==="商品なし"){
+    name = prompt("商品名");
+    price = prompt("値段");
+    message = prompt("メッセージ");
   }
 
+  items[i] = {
+    name,
+    price:Number(price),
+    message,
+    active:true
+  };
+
+  alert("登録完了");
+  render();
+}
+
+// ===== 購入 =====
+function buy(i){
+
+  let item = items[i];
+
+  if(!item.active){
+    alert("未登録商品です");
+    return;
+  }
+
+  if(points < item.price){
+    alert("ポイント不足");
+    return;
+  }
+
+  points -= item.price;
+
   document.getElementById("points").innerText = points;
+
+  alert(
+    "購入完了！\n\n" +
+    item.name + "\n\n" +
+    item.message
+  );
 }
 
-</script>
-
-</body>
-</html>
-}
+// 初期表示
+render();
 
 </script>
 
