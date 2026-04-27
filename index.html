@@ -4,56 +4,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>クラスアプリ</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
 <style>
-body{font-family:sans-serif;margin:0;text-align:center;}
-button{padding:10px;margin:5px;}
+body{font-family:sans-serif;text-align:center;margin:0;}
 
 #home{display:none;}
 
-.shopGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
+button{padding:10px;margin:5px;}
 
-.item{
-  border:1px solid #ccc;
-  padding:10px;
-}
-
-.userBox{
-  border:1px solid #ddd;
-  margin:5px;
-  padding:5px;
-}
+.red{background:red;color:white;}
+.blue{background:blue;color:white;}
+.green{background:green;color:white;}
 </style>
 </head>
 
 <body>
 
-<!-- ログイン -->
+<!-- ログイン画面 -->
 <div id="login">
-<h2>ログイン</h2>
+<h2>ログイン / 登録</h2>
 
 <input id="name" placeholder="名前"><br>
 <input id="pass" type="password" placeholder="パスワード"><br>
 
+<button onclick="register()">登録</button>
 <button onclick="login()">ログイン</button>
+
+<p id="msg"></p>
 </div>
 
 <!-- ホーム -->
 <div id="home">
 
-<h3 id="user"></h3>
-<div>ポイント: <span id="points">0</span></div>
+<h2 id="user"></h2>
 
-<button onclick="openShop()">ショップ</button>
-<button onclick="showRank()">ランキング</button>
-<button onclick="adminPanel()">管理者</button>
+<button class="red" onclick="openShop()">ショップ</button>
+<button class="blue" onclick="showPoint()">ポイント</button>
+<button class="green" onclick="admin()">管理者</button>
 
 <div id="content"></div>
 
@@ -61,134 +47,67 @@ button{padding:10px;margin:5px;}
 
 <script>
 
-// ===== Firebase =====
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-};
+// ===== 登録（必ず動く）=====
+function register(){
+  const name = document.getElementById("name").value;
+  const pass = document.getElementById("pass").value;
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  if(!name || !pass){
+    document.getElementById("msg").innerText = "入力して";
+    return;
+  }
 
-let currentUser = null;
-let points = 100;
-let users = [];
+  localStorage.setItem("user", JSON.stringify({
+    name:name,
+    pass:pass,
+    points:100
+  }));
+
+  document.getElementById("msg").innerText = "登録完了 +100pt";
+}
 
 // ===== ログイン =====
 function login(){
-  const name = name.value;
-  const pass = pass.value;
+  const data = JSON.parse(localStorage.getItem("user"));
 
-  currentUser = name;
+  const name = document.getElementById("name").value;
+  const pass = document.getElementById("pass").value;
 
-  db.collection("users").doc(name).set({
-    name:name,
-    points:100,
-    icon:"😀",
-    buys:0
-  }, {merge:true});
+  if(!data){
+    alert("まだ登録されてない");
+    return;
+  }
 
-  document.getElementById("login").style.display="none";
-  document.getElementById("home").style.display="block";
-  document.getElementById("user").innerText=name;
+  if(name === data.name && pass === data.pass){
 
-  loadUsers();
+    document.getElementById("login").style.display="none";
+    document.getElementById("home").style.display="block";
+
+    document.getElementById("user").innerText = data.name;
+
+  } else {
+    alert("ログイン失敗");
+  }
 }
 
-// ===== ユーザー読み込み =====
-function loadUsers(){
-  db.collection("users").onSnapshot(snap=>{
-    users=[];
-    snap.forEach(d=>{
-      users.push({id:d.id,...d.data()});
-    });
-  });
-}
-
-// ===== ショップ（仮）=====
+// ===== ショップ =====
 function openShop(){
-  content.innerHTML=`
-    <h3>ショップ</h3>
-    <button onclick="buy()">商品購入</button>
-  `;
+  content.innerHTML = "<h3>ショップ</h3><p>まだ商品なし</p>";
 }
 
-// ===== 購入 =====
-function buy(){
-  db.collection("users").doc(currentUser).get().then(doc=>{
-    let data = doc.data();
-
-    db.collection("users").doc(currentUser).update({
-      buys: (data.buys || 0) + 1
-    });
-
-    alert("購入完了");
-  });
-}
-
-// ===== ランキング =====
-function showRank(){
-  let sorted = [...users].sort((a,b)=>(b.buys||0)-(a.buys||0));
-
-  let html="<h3>ランキング</h3>";
-
-  sorted.forEach((u,i)=>{
-    html+=`
-    <div class="userBox">
-      ${i+1}位 ${u.icon} ${u.name}  
-      <br>購入数: ${u.buys||0}
-    </div>`;
-  });
-
-  content.innerHTML=html;
+// ===== ポイント =====
+function showPoint(){
+  alert("ポイント: 100");
 }
 
 // ===== 管理者 =====
-function adminPanel(){
+function admin(){
   const code = prompt("コード");
-  if(code!=="582854") return;
-
-  let html="<h3>管理者</h3>";
-
-  users.forEach(u=>{
-    html+=`
-    <div class="userBox">
-      ${u.name} / ${u.points||0}pt
-
-      <br>
-      <button onclick="addPoint('${u.id}')">ポイント付与</button>
-      <button onclick="setIcon('${u.id}')">アイコン変更</button>
-    </div>
-    `;
-  });
-
-  content.innerHTML=html;
-}
-
-// ===== ポイント付与 =====
-function addPoint(uid){
-  let amount = prompt("付与ポイント");
-
-  db.collection("users").doc(uid).update({
-    points: firebase.firestore.FieldValue.increment(Number(amount))
-  });
-
-  alert("付与完了");
-}
-
-// ===== アイコン設定 =====
-function setIcon(uid){
-  let icon = prompt("アイコン（😀🔥⭐など）");
-
-  db.collection("users").doc(uid).update({
-    icon:icon
-  });
-}
-
-// ===== 表示 =====
-function showPoint(){
-  alert("ポイント: "+points);
+  if(code==="582854"){
+    alert("管理者OK");
+  } else {
+    alert("違う");
+  }
 }
 
 </script>
