@@ -4,47 +4,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>クラスアプリ</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
 <style>
-body{font-family:sans-serif;margin:0;}
+body { font-family: sans-serif; margin:0; text-align:center; }
 
-#topbar{
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:#eee;
-}
+button{ padding:10px; margin:5px; }
 
-#home{display:none;}
+#home{ display:none; }
 
-button{margin:5px;padding:10px;}
+.red{ background:red; color:white; }
+.blue{ background:blue; color:white; }
+.green{ background:green; color:white; }
 
-.red{background:red;color:white;}
-.blue{background:blue;color:white;}
-.green{background:green;color:white;}
-
-.shopGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
-
-.item{
-  border:1px solid #ccc;
-  padding:10px;
-}
-
-#menu{
-  position:absolute;
-  right:10px;
-  top:50px;
-  background:white;
-  border:1px solid #ccc;
-  display:none;
-}
+#content{ padding:10px; }
 </style>
 </head>
 
@@ -52,24 +23,19 @@ button{margin:5px;padding:10px;}
 
 <!-- ログイン -->
 <div id="login">
-<h2>登録 / ログイン</h2>
+<h2>ログイン</h2>
 
 <input id="name" placeholder="名前"><br>
 <input id="password" type="password" placeholder="パスワード"><br>
 
-<button onclick="register()">登録</button>
 <button onclick="login()">ログイン</button>
-
 <p id="msg"></p>
 </div>
 
 <!-- ホーム -->
 <div id="home">
 
-<div id="topbar">
-<div id="user"></div>
-<div>ポイント: <span id="points">0</span></div>
-</div>
+<h2 id="user"></h2>
 
 <button class="red" onclick="openShop()">ショップ</button>
 <button class="blue" onclick="showPoint()">ポイント</button>
@@ -80,160 +46,76 @@ button{margin:5px;padding:10px;}
 
 <script>
 
-// ===== Firebase =====
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
 let currentUser = null;
-let products = [];
-let myPoints = 0;
-let successMsg = "購入しました";
+let points = 100;
 
-// ===== 登録（100pt付与）=====
+// ===== 登録（簡易）=====
 function register(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("password").value;
 
-  if(!name||!pass){
-    msg.innerText="入力して";
+  if(!name || !pass){
+    msg.innerText = "入力して";
     return;
   }
 
-  currentUser = name;
+  localStorage.setItem("user", JSON.stringify({
+    name:name,
+    pass:pass,
+    points:100
+  }));
 
-  db.collection("users").doc(name).set({
-    pass: pass,
-    points: 100
-  });
-
-  msg.innerText="登録完了 +100pt";
+  msg.innerText = "登録完了 +100pt";
 }
 
 // ===== ログイン =====
 function login(){
+  const data = JSON.parse(localStorage.getItem("user"));
+
   const name = document.getElementById("name").value;
   const pass = document.getElementById("password").value;
 
-  db.collection("users").doc(name).get().then(doc=>{
-    if(!doc.exists){
-      alert("なし");
-      return;
-    }
+  if(!data){
+    alert("未登録");
+    return;
+  }
 
-    const data = doc.data();
-
-    if(pass !== data.pass){
-      alert("失敗");
-      return;
-    }
-
-    currentUser = name;
-    myPoints = data.points;
+  if(name === data.name && pass === data.pass){
+    currentUser = data;
+    points = data.points;
 
     document.getElementById("login").style.display="none";
     document.getElementById("home").style.display="block";
-    document.getElementById("user").innerText=name;
-
-    document.getElementById("points").innerText=myPoints;
-
-    loadProducts();
-  });
-}
-
-// ===== ポイント表示（右上）=====
-function updatePoints(){
-  document.getElementById("points").innerText=myPoints;
-}
-
-// ===== ショップ読み込み =====
-function loadProducts(){
-  db.collection("products").onSnapshot(snap=>{
-    products=[];
-    snap.forEach(d=>{
-      products.push({id:d.id,...d.data()});
-    });
-    openShop();
-  });
+    document.getElementById("user").innerText=data.name;
+  } else {
+    alert("失敗");
+  }
 }
 
 // ===== ショップ =====
 function openShop(){
-  let html="<h3>ショップ</h3><div class='shopGrid'>";
-
-  products.forEach(p=>{
-    html+=`
-    <div class="item">
-      <img src="${p.img}" width="100"><br>
-      ${p.name}<br>
-      ${p.price}pt<br>
-      <button onclick="buy('${p.id}',${p.price})">購入</button>
-    </div>`;
-  });
-
-  html+="</div><button onclick='addProduct()'>追加(管理者)</button>";
-
-  content.innerHTML=html;
+  document.getElementById("content").innerHTML=`
+    <h3>ショップ</h3>
+    <p>まだ商品なし</p>
+  `;
 }
 
-// ===== 購入 =====
-function buy(id,price){
-
-  if(myPoints < price){
-    alert("ポイント不足で買えません");
-    return;
-  }
-
-  const ok = confirm("購入しますか？");
-  if(!ok) return;
-
-  // 管理者メッセージ取得
-  db.collection("settings").doc("main").get().then(doc=>{
-    if(doc.exists){
-      successMsg = doc.data().msg;
-    }
-
-    alert(successMsg);
-
-    db.collection("products").doc(id).delete();
-  });
+// ===== ポイント表示 =====
+function showPoint(){
+  alert("ポイント: " + points);
 }
 
-// ===== 管理者追加 =====
-function addProduct(){
-  const code = prompt("コード");
-  if(code!=="582854") return;
-
-  const name = prompt("商品名");
-  const price = prompt("値段");
-  const img = prompt("画像URL");
-
-  db.collection("products").add({name,price,img});
-}
-
-// ===== 管理者設定 =====
+// ===== 管理者 =====
 function admin(){
   const code = prompt("コード");
 
   if(code==="582854"){
     const msg = prompt("購入成功メッセージ");
-
-    db.collection("settings").doc("main").set({
-      msg: msg || "購入しました"
-    });
-
+    localStorage.setItem("adminMsg", msg);
     alert("設定完了");
+  } else {
+    alert("違う");
   }
-}
-
-// ===== ポイント表示 =====
-function showPoint(){
-  alert("ポイント: "+myPoints);
 }
 
 </script>
