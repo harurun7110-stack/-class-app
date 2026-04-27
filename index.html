@@ -6,10 +6,9 @@
 
 <style>
 body{font-family:sans-serif;text-align:center;margin:0;}
-
 #home{display:none;}
-
 button{padding:10px;margin:5px;}
+.item{border:1px solid #ccc;margin:5px;padding:10px;}
 </style>
 </head>
 
@@ -32,28 +31,27 @@ button{padding:10px;margin:5px;}
 <div id="home">
 <h2 id="user"></h2>
 
-<button onclick="showPoint()">ポイント表示</button>
+<button onclick="openShop()">ショップ</button>
+<button onclick="admin()">管理者</button>
+
+<div id="content"></div>
 </div>
 
 <script>
+
+let products = [];
 
 // ===== 登録 =====
 function register(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("pass").value;
 
-  if(name === "" || pass === ""){
-    document.getElementById("msg").innerText = "入力して";
-    return;
-  }
-
   localStorage.setItem("user", JSON.stringify({
     name:name,
-    pass:pass,
-    points:100
+    pass:pass
   }));
 
-  document.getElementById("msg").innerText = "登録完了 +100pt";
+  document.getElementById("msg").innerText="登録OK";
 }
 
 // ===== ログイン =====
@@ -63,25 +61,55 @@ function login(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("pass").value;
 
-  if(!data){
-    alert("まだ登録されてない");
-    return;
-  }
-
-  if(name === data.name && pass === data.pass){
+  if(data && name===data.name && pass===data.pass){
     document.getElementById("login").style.display="none";
     document.getElementById("home").style.display="block";
-
-    document.getElementById("user").innerText = data.name;
+    document.getElementById("user").innerText=name;
   } else {
-    alert("ログイン失敗");
+    alert("失敗");
   }
 }
 
-// ===== ポイント =====
-function showPoint(){
-  const data = JSON.parse(localStorage.getItem("user"));
-  alert("ポイント: " + (data?.points || 0));
+// ===== ショップ =====
+function openShop(){
+  let html="<h3>ショップ</h3>";
+
+  products.forEach((p,i)=>{
+    html+=`
+    <div class="item">
+      <b>${p.name}</b><br>
+      ${p.price}円<br>
+    </div>
+    `;
+  });
+
+  html+=`<button onclick="addProduct()">商品追加</button>`;
+
+  document.getElementById("content").innerHTML=html;
+}
+
+// ===== 商品追加 =====
+function addProduct(){
+  const name = prompt("商品名");
+  const price = prompt("値段");
+
+  products.push({name,price});
+  openShop();
+}
+
+// ===== 管理者 =====
+function admin(){
+  const code = prompt("コード");
+
+  if(code==="582854"){
+    const name = prompt("商品名");
+    const price = prompt("値段");
+
+    products.push({name,price});
+    alert("管理者で追加完了");
+  } else {
+    alert("違う");
+  }
 }
 
 </script>
