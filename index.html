@@ -10,16 +10,12 @@ body{font-family:sans-serif;text-align:center;margin:0;}
 #home{display:none;}
 
 button{padding:10px;margin:5px;}
-
-.red{background:red;color:white;}
-.blue{background:blue;color:white;}
-.green{background:green;color:white;}
 </style>
 </head>
 
 <body>
 
-<!-- ログイン画面 -->
+<!-- ログイン -->
 <div id="login">
 <h2>ログイン / 登録</h2>
 
@@ -34,25 +30,19 @@ button{padding:10px;margin:5px;}
 
 <!-- ホーム -->
 <div id="home">
-
 <h2 id="user"></h2>
 
-<button class="red" onclick="openShop()">ショップ</button>
-<button class="blue" onclick="showPoint()">ポイント</button>
-<button class="green" onclick="admin()">管理者</button>
-
-<div id="content"></div>
-
+<button onclick="showPoint()">ポイント表示</button>
 </div>
 
 <script>
 
-// ===== 登録（必ず動く）=====
+// ===== 登録 =====
 function register(){
   const name = document.getElementById("name").value;
   const pass = document.getElementById("pass").value;
 
-  if(!name || !pass){
+  if(name === "" || pass === ""){
     document.getElementById("msg").innerText = "入力して";
     return;
   }
@@ -79,35 +69,19 @@ function login(){
   }
 
   if(name === data.name && pass === data.pass){
-
     document.getElementById("login").style.display="none";
     document.getElementById("home").style.display="block";
 
     document.getElementById("user").innerText = data.name;
-
   } else {
     alert("ログイン失敗");
   }
 }
 
-// ===== ショップ =====
-function openShop(){
-  content.innerHTML = "<h3>ショップ</h3><p>まだ商品なし</p>";
-}
-
 // ===== ポイント =====
 function showPoint(){
-  alert("ポイント: 100");
-}
-
-// ===== 管理者 =====
-function admin(){
-  const code = prompt("コード");
-  if(code==="582854"){
-    alert("管理者OK");
-  } else {
-    alert("違う");
-  }
+  const data = JSON.parse(localStorage.getItem("user"));
+  alert("ポイント: " + (data?.points || 0));
 }
 
 </script>
