@@ -2,81 +2,118 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ショップ復元版</title>
+<title>オンラインショップ</title>
 
 <style>
 body{font-family:sans-serif;text-align:center;margin:0;}
+.box{border:1px solid #ccc;margin:5px;padding:10px;}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
-.box{border:1px solid #ccc;padding:10px;}
 button{margin:5px;}
 </style>
 </head>
 
 <body>
 
-<h2>ショップ</h2>
-<div>ポイント: <span id="points">100</span></div>
+<h2>オンラインショップ</h2>
 
+<div id="login">
+<input id="name" placeholder="名前"><br>
+<input id="pass" type="password" placeholder="パスワード"><br>
+<button onclick="login()">ログイン</button>
+</div>
+
+<div id="home" style="display:none">
+
+<h3 id="user"></h3>
+<div>ポイント: <span id="points">0</span></div>
+
+<button onclick="openShop()">ショップ</button>
 <button onclick="useCode()">コード入力</button>
+<button onclick="adminPanel()">管理者</button>
+<button onclick="showRank()">ランキング</button>
 
-<div class="grid" id="shop"></div>
+<div id="shop"></div>
+<div id="rank"></div>
 
-<script>
+</div>
 
-let points = 100;
+<script type="module">
 
-// ===== 商品（あなたの内容そのまま）=====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  getDocs,
+  collection
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentUser = null;
+let isAdmin = false;
+
+// ===== 商品（共有）=====
 let items = [
   {name:"かのあのTiktok", price:50, message:"k514915"},
   {name:"板谷りんかのTiktok", price:40, message:"rinka75431"},
   {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl"},
   {name:"ねねのTiktok", price:40, message:"n4_e2ne1"},
-  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"},
-
-  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ"},
-
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"},
-  {name:"商品なし", price:0, message:"メッセージなし"}
+  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"}
 ];
 
-// ===== 固定コード100個（変化なし）=====
-let codes = [
-"aa1b2c","bb2c3d","cc3d4e","dd4e5f","ee5f6g",
-"ff6g7h","gg7h8i","hh8i9j","ii9j0k","jj0k1l",
-"kk1l2m","ll2m3n","mm3n4o","nn4o5p","oo5p6q",
-"pp6q7r","qq7r8s","rr8s9t","ss9t0u","tt0u1v",
-"uu1v2w","vv2w3x","ww3x4y","xx4y5z","yy5z6a",
-"zz6a7b","ab7c8d","cd8e9f","ef9g0h","gh0i1j",
-"ij1k2l","kl2m3n","mn3o4p","op4q5r","qr5s6t",
-"st6u7v","uv7w8x","wx8y9z","yz9a0b","za0b1c",
-"1a2b3c","2b3c4d","3c4d5e","4d5e6f","5e6f7g",
-"6f7g8h","7g8h9i","8h9i0j","9i0j1k","0j1k2l",
-"lm2n3o","no3p4q","op4r5s","pq5t6u","qr6v7w",
-"rs7x8y","st8z9a","tu9b0c","uv0d1e","vw1f2g",
-"wx2h3i","xy3j4k","yz4l5m","za5n6o","ab6p7q",
-"bc7r8s","cd8t9u","de9v0w","ef0x1y","fg1z2a",
-"gh2b3c","hi3d4e","ij4f5g","jk5h6i","kl6j7k",
-"lm7k8l","mn8l9m","no9n0o","op0p1q","pq1r2s",
-"qr2t3u","rs3v4w","st4x5y","tu5z6a","uv6b7c",
-"vw7d8e","wx8f9g","xy9h0i","yz0j1k","za1l2m"
-];
+// ===== ログイン =====
+window.login = async function(){
 
-// ===== 表示 =====
-function render(){
+  let name = document.getElementById("name").value;
+  let pass = document.getElementById("pass").value;
+
+  let ref = doc(db,"users",name);
+  let snap = await getDoc(ref);
+
+  if(!snap.exists()){
+    await setDoc(ref,{pass,points:100});
+  }
+
+  let data = (await getDoc(ref)).data();
+
+  if(data.pass !== pass){
+    return alert("失敗");
+  }
+
+  currentUser = name;
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("home").style.display="block";
+
+  loadPoints();
+  renderShop();
+}
+
+// ===== ポイント =====
+async function loadPoints(){
+
+  let snap = await getDoc(doc(db,"users",currentUser));
+
+  document.getElementById("points").innerText =
+    snap.data().points;
+}
+
+// ===== ショップ =====
+window.openShop = function(){
+  renderShop();
+}
+
+function renderShop(){
 
   let html="";
 
@@ -95,47 +132,99 @@ function render(){
 }
 
 // ===== 購入 =====
-function buy(i){
+window.buy = async function(i){
+
+  let ref = doc(db,"users",currentUser);
+  let snap = await getDoc(ref);
+  let user = snap.data();
 
   let item = items[i];
 
-  if(points < item.price){
-    alert("ポイント不足");
-    return;
+  if(user.points < item.price){
+    return alert("ポイント不足");
   }
 
-  points -= item.price;
+  user.points -= item.price;
 
-  document.getElementById("points").innerText = points;
+  await updateDoc(ref,{points:user.points});
 
-  alert(
-    "購入完了！\n\n" +
-    item.name + "\n\n" +
-    item.message
-  );
+  loadPoints();
+
+  alert(item.name + "\n\n" + item.message);
 }
 
-// ===== コード使用（1回）=====
-function useCode(){
+// ===== コード =====
+window.useCode = async function(){
 
-  let input = prompt("コード入力");
+  let code = prompt("コード");
 
-  let index = codes.indexOf(input);
+  let ref = doc(db,"codes",code);
+  let snap = await getDoc(ref);
 
-  if(index === -1){
-    return alert("無効コード");
+  if(!snap.exists() || snap.data().used){
+    return alert("無効");
   }
 
-  codes.splice(index,1);
+  await updateDoc(ref,{used:true});
 
-  points += 100;
+  let userRef = doc(db,"users",currentUser);
+  let userSnap = await getDoc(userRef);
 
-  document.getElementById("points").innerText = points;
+  let u = userSnap.data();
 
-  alert("100ポイント獲得！");
+  u.points += 100;
+
+  await updateDoc(userRef,{points:u.points});
+
+  loadPoints();
+
+  alert("100ポイント！");
 }
 
-render();
+// ===== 管理者パネル =====
+window.adminPanel = async function(){
+
+  let code = prompt("管理者コード");
+
+  if(code !== "582854") return;
+
+  isAdmin = true;
+
+  let snap = await getDocs(collection(db,"codes"));
+
+  let list = "";
+
+  snap.forEach(c=>{
+    list += c.id + " / " + (c.data().used ? "使用済み" : "未使用") + "\n";
+  });
+
+  alert("コード一覧\n\n" + list);
+}
+
+// ===== ランキング =====
+window.showRank = async function(){
+
+  let snap = await getDocs(collection(db,"users"));
+
+  let list = [];
+
+  snap.forEach(u=>{
+    list.push({
+      name:u.id,
+      points:u.data().points
+    });
+  });
+
+  list.sort((a,b)=>b.points-a.points);
+
+  let text="ランキング\n\n";
+
+  list.forEach((u,i)=>{
+    text += (i+1)+"位 "+u.name+" "+u.points+"pt\n";
+  });
+
+  alert(text);
+}
 
 </script>
 
