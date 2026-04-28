@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>完全ショップ</title>
+<title>完全アプリ</title>
 
 <style>
 body{font-family:sans-serif;text-align:center;margin:0;}
@@ -17,7 +17,7 @@ button{margin:5px;}
 
 <!-- ログイン -->
 <div id="login">
-<h2>ログイン / 登録</h2>
+<h2>登録 / ログイン</h2>
 
 <input id="name" placeholder="名前"><br>
 <input id="pass" type="password" placeholder="パスワード"><br>
@@ -30,10 +30,12 @@ button{margin:5px;}
 <div id="home">
 
 <h3 id="user"></h3>
+
 <div>ポイント: <span id="points">0</span></div>
 
 <button onclick="useCode()">コード入力</button>
-<button onclick="showHistory()">履歴</button>
+<button onclick="admin()">管理者</button>
+<button onclick="showCodes()">コード一覧（管理者）</button>
 
 <div class="grid" id="shop"></div>
 
@@ -41,32 +43,26 @@ button{margin:5px;}
 
 <script>
 
-let currentUser = null;
-
 // ===== 保存データ =====
 let users = JSON.parse(localStorage.getItem("users") || "{}");
-let history = JSON.parse(localStorage.getItem("history") || "[]");
+let codes = JSON.parse(localStorage.getItem("codes") || "[]");
 
-// ===== 商品（固定）=====
+let currentUser = null;
+let isAdmin = false;
+
+// ===== 商品（そのまま）=====
 let items = [
   {name:"かのあのTiktok", price:50, message:"k514915"},
   {name:"板谷りんかのTiktok", price:40, message:"rinka75431"},
   {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl"},
   {name:"ねねのTiktok", price:40, message:"n4_e2ne1"},
-  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"},
-  {name:"太田いつきの元と現好きな人", price:50, message:"元山本ひなた現豊田こうすけ"}
-];
-
-// ===== コード（固定100個簡略版）=====
-let codes = [
-"aa1b2c","bb2c3d","cc3d4e","dd4e5f","ee5f6g",
-"ff6g7h","gg7h8i","hh8i9j","ii9j0k","jj0k1l"
+  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"}
 ];
 
 // ===== 保存 =====
 function save(){
   localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("history", JSON.stringify(history));
+  localStorage.setItem("codes", JSON.stringify(codes));
 }
 
 // ===== 登録 =====
@@ -86,7 +82,7 @@ function register(){
 
   save();
 
-  alert("登録完了（100pt付与）");
+  alert("登録完了（100ポイント）");
 }
 
 // ===== ログイン =====
@@ -115,9 +111,7 @@ function login(){
 function render(){
 
   document.getElementById("user").innerText = currentUser;
-
-  document.getElementById("points").innerText =
-    users[currentUser].points;
+  document.getElementById("points").innerText = users[currentUser].points;
 
   let html="";
 
@@ -148,45 +142,75 @@ function buy(i){
   user.points -= item.price;
 
   save();
-
   render();
 
   alert(item.name + "\n\n" + item.message);
 }
 
+// ===== 管理者 =====
+function admin(){
+
+  let code = prompt("管理者コード");
+
+  if(code === "582854"){
+    isAdmin = true;
+
+    generateCodes();
+
+    alert("管理者ON（コード100個生成）");
+  }
+}
+
+// ===== コード100個生成 =====
+function generateCodes(){
+
+  codes = [];
+
+  for(let i=0;i<100;i++){
+    let c = Math.random().toString(36).substring(2,8);
+    codes.push({code:c, used:false});
+  }
+
+  save();
+}
+
 // ===== コード使用 =====
 function useCode(){
 
-  let input = prompt("コード");
+  let input = prompt("コード入力");
 
-  if(!codes.includes(input)){
-    return alert("無効");
+  let c = codes.find(x => x.code === input);
+
+  if(!c){
+    return alert("無効コード");
   }
 
-  codes = codes.filter(c => c !== input);
+  if(c.used){
+    return alert("使用済み");
+  }
+
+  c.used = true;
 
   users[currentUser].points += 100;
-
-  history.push({
-    user: currentUser,
-    code: input,
-    time: new Date().toLocaleString()
-  });
 
   save();
 
   render();
 
-  alert("100ポイント付与");
+  alert("100ポイント獲得！");
 }
 
-// ===== 履歴 =====
-function showHistory(){
+// ===== 管理者だけコード見れる =====
+function showCodes(){
 
-  let text = "履歴\n\n";
+  if(!isAdmin){
+    return alert("管理者じゃない");
+  }
 
-  history.forEach(h=>{
-    text += `${h.user} / ${h.code} / ${h.time}\n`;
+  let text="コード一覧\n\n";
+
+  codes.forEach(c=>{
+    text += c.code + " / " + (c.used ? "使用済み" : "未使用") + "\n";
   });
 
   alert(text);
