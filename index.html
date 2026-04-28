@@ -174,16 +174,64 @@ function admin(){
 // ===== コード100個生成 =====
 function generateCodes(){
 
-  codes = [];
+  codes = [
+  {code:"a1b2c3",used:false},{code:"d4e5f6",used:false},
+  {code:"g7h8i9",used:false},{code:"j1k2l3",used:false},
+  {code:"m4n5o6",used:false},{code:"p7q8r9",used:false},
+  {code:"s1t2u3",used:false},{code:"v4w5x6",used:false},
+  {code:"y7z8a9",used:false},{code:"b1c2d3",used:false},
 
-  for(let i=0;i<100;i++){
-    let c = Math.random().toString(36).substring(2,8);
-    codes.push({code:c, used:false});
-  }
+  {code:"e4f5g6",used:false},{code:"h7i8j9",used:false},
+  {code:"k1l2m3",used:false},{code:"n4o5p6",used:false},
+  {code:"q7r8s9",used:false},{code:"t1u2v3",used:false},
+  {code:"w4x5y6",used:false},{code:"z7a8b9",used:false},
+  {code:"c1d2e3",used:false},{code:"f4g5h6",used:false},
+
+  {code:"i7j8k9",used:false},{code:"l1m2n3",used:false},
+  {code:"o4p5q6",used:false},{code:"r7s8t9",used:false},
+  {code:"u1v2w3",used:false},{code:"x4y5z6",used:false},
+  {code:"a7b8c9",used:false},{code:"d1e2f3",used:false},
+  {code:"g4h5i6",used:false},{code:"j7k8l9",used:false},
+
+  {code:"m1n2o3",used:false},{code:"p4q5r6",used:false},
+  {code:"s7t8u9",used:false},{code:"v1w2x3",used:false},
+  {code:"y4z5a6",used:false},{code:"b7c8d9",used:false},
+  {code:"e1f2g3",used:false},{code:"h4i5j6",used:false},
+  {code:"k7l8m9",used:false},{code:"n1o2p3",used:false},
+
+  {code:"q4r5s6",used:false},{code:"t7u8v9",used:false},
+  {code:"w1x2y3",used:false},{code:"z4a5b6",used:false},
+  {code:"c7d8e9",used:false},{code:"f1g2h3",used:false},
+  {code:"i4j5k6",used:false},{code:"l7m8n9",used:false},
+  {code:"o1p2q3",used:false},{code:"r4s5t6",used:false},
+
+  {code:"u7v8w9",used:false},{code:"x1y2z3",used:false},
+  {code:"a4b5c6",used:false},{code:"d7e8f9",used:false},
+  {code:"g1h2i3",used:false},{code:"j4k5l6",used:false},
+  {code:"m7n8o9",used:false},{code:"p1q2r3",used:false},
+  {code:"s4t5u6",used:false},{code:"v7w8x9",used:false},
+
+  {code:"y1z2a3",used:false},{code:"b4c5d6",used:false},
+  {code:"e7f8g9",used:false},{code:"h1i2j3",used:false},
+  {code:"k4l5m6",used:false},{code:"n7o8p9",used:false},
+  {code:"q1r2s3",used:false},{code:"t4u5v6",used:false},
+  {code:"w7x8y9",used:false},{code:"z1a2b3",used:false},
+
+  {code:"c4d5e6",used:false},{code:"f7g8h9",used:false},
+  {code:"i1j2k3",used:false},{code:"l4m5n6",used:false},
+  {code:"o7p8q9",used:false},{code:"r1s2t3",used:false},
+  {code:"u4v5w6",used:false},{code:"x7y8z9",used:false},
+  {code:"a1c3e5",used:false},{code:"b2d4f6",used:false},
+
+  {code:"c3e5g7",used:false},{code:"d4f6h8",used:false},
+  {code:"e5g7i9",used:false},{code:"f6h8j1",used:false},
+  {code:"g7i9k2",used:false},{code:"h8j1l3",used:false},
+  {code:"i9k2m4",used:false},{code:"j1l3n5",used:false},
+  {code:"k2m4o6",used:false},{code:"l3n5p7",used:false}
+  ];
 
   save();
 }
-
 // ===== コード使用 =====
 function useCode(){
 
