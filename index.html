@@ -209,17 +209,19 @@ function addText(){
 
  let div=document.createElement("div");
 
- div.className="object textBox";
+ div.className="object";
 
 
  div.innerText=text;
 
 
  div.style.left="20px";
-
  div.style.top="20px";
 
- div.style.width="300px";
+
+ // 最初は改行しない
+ div.style.whiteSpace="nowrap";
+
 
  div.style.fontSize="30px";
 
