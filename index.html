@@ -206,17 +206,46 @@ function clearAll(){
 
 
 
+let textX = 50;
+let textY = 50;
+
+canvas.addEventListener("click",function(e){
+
+  let rect = canvas.getBoundingClientRect();
+
+  textX = e.clientX - rect.left;
+  textY = e.clientY - rect.top;
+
+});
+
+
 function addText(){
 
-  let t=prompt("文字を入力");
+  let input = document.createElement("input");
 
-  if(t){
+  input.type = "text";
+  input.placeholder = "文字を入力";
 
-    ctx.font="30px sans-serif";
+  document.body.appendChild(input);
 
-    ctx.fillStyle=color;
+  input.focus();
 
-    ctx.fillText(t,50,50);
+  input.onkeydown = function(e){
+
+    if(e.key === "Enter"){
+
+      ctx.font = "30px sans-serif";
+      ctx.fillStyle = color;
+
+      ctx.fillText(
+        input.value,
+        textX,
+        textY
+      );
+
+      input.remove();
+
+    }
 
   }
 
