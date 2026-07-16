@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +25,7 @@ body{
 
 button{
  padding:8px;
- border:0;
+ border:none;
  border-radius:10px;
  background:#4da6ff;
  color:white;
@@ -57,11 +56,6 @@ canvas{
  user-select:none;
 }
 
-.textBox{
- white-space:normal;
- word-break:break-word;
-}
-
 </style>
 </head>
 
@@ -71,26 +65,26 @@ canvas{
 
 <div id="tools">
 
-<button onclick="togglePen()">ペンON/OFF</button>
+<button onclick="penToggle()">ペンON/OFF</button>
 
-<button onclick="setTool('eraser')">消しゴム</button>
+<button onclick="modeChange('eraser')">消しゴム</button>
 
-<button onclick="setColor('black')">黒</button>
-<button onclick="setColor('red')">赤</button>
-<button onclick="setColor('blue')">青</button>
+<button onclick="colorChange('black')">黒</button>
+<button onclick="colorChange('red')">赤</button>
+<button onclick="colorChange('blue')">青</button>
 
-<input id="size" type="range" min="1" max="40" value="5">
+<input id="penSize" type="range" min="1" max="40" value="5">
 
 <button onclick="addText()">文字</button>
 
-<input type="file" accept="image/*" onchange="addPhoto(event)">
+<input type="file" accept="image/*" onchange="addImage(event)">
 
-<button onclick="zoom(1.1)">画面＋</button>
-<button onclick="zoom(0.9)">画面−</button>
+<button onclick="screenZoom(1.1)">画面＋</button>
+<button onclick="screenZoom(0.9)">画面−</button>
 
-<button onclick="resetZoom()">戻す</button>
+<button onclick="screenReset()">戻す</button>
 
-<button onclick="save()">完成</button>
+<button onclick="saveImage()">完成</button>
 
 </div>
 
@@ -106,30 +100,30 @@ const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 const paper=document.getElementById("paper");
 
-let tool="none";
+let mode="none";
 let color="black";
 let drawing=false;
 
-let pageScale=1;
+let zoom=1;
 
 
 // ペン
 
-function togglePen(){
+function penToggle(){
 
- tool=tool==="pen"?"none":"pen";
-
-}
-
-
-function setTool(t){
-
- tool=t;
+ mode = mode==="pen" ? "none" : "pen";
 
 }
 
 
-function setColor(c){
+function modeChange(m){
+
+ mode=m;
+
+}
+
+
+function colorChange(c){
 
  color=c;
 
@@ -137,9 +131,9 @@ function setColor(c){
 
 
 
-canvas.addEventListener("touchstart",e=>{
+canvas.addEventListener("touchstart",function(e){
 
- if(tool!=="pen" && tool!=="eraser")return;
+ if(mode!=="pen" && mode!=="eraser")return;
 
  drawing=true;
 
@@ -151,7 +145,7 @@ canvas.addEventListener("touchstart",e=>{
 canvas.addEventListener("touchmove",draw);
 
 
-canvas.addEventListener("touchend",()=>{
+canvas.addEventListener("touchend",function(){
 
  drawing=false;
 
@@ -166,20 +160,28 @@ function draw(e){
  if(!drawing)return;
 
 
- let r=canvas.getBoundingClientRect();
-
- let x=e.touches[0].clientX-r.left;
-
- let y=e.touches[0].clientY-r.top;
+ let rect=canvas.getBoundingClientRect();
 
 
- ctx.lineWidth=document.getElementById("size").value;
+ let x=e.touches[0].clientX-rect.left;
+
+ let y=e.touches[0].clientY-rect.top;
+
+
+ ctx.lineWidth=document.getElementById("penSize").value;
 
  ctx.lineCap="round";
 
 
- ctx.strokeStyle=
- tool==="eraser"?"white":color;
+ if(mode==="eraser"){
+
+  ctx.strokeStyle="white";
+
+ }else{
+
+  ctx.strokeStyle=color;
+
+ }
 
 
  ctx.lineTo(x,y);
@@ -198,16 +200,19 @@ function draw(e){
 
 
 
-// 文字
+
+// 文字追加
 
 function addText(){
 
  let text=prompt("文字を入力");
 
- if(!text)return;
+
+ if(text===null)return;
 
 
  let div=document.createElement("div");
+
 
  div.className="object";
 
@@ -216,12 +221,8 @@ function addText(){
 
 
  div.style.left="20px";
+
  div.style.top="20px";
-
-
- // 最初は改行しない
- div.style.whiteSpace="nowrap";
-
 
  div.style.fontSize="30px";
 
@@ -231,19 +232,23 @@ function addText(){
  paper.appendChild(div);
 
 
- controlObject(div);
+ objectControl(div);
 
 }
- // 写真
 
-function addPhoto(e){
+
+// 画像追加
+
+function addImage(e){
 
  let file=e.target.files[0];
+
 
  if(!file)return;
 
 
  let img=document.createElement("img");
+
 
  img.className="object";
 
@@ -261,47 +266,74 @@ function addPhoto(e){
  paper.appendChild(img);
 
 
- controlObject(img);
+ objectControl(img);
 
 }
-
-
-
-
-// 文字・写真の操作
-
-function controlObject(el){
+ function objectControl(el){
 
  let fixed=false;
  let timer;
 
- let startX,startY;
- let startLeft,startTop;
+ let startX=0;
+ let startY=0;
+
+ let startLeft=0;
+ let startTop=0;
 
  let startDistance=0;
  let scale=1;
 
 
 
- el.addEventListener("touchstart",e=>{
+ // タップで文字編集
+ el.addEventListener("click",function(){
+
+  if(el.tagName==="DIV"){
+
+   let newText=prompt(
+    "文字を変更",
+    el.innerText
+   );
+
+
+   if(newText!==null){
+
+    el.innerText=newText;
+
+   }
+
+  }
+
+ });
+
+
+
+ el.addEventListener("touchstart",function(e){
+
 
   timer=setTimeout(()=>{
 
    fixed=!fixed;
+
    el.style.opacity=fixed?"0.5":"1";
 
   },700);
 
 
+
   if(e.touches.length===1){
 
    startX=e.touches[0].clientX;
+
    startY=e.touches[0].clientY;
 
+
    startLeft=el.offsetLeft;
+
    startTop=el.offsetTop;
 
   }
+
 
 
   if(e.touches.length===2){
@@ -310,11 +342,12 @@ function controlObject(el){
 
   }
 
+
  });
 
 
 
- el.addEventListener("touchmove",e=>{
+ el.addEventListener("touchmove",function(e){
 
 
   if(fixed)return;
@@ -338,34 +371,44 @@ function controlObject(el){
 
 
 
-   // 左右だけ制限
+   // 紙の外に出さない
+
    x=Math.max(0,x);
 
-
-   // 下にはみ出さない
    y=Math.max(0,y);
 
 
 
+   if(x+el.offsetWidth>paper.clientWidth){
+
+    x=paper.clientWidth-el.offsetWidth;
+
+   }
+
+
+   if(y+el.offsetHeight>paper.clientHeight){
+
+    y=paper.clientHeight-el.offsetHeight;
+
+   }
+
+
    el.style.left=x+"px";
+
    el.style.top=y+"px";
 
 
 
-   // ★文字だけ端で改行
+   // 文字が端に来たら改行
 
    if(el.tagName==="DIV"){
 
-    let right=
-    el.offsetLeft+el.offsetWidth;
-
-
-    if(right>paper.clientWidth){
-
-     el.style.whiteSpace="normal";
+    if(el.offsetLeft+el.offsetWidth>paper.clientWidth){
 
      el.style.width=
      (paper.clientWidth-el.offsetLeft)+"px";
+
+     el.style.whiteSpace="normal";
 
     }
 
@@ -377,143 +420,7 @@ function controlObject(el){
 
 
 
-  // 拡大縮小
-
-  if(e.touches.length===2){
-
-   let now=getDistance(e.touches);
-
-
-   scale*=now/startDistance;
-
-
-   if(scale<0.3)scale=0.3;
-
-   if(scale>4)scale=4;
-
-
-   el.style.transform=
-   "scale("+scale+")";
-
-
-   startDistance=now;
-
-  }
-
-
-  e.preventDefault();
-
- });
-
-
-
- el.addEventListener("touchend",()=>{
-
-  clearTimeout(timer);
-
- });
-
-
-}
-
- let fixed=false;
-
- let timer;
-
-
- let startX,startY;
-
- let startLeft,startTop;
-
-
- let startDistance=0;
-
- let scale=1;
-
-
-
- el.addEventListener("touchstart",e=>{
-
-
-  timer=setTimeout(()=>{
-
-   fixed=!fixed;
-
-   el.style.opacity=fixed?"0.5":"1";
-
-  },700);
-
-
-
-  if(e.touches.length===1){
-
-   startX=e.touches[0].clientX;
-
-   startY=e.touches[0].clientY;
-
-
-   startLeft=el.offsetLeft;
-
-   startTop=el.offsetTop;
-
-  }
-
-
-  if(e.touches.length===2){
-
-   startDistance=getDistance(e.touches);
-
-  }
-
-
- });
-
-
-
- el.addEventListener("touchmove",e=>{
-
-
-  if(fixed)return;
-
-
-  clearTimeout(timer);
-
-
-
-  if(e.touches.length===1){
-
-
-   let x=startLeft+
-   e.touches[0].clientX-startX;
-
-
-   let y=startTop+
-   e.touches[0].clientY-startY;
-
-
-
-   // 紙の外に出ない
-
-   x=Math.max(0,
-   Math.min(x,paper.clientWidth-el.offsetWidth));
-
-
-   y=Math.max(0,
-   Math.min(y,paper.clientHeight-el.offsetHeight));
-
-
-
-   el.style.left=x+"px";
-
-   el.style.top=y+"px";
-
-
-
-  }
-
-
-
-  // 大きさ変更
+  // サイズ変更
 
   if(e.touches.length===2){
 
@@ -526,7 +433,7 @@ function controlObject(el){
 
    if(scale<0.3)scale=0.3;
 
-   if(scale>4)scale=4;
+   if(scale>5)scale=5;
 
 
    el.style.transform=
@@ -541,10 +448,12 @@ function controlObject(el){
 
   e.preventDefault();
 
+
  });
 
 
- el.addEventListener("touchend",()=>{
+
+ el.addEventListener("touchend",function(){
 
   clearTimeout(timer);
 
@@ -552,8 +461,6 @@ function controlObject(el){
 
 
 }
-
-
 
 
 
@@ -572,26 +479,26 @@ function getDistance(t){
 
 // 画面ズーム
 
-function zoom(v){
+function screenZoom(v){
 
- pageScale*=v;
+ zoom*=v;
 
 
- if(pageScale<0.5)pageScale=0.5;
+ if(zoom<0.5)zoom=0.5;
 
- if(pageScale>3)pageScale=3;
+ if(zoom>3)zoom=3;
 
 
  paper.style.transform=
- "scale("+pageScale+")";
+ "scale("+zoom+")";
 
 }
 
 
 
-function resetZoom(){
+function screenReset(){
 
- pageScale=1;
+ zoom=1;
 
  paper.style.transform="scale(1)";
 
@@ -601,7 +508,7 @@ function resetZoom(){
 
 // 保存
 
-function save(){
+function saveImage(){
 
  let a=document.createElement("a");
 
