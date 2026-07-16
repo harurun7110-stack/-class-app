@@ -10,41 +10,49 @@
 
 body{
   margin:0;
+  background:#eee;
   font-family:sans-serif;
   text-align:center;
-  background:#f3f3f3;
+  overflow:hidden;
 }
 
 h1{
-  margin:15px;
-}
-
-button{
-  padding:10px;
-  margin:4px;
-  border:0;
-  border-radius:10px;
-  background:#4da6ff;
-  color:white;
-  font-size:15px;
+  font-size:22px;
 }
 
 #tools{
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
+  gap:5px;
+}
+
+button{
+  padding:8px 12px;
+  border:0;
+  border-radius:10px;
+  background:#4da6ff;
+  color:white;
 }
 
 canvas{
   background:white;
-  border:2px solid #333;
-  margin-top:10px;
+  border:2px solid black;
   touch-action:none;
 }
 
-select,input{
-  margin:5px;
-  padding:5px;
+#area{
+  position:relative;
+  margin:auto;
+  width:350px;
+  height:500px;
+  transform-origin:center;
+}
+
+.item{
+  position:absolute;
+  user-select:none;
+  touch-action:none;
 }
 
 </style>
@@ -56,198 +64,152 @@ select,input{
 
 <div id="tools">
 
-<button onclick="startDraw()">書く</button>
-
-<select id="paper">
-<option value="portrait">縦</option>
-<option value="landscape">横</option>
-</select>
-
-<button onclick="changeColor('black')">黒</button>
-<button onclick="changeColor('red')">赤</button>
-<button onclick="changeColor('blue')">青</button>
-
+<button onclick="pen()">ペン</button>
 <button onclick="eraser()">消しゴム</button>
 
-<button onclick="clearAll()">全消し</button>
+<button onclick="colorSet('black')">黒</button>
+<button onclick="colorSet('red')">赤</button>
+<button onclick="colorSet('blue')">青</button>
 
-<input type="range" id="penSize" min="1" max="40" value="5">
+<input type="range" id="size" min="1" max="50" value="5">
+
+<button onclick="zoomIn()">ズーム+</button>
+<button onclick="zoomOut()">ズーム-</button>
+<button onclick="resetZoom()">戻す</button>
 
 <button onclick="addText()">文字</button>
-
 <input type="file" accept="image/*" onchange="addPhoto(event)">
 
 <button onclick="finish()">完成</button>
 
 </div>
 
+
+<div id="area">
+
 <canvas id="canvas" width="350" height="500"></canvas>
+
+</div>
 <script>
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const area=document.getElementById("area");
 
-let drawing = false;
-let color = "black";
+let drawMode="pen";
+let color="black";
+let zoom=1;
 
-
-canvas.addEventListener("touchstart", start);
-canvas.addEventListener("touchmove", draw);
-canvas.addEventListener("touchend", stop);
-
-canvas.addEventListener("mousedown", start);
-canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", stop);
+let drawing=false;
 
 
-
-function startDraw(){
-
-  let type = document.getElementById("paper").value;
-
-  if(type === "landscape"){
-    canvas.width = 500;
-    canvas.height = 350;
-  }else{
-    canvas.width = 350;
-    canvas.height = 500;
-  }
-
+function pen(){
+ drawMode="pen";
 }
 
+function eraser(){
+ drawMode="eraser";
+}
+
+function colorSet(c){
+ color=c;
+}
+
+
+
+canvas.addEventListener("touchstart",start);
+canvas.addEventListener("touchmove",draw);
+canvas.addEventListener("touchend",stop);
 
 
 function start(e){
-
-  drawing = true;
-  draw(e);
-
+ drawing=true;
+ draw(e);
 }
-
 
 
 function stop(){
-
-  drawing = false;
-  ctx.beginPath();
-
+ drawing=false;
+ ctx.beginPath();
 }
-
 
 
 function draw(e){
 
-  if(!drawing)return;
+ if(!drawing)return;
+
+ let r=canvas.getBoundingClientRect();
+
+ let x=e.touches[0].clientX-r.left;
+ let y=e.touches[0].clientY-r.top;
 
 
-  let rect = canvas.getBoundingClientRect();
-
-  let x;
-  let y;
+ ctx.lineWidth=document.getElementById("size").value;
+ ctx.lineCap="round";
 
 
-  if(e.touches){
-
-    x = e.touches[0].clientX - rect.left;
-    y = e.touches[0].clientY - rect.top;
-
-  }else{
-
-    x = e.clientX - rect.left;
-    y = e.clientY - rect.top;
-
-  }
-
-
-  ctx.lineWidth =
-  document.getElementById("penSize").value;
-
-
-  ctx.lineCap="round";
-
+ if(drawMode==="eraser"){
+  ctx.strokeStyle="white";
+ }else{
   ctx.strokeStyle=color;
+ }
 
 
-  ctx.lineTo(x,y);
-  ctx.stroke();
+ ctx.lineTo(x,y);
+ ctx.stroke();
 
+ ctx.beginPath();
+ ctx.moveTo(x,y);
 
-  ctx.beginPath();
-  ctx.moveTo(x,y);
-
-
-  e.preventDefault();
-
-}
-
-
-
-function changeColor(c){
-
-  color=c;
+ e.preventDefault();
 
 }
 
 
 
-function eraser(){
-
-  color="white";
-
+function zoomIn(){
+ zoom+=0.1;
+ area.style.transform=`scale(${zoom})`;
 }
 
 
-
-function clearAll(){
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
+function zoomOut(){
+ if(zoom>0.5){
+  zoom-=0.1;
+  area.style.transform=`scale(${zoom})`;
+ }
 }
 
 
+function resetZoom(){
+ zoom=1;
+ area.style.transform="scale(1)";
+}
 
-let textX = 50;
-let textY = 50;
-
-canvas.addEventListener("click",function(e){
-
-  let rect = canvas.getBoundingClientRect();
-
-  textX = e.clientX - rect.left;
-  textY = e.clientY - rect.top;
-
-});
 
 
 function addText(){
 
-  let input = document.createElement("input");
+ let t=prompt("文字を入力");
 
-  input.type = "text";
-  input.placeholder = "文字を入力";
+ if(!t)return;
 
-  document.body.appendChild(input);
 
-  input.focus();
+ let div=document.createElement("div");
 
-  input.onkeydown = function(e){
+ div.className="item";
+ div.innerText=t;
 
-    if(e.key === "Enter"){
+ div.style.left="50px";
+ div.style.top="50px";
+ div.style.fontSize="30px";
+ div.style.color=color;
 
-      ctx.font = "30px sans-serif";
-      ctx.fillStyle = color;
 
-      ctx.fillText(
-        input.value,
-        textX,
-        textY
-      );
+ area.appendChild(div);
 
-      input.remove();
 
-    }
-
-  }
+ moveItem(div);
 
 }
 
@@ -255,19 +217,62 @@ function addText(){
 
 function addPhoto(e){
 
-  let file=e.target.files[0];
+ let file=e.target.files[0];
 
-  let img=new Image();
+ let img=document.createElement("img");
+
+ img.className="item";
+
+ img.src=URL.createObjectURL(file);
+
+ img.style.width="150px";
+
+ img.style.left="50px";
+ img.style.top="50px";
 
 
-  img.onload=function(){
+ area.appendChild(img);
 
-    ctx.drawImage(img,0,0,200,200);
+ moveItem(img);
 
-  };
+}
 
 
-  img.src=URL.createObjectURL(file);
+
+function moveItem(el){
+
+ let move=false;
+ let x=0;
+ let y=0;
+
+
+ el.addEventListener("touchstart",e=>{
+
+  move=true;
+
+  x=e.touches[0].clientX-el.offsetLeft;
+  y=e.touches[0].clientY-el.offsetTop;
+
+ });
+
+
+ el.addEventListener("touchmove",e=>{
+
+  if(!move)return;
+
+  el.style.left=
+  e.touches[0].clientX-x+"px";
+
+  el.style.top=
+  e.touches[0].clientY-y+"px";
+
+ });
+
+
+ el.addEventListener("touchend",()=>{
+  move=false;
+ });
+
 
 }
 
@@ -275,16 +280,15 @@ function addPhoto(e){
 
 function finish(){
 
-  let a=document.createElement("a");
+ let a=document.createElement("a");
 
-  a.download="作品.png";
+ a.download="作品.png";
 
-  a.href=canvas.toDataURL();
+ a.href=canvas.toDataURL();
 
-  a.click();
+ a.click();
 
 }
-
 
 </script>
 
