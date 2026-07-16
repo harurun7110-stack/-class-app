@@ -273,6 +273,150 @@ function addPhoto(e){
 function controlObject(el){
 
  let fixed=false;
+ let timer;
+
+ let startX,startY;
+ let startLeft,startTop;
+
+ let startDistance=0;
+ let scale=1;
+
+
+
+ el.addEventListener("touchstart",e=>{
+
+  timer=setTimeout(()=>{
+
+   fixed=!fixed;
+   el.style.opacity=fixed?"0.5":"1";
+
+  },700);
+
+
+  if(e.touches.length===1){
+
+   startX=e.touches[0].clientX;
+   startY=e.touches[0].clientY;
+
+   startLeft=el.offsetLeft;
+   startTop=el.offsetTop;
+
+  }
+
+
+  if(e.touches.length===2){
+
+   startDistance=getDistance(e.touches);
+
+  }
+
+ });
+
+
+
+ el.addEventListener("touchmove",e=>{
+
+
+  if(fixed)return;
+
+
+  clearTimeout(timer);
+
+
+
+  // 移動
+
+  if(e.touches.length===1){
+
+
+   let x=startLeft+
+   e.touches[0].clientX-startX;
+
+
+   let y=startTop+
+   e.touches[0].clientY-startY;
+
+
+
+   // 左右だけ制限
+   x=Math.max(0,x);
+
+
+   // 下にはみ出さない
+   y=Math.max(0,y);
+
+
+
+   el.style.left=x+"px";
+   el.style.top=y+"px";
+
+
+
+   // ★文字だけ端で改行
+
+   if(el.tagName==="DIV"){
+
+    let right=
+    el.offsetLeft+el.offsetWidth;
+
+
+    if(right>paper.clientWidth){
+
+     el.style.whiteSpace="normal";
+
+     el.style.width=
+     (paper.clientWidth-el.offsetLeft)+"px";
+
+    }
+
+   }
+
+
+  }
+
+
+
+
+  // 拡大縮小
+
+  if(e.touches.length===2){
+
+   let now=getDistance(e.touches);
+
+
+   scale*=now/startDistance;
+
+
+   if(scale<0.3)scale=0.3;
+
+   if(scale>4)scale=4;
+
+
+   el.style.transform=
+   "scale("+scale+")";
+
+
+   startDistance=now;
+
+  }
+
+
+  e.preventDefault();
+
+ });
+
+
+
+ el.addEventListener("touchend",()=>{
+
+  clearTimeout(timer);
+
+ });
+
+
+}
+
+ let fixed=false;
 
  let timer;
 
