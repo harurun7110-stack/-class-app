@@ -194,27 +194,50 @@ function endDraw(){
 
 function addText(){
 
- let text=prompt("文字を入力");
+  let text=prompt("文字を入力");
 
- if(!text)return;
-
-
- let div=document.createElement("div");
-
- div.className="object";
-
- div.innerText=text;
-
- div.style.left="50px";
- div.style.top="50px";
- div.style.fontSize="30px";
- div.style.color=color;
+  if(!text) return;
 
 
- paper.appendChild(div);
+  let div=document.createElement("div");
+
+  div.className="object";
+
+  div.innerText=text;
+
+  div.style.left="50px";
+  div.style.top="50px";
+  div.style.fontSize="30px";
+  div.style.color=color;
+
+  // 文字の箱
+  div.style.maxWidth="300px";
+  div.style.whiteSpace="normal";
+  div.style.wordBreak="break-all";
 
 
- objectControl(div);
+  paper.appendChild(div);
+
+  objectControl(div);
+
+  fitText(div);
+
+}
+
+
+
+function fitText(el){
+
+  let rect=el.getBoundingClientRect();
+  let paperRect=paper.getBoundingClientRect();
+
+
+  if(rect.right > paperRect.right){
+
+    el.style.width=
+    (paperRect.right-rect.left)+"px";
+
+  }
 
 }
 
@@ -222,209 +245,159 @@ function addText(){
 
 function addImage(e){
 
- let file=e.target.files[0];
+  let file=e.target.files[0];
 
- if(!file)return;
-
-
- let img=document.createElement("img");
-
- img.className="object";
-
- img.src=URL.createObjectURL(file);
-
- img.style.width="150px";
-
- img.style.left="50px";
- img.style.top="50px";
+  if(!file)return;
 
 
- paper.appendChild(img);
+  let img=document.createElement("img");
+
+  img.className="object";
+
+  img.src=URL.createObjectURL(file);
+
+  img.style.width="150px";
+  img.style.left="50px";
+  img.style.top="50px";
 
 
- objectControl(img);
+  paper.appendChild(img);
+
+  objectControl(img);
 
 }
-let fixedObjects = new Set();
+
+
 
 
 function objectControl(el){
 
-  let startX=0;
-  let startY=0;
-  let startLeft=0;
-  let startTop=0;
+ let move=false;
 
-  let startDistance=0;
-  let startSize=1;
+ let sx=0;
+ let sy=0;
 
-  let timer;
+ let sl=0;
+ let st=0;
 
 
-  // タップで文字編集
-  el.addEventListener("dblclick",function(){
+ let size=1;
+
+ let distance=0;
+
+
+ let fixed=false;
+
+ let timer;
+
+
+
+ el.addEventListener("touchstart",function(e){
+
+
+  timer=setTimeout(()=>{
+
+    fixed=!fixed;
+
+    el.style.opacity=fixed?"0.5":"1";
+
+  },700);
+
+
+
+  if(e.touches.length===1){
+
+    sx=e.touches[0].clientX;
+    sy=e.touches[0].clientY;
+
+    sl=el.offsetLeft;
+    st=el.offsetTop;
+
+  }
+
+
+  if(e.touches.length===2){
+
+    distance=getDistance(e.touches);
+
+  }
+
+
+ });
+
+
+
+ el.addEventListener("touchmove",function(e){
+
+  clearTimeout(timer);
+
+
+  if(fixed)return;
+
+
+  if(e.touches.length===1){
+
+    let x=e.touches[0].clientX-sx;
+    let y=e.touches[0].clientY-sy;
+
+
+    el.style.left=sl+x+"px";
+    el.style.top=st+y+"px";
+
 
     if(el.tagName==="DIV"){
 
-      let newText=prompt("文字を変更",el.innerText);
-
-      if(newText!==null){
-        el.innerText=newText;
-      }
+      fitText(el);
 
     }
 
-  });
-
-
-  // 長押しで固定・解除
-  el.addEventListener("touchstart",function(e){
-
-    timer=setTimeout(()=>{
-
-      if(fixedObjects.has(el)){
-
-        fixedObjects.delete(el);
-        el.style.opacity="1";
-
-      }else{
-
-        fixedObjects.add(el);
-        el.style.opacity="0.6";
-
-      }
-
-    },700);
-
-
-    if(e.touches.length===1){
-
-      startX=e.touches[0].clientX;
-      startY=e.touches[0].clientY;
-
-      startLeft=el.offsetLeft;
-      startTop=el.offsetTop;
-
-    }
-
-
-    if(e.touches.length===2){
-
-      startDistance=getDistance(e.touches);
-      startSize=parseFloat(el.dataset.size||1);
-
-    }
-
-
-  });
+  }
 
 
 
-  el.addEventListener("touchmove",function(e){
+  if(e.touches.length===2){
 
-    if(fixedObjects.has(el)) return;
+    let now=getDistance(e.touches);
 
-
-    clearTimeout(timer);
-
-
-    // 移動
-    if(e.touches.length===1){
-
-      let dx=e.touches[0].clientX-startX;
-      let dy=e.touches[0].clientY-startY;
+    let scale=now/distance;
 
 
-      el.style.left=startLeft+dx+"px";
-      el.style.top=startTop+dy+"px";
-
-    }
+    size*=scale;
 
 
-    // サイズ変更
-    if(e.touches.length===2){
-
-      let now=getDistance(e.touches);
-
-      let scale=now/startDistance;
-
-      let size=startSize*scale;
+    if(size<0.3)size=0.3;
+    if(size>4)size=4;
 
 
-      if(size<0.3) size=0.3;
-      if(size>5) size=5;
+    el.style.transform=
+    "scale("+size+")";
 
 
-      el.style.transform="scale("+size+")";
-      el.dataset.size=size;
+    distance=now;
 
-    }
-
-
-    e.preventDefault();
-
-  });
+  }
 
 
-  el.addEventListener("touchend",function(){
+ });
 
-    clearTimeout(timer);
 
-  });
+
+ el.addEventListener("touchend",function(){
+
+  clearTimeout(timer);
+
+ });
 
 
 }
 
 
 
-function getDistance(touches){
+function getDistance(t){
 
-  let x=touches[0].clientX-touches[1].clientX;
-  let y=touches[0].clientY-touches[1].clientY;
+ let x=t[0].clientX-t[1].clientX;
+ let y=t[0].clientY-t[1].clientY;
 
-  return Math.sqrt(x*x+y*y);
-
-}
-
-
-
-function zoomPage(num){
-
-  pageZoom*=num;
-
-  if(pageZoom<0.5)pageZoom=0.5;
-  if(pageZoom>3)pageZoom=3;
-
-  paper.style.transform="scale("+pageZoom+")";
+ return Math.sqrt(x*x+y*y);
 
 }
-
-
-
-function resetPage(){
-
-  pageZoom=1;
-
-  paper.style.transform="scale(1)";
-
-}
-
-
-
-function save(){
-
- let link=document.createElement("a");
-
- link.download="作品.png";
-
- link.href=canvas.toDataURL();
-
- link.click();
-
-}
-
-
-</script>
-
-</body>
-</html>
