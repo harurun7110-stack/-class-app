@@ -1,280 +1,259 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>完全アプリ</title>
+<title>かきノート</title>
 
 <style>
-body{font-family:sans-serif;text-align:center;margin:0;}
-#home{display:none;}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
-.box{border:1px solid #ccc;padding:10px;}
-button{margin:5px;}
-</style>
-</head>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:sans-serif;
+}
 
+body{
+    background:#ececec;
+}
+
+#home{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+h1{
+    margin-bottom:40px;
+    font-size:42px;
+}
+
+button{
+    border:none;
+    border-radius:18px;
+    padding:18px 35px;
+    font-size:24px;
+    cursor:pointer;
+}
+
+#writeBtn{
+    background:#4caf50;
+    color:white;
+}
+
+#paperMenu{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.menu{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    width:300px;
+}
+
+.menu h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.paperBtn{
+    width:100%;
+    margin-top:10px;
+    background:#2196f3;
+    color:white;
+}
+
+#paper{
+    display:none;
+    background:white;
+    margin:20px auto;
+    border:2px solid #aaa;
+}
+
+.vertical{
+    width:320px;
+    height:550px;
+}
+
+.horizontal{
+    width:550px;
+    height:320px;
+}
+</style>
+
+</head>
 <body>
 
-<!-- ログイン -->
-<div id="login">
-<h2>登録 / ログイン</h2>
-
-<input id="name" placeholder="名前"><br>
-<input id="pass" type="password" placeholder="パスワード"><br>
-
-<button onclick="register()">登録</button>
-<button onclick="login()">ログイン</button>
-</div>
-
-<!-- ホーム -->
 <div id="home">
+<h1>かきノート</h1>
 
-<h3 id="user"></h3>
-
-<div>ポイント: <span id="points">0</span></div>
-
-<button onclick="useCode()">コード入力</button>
-<button onclick="admin()">管理者</button>
-<button onclick="showCodes()">コード一覧（管理者）</button>
-
-<div class="grid" id="shop"></div>
+<button id="writeBtn">
+書く
+</button>
 
 </div>
+
+<div id="paperMenu">
+
+<div class="menu">
+
+<h2>紙を選ぶ</h2>
+
+<button class="paperBtn" onclick="createPaper('vertical')">
+縦
+</button>
+
+<button class="paperBtn" onclick="createPaper('horizontal')">
+横
+</button>
+
+</div>
+
+</div>
+
+<div id="paper"></div>
 
 <script>
 
-// ===== 保存データ =====
-let users = JSON.parse(localStorage.getItem("users") || "{}");
-let codes = JSON.parse(localStorage.getItem("codes") || "[]");
+const writeBtn=document.getElementById("writeBtn");
+const menu=document.getElementById("paperMenu");
+const home=document.getElementById("home");
+const paper=document.getElementById("paper");
 
-let currentUser = null;
-let isAdmin = false;
+writeBtn.onclick=()=>{
 
-// ===== 商品（そのまま）=====
-let items = [
-  {name:"かのあのTiktok", price:50, message:"k514915"},
-  {name:"板谷りんかのTiktok", price:40, message:"rinka75431"},
-  {name:"あやののTiktok", price:40, message:"taaaaaaaiyakl"},
-  {name:"ねねのTiktok", price:40, message:"n4_e2ne1"},
-  {name:"亀谷りなが告った人", price:60, message:"豊田こうすけ、振られた"},
-  {name:"吉本先生の黒歴史", price:60, message:"まこが下着の時に吉本が入ってきてまこの下着をガン見した"},
-  {name:"寺田かのんの元すきぴ", price:50, message:"井上はるひと柴野蒼太"},
-  {name:"ゆらの元好きな人", price:30, message:"かいつくる"},
-  {name:"おんかつの好きな人", price:40, message:"りの"},
-  {name:"荻野の好きな人集", price:5, message:"柴野蒼太、うた、つくる、小郷"}, 
-  {name:"荻野が告った人", price:5, message:"西村あき振られた"},
-  {name:"大熊の元好きな人", price:50, message:"かいつくる、柴野蒼太"},
-  {name:"宮本が好きな人", price:30, message:"石井ねね"},
-  {name:"山根ゆらの好きな人", price:40, message:"yura0102y"},
-  {name:"かのんのTikTok", price:20, message:"user20549418622953"},
-];
+menu.style.display="flex";
 
-// ===== 保存 =====
-function save(){
-  localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("codes", JSON.stringify(codes));
 }
 
-// ===== 登録 =====
-function register(){
+function createPaper(type){
 
-  let name = document.getElementById("name").value;
-  let pass = document.getElementById("pass").value;
+menu.style.display="none";
 
-  if(!name || !pass){
-    return alert("入力して");
-  }
+home.style.display="none";
 
-  users[name] = {
-    pass: pass,
-    points: 100
-  };
+paper.style.display="block";
 
-  save();
+paper.className="";
+paper.classList.add(type);
 
-  alert("登録完了（100ポイント）");
+// 紙の中身
+paper.innerHTML=`
+<div id="toolbar">
+
+<select id="paperColor">
+<option value="white">白</option>
+<option value="#fff7b2">黄色</option>
+<option value="#ffd6ea">ピンク</option>
+<option value="#d7f6ff">水色</option>
+<option value="#d8ffd8">黄緑</option>
+<option value="#222">黒</option>
+</select>
+
+</div>
+
+<canvas id="canvas"></canvas>
+`;
+
+const canvas=document.getElementById("canvas");
+canvas.width=paper.clientWidth;
+canvas.height=paper.clientHeight-45;
+
+const ctx=canvas.getContext("2d");
+
+ctx.lineWidth=4;
+ctx.lineCap="round";
+
+let drawing=false;
+
+function pos(e){
+
+const r=canvas.getBoundingClientRect();
+
+if(e.touches){
+
+return{
+x:e.touches[0].clientX-r.left,
+y:e.touches[0].clientY-r.top
 }
 
-// ===== ログイン =====
-function login(){
-
-  let name = document.getElementById("name").value;
-  let pass = document.getElementById("pass").value;
-
-  if(!users[name]){
-    return alert("ユーザーなし");
-  }
-
-  if(users[name].pass !== pass){
-    return alert("パスワード違う");
-  }
-
-  currentUser = name;
-
-  document.getElementById("login").style.display="none";
-  document.getElementById("home").style.display="block";
-
-  render();
 }
 
-// ===== 表示 =====
-function render(){
-
-  document.getElementById("user").innerText = currentUser;
-  document.getElementById("points").innerText = users[currentUser].points;
-
-  let html="";
-
-  items.forEach((item,i)=>{
-
-    html+=`
-    <div class="box">
-      <b>${item.name}</b><br>
-      ${item.price}pt<br>
-      <button onclick="buy(${i})">購入</button>
-    </div>
-    `;
-  });
-
-  document.getElementById("shop").innerHTML=html;
+return{
+x:e.clientX-r.left,
+y:e.clientY-r.top
 }
 
-// ===== 購入 =====
-function buy(i){
-
-  let item = items[i];
-  let user = users[currentUser];
-
-  if(user.points < item.price){
-    return alert("ポイント不足");
-  }
-
-  user.points -= item.price;
-
-  save();
-  render();
-
-  alert(item.name + "\n\n" + item.message);
 }
 
-// ===== 管理者 =====
-function admin(){
+function start(e){
 
-  let code = prompt("管理者コード");
+drawing=true;
 
-  if(code === "582854"){
-    isAdmin = true;
+const p=pos(e);
 
-    generateCodes();
+ctx.beginPath();
+ctx.moveTo(p.x,p.y);
 
-    alert("管理者ON（コード100個生成）");
-  }
 }
 
-// ===== コード100個生成 =====
-function generateCodes(){
+function move(e){
 
-  codes = [
-  {code:"a1b2c3",used:false},{code:"d4e5f6",used:false},
-  {code:"g7h8i9",used:false},{code:"j1k2l3",used:false},
-  {code:"m4n5o6",used:false},{code:"p7q8r9",used:false},
-  {code:"s1t2u3",used:false},{code:"v4w5x6",used:false},
-  {code:"y7z8a9",used:false},{code:"b1c2d3",used:false},
+if(!drawing)return;
 
-  {code:"e4f5g6",used:false},{code:"h7i8j9",used:false},
-  {code:"k1l2m3",used:false},{code:"n4o5p6",used:false},
-  {code:"q7r8s9",used:false},{code:"t1u2v3",used:false},
-  {code:"w4x5y6",used:false},{code:"z7a8b9",used:false},
-  {code:"c1d2e3",used:false},{code:"f4g5h6",used:false},
+e.preventDefault();
 
-  {code:"i7j8k9",used:false},{code:"l1m2n3",used:false},
-  {code:"o4p5q6",used:false},{code:"r7s8t9",used:false},
-  {code:"u1v2w3",used:false},{code:"x4y5z6",used:false},
-  {code:"a7b8c9",used:false},{code:"d1e2f3",used:false},
-  {code:"g4h5i6",used:false},{code:"j7k8l9",used:false},
+const p=pos(e);
 
-  {code:"m1n2o3",used:false},{code:"p4q5r6",used:false},
-  {code:"s7t8u9",used:false},{code:"v1w2x3",used:false},
-  {code:"y4z5a6",used:false},{code:"b7c8d9",used:false},
-  {code:"e1f2g3",used:false},{code:"h4i5j6",used:false},
-  {code:"k7l8m9",used:false},{code:"n1o2p3",used:false},
+ctx.lineTo(p.x,p.y);
 
-  {code:"q4r5s6",used:false},{code:"t7u8v9",used:false},
-  {code:"w1x2y3",used:false},{code:"z4a5b6",used:false},
-  {code:"c7d8e9",used:false},{code:"f1g2h3",used:false},
-  {code:"i4j5k6",used:false},{code:"l7m8n9",used:false},
-  {code:"o1p2q3",used:false},{code:"r4s5t6",used:false},
+ctx.stroke();
 
-  {code:"u7v8w9",used:false},{code:"x1y2z3",used:false},
-  {code:"a4b5c6",used:false},{code:"d7e8f9",used:false},
-  {code:"g1h2i3",used:false},{code:"j4k5l6",used:false},
-  {code:"m7n8o9",used:false},{code:"p1q2r3",used:false},
-  {code:"s4t5u6",used:false},{code:"v7w8x9",used:false},
-
-  {code:"y1z2a3",used:false},{code:"b4c5d6",used:false},
-  {code:"e7f8g9",used:false},{code:"h1i2j3",used:false},
-  {code:"k4l5m6",used:false},{code:"n7o8p9",used:false},
-  {code:"q1r2s3",used:false},{code:"t4u5v6",used:false},
-  {code:"w7x8y9",used:false},{code:"z1a2b3",used:false},
-
-  {code:"c4d5e6",used:false},{code:"f7g8h9",used:false},
-  {code:"i1j2k3",used:false},{code:"l4m5n6",used:false},
-  {code:"o7p8q9",used:false},{code:"r1s2t3",used:false},
-  {code:"u4v5w6",used:false},{code:"x7y8z9",used:false},
-  {code:"a1c3e5",used:false},{code:"b2d4f6",used:false},
-
-  {code:"c3e5g7",used:false},{code:"d4f6h8",used:false},
-  {code:"e5g7i9",used:false},{code:"f6h8j1",used:false},
-  {code:"g7i9k2",used:false},{code:"h8j1l3",used:false},
-  {code:"i9k2m4",used:false},{code:"j1l3n5",used:false},
-  {code:"k2m4o6",used:false},{code:"l3n5p7",used:false}
-  ];
-
-  save();
-}
-// ===== コード使用 =====
-function useCode(){
-
-  let input = prompt("コード入力");
-
-  let c = codes.find(x => x.code === input);
-
-  if(!c){
-    return alert("無効コード");
-  }
-
-  if(c.used){
-    return alert("使用済み");
-  }
-
-  c.used = true;
-
-  users[currentUser].points += 100;
-
-  save();
-
-  render();
-
-  alert("100ポイント獲得！");
 }
 
-// ===== 管理者だけコード見れる =====
-function showCodes(){
+function end(){
 
-  if(!isAdmin){
-    return alert("管理者じゃない");
-  }
+drawing=false;
 
-  let text="コード一覧\n\n";
-
-  codes.forEach(c=>{
-    text += c.code + " / " + (c.used ? "使用済み" : "未使用") + "\n";
-  });
-
-  alert(text);
 }
 
-</script>
+canvas.addEventListener("mousedown",start);
+canvas.addEventListener("mousemove",move);
+canvas.addEventListener("mouseup",end);
 
-</body>
-</html>
+canvas.addEventListener("touchstart",start);
+canvas.addEventListener("touchmove",move,{passive:false});
+canvas.addEventListener("touchend",end);
+
+document.getElementById("paperColor").onchange=function(){
+
+paper.style.background=this.value;
+
+}
+}
+#toolbar{
+height:45px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-bottom:1px solid #ccc;
+background:#f5f5f5;
+}
+
+#toolbar select{
+font-size:18px;
+padding:5px;
+}
+
+#canvas{
+display:block;
+touch-action:none;
+}
