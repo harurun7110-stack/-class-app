@@ -134,6 +134,141 @@ function setColor(c){
  color=c;
 
 }
+ // ペンで描く機能
+
+canvas.addEventListener("touchstart",function(e){
+
+ if(mode!=="pen" && mode!=="eraser") return;
+
+ drawing=true;
+
+ draw(e);
+
+});
+
+
+canvas.addEventListener("touchmove",draw);
+
+
+canvas.addEventListener("touchend",function(){
+
+ drawing=false;
+
+ ctx.beginPath();
+
+});
+
+
+
+function draw(e){
+
+ if(!drawing)return;
+
+
+ let r=canvas.getBoundingClientRect();
+
+ let x=e.touches[0].clientX-r.left;
+
+ let y=e.touches[0].clientY-r.top;
+
+
+ ctx.lineWidth=document.getElementById("penSize").value;
+
+ ctx.lineCap="round";
+
+
+ if(mode==="eraser"){
+
+  ctx.strokeStyle="white";
+
+ }else{
+
+  ctx.strokeStyle=color;
+
+ }
+
+
+ ctx.lineTo(x,y);
+
+ ctx.stroke();
+
+
+ ctx.beginPath();
+
+ ctx.moveTo(x,y);
+
+
+ e.preventDefault();
+
+}
+
+
+
+// 文字追加
+
+function makeText(){
+
+ let text=prompt("文字を入力");
+
+
+ if(!text)return;
+
+
+ let div=document.createElement("div");
+
+
+ div.className="object";
+
+ div.innerText=text;
+
+ div.style.left="50px";
+
+ div.style.top="50px";
+
+ div.style.fontSize="30px";
+
+ div.style.color=color;
+
+
+ paper.appendChild(div);
+
+
+ controlObject(div);
+
+}
+
+
+
+// 写真追加
+
+function makePhoto(e){
+
+ let file=e.target.files[0];
+
+ if(!file)return;
+
+
+ let img=document.createElement("img");
+
+
+ img.className="object";
+
+ img.src=URL.createObjectURL(file);
+
+
+ img.style.width="150px";
+
+ img.style.left="50px";
+
+ img.style.top="50px";
+
+
+ paper.appendChild(img);
+
+
+ controlObject(img);
+
+}
 function controlObject(el){
 
  let fixed=false;
