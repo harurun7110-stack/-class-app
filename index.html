@@ -10,7 +10,7 @@
 
 body{
   margin:0;
-  background:#eee;
+  background:#eeeeee;
   font-family:sans-serif;
   text-align:center;
   overflow:hidden;
@@ -29,30 +29,40 @@ h1{
 
 button{
   padding:8px 12px;
-  border:0;
+  border:none;
   border-radius:10px;
   background:#4da6ff;
   color:white;
 }
 
-canvas{
-  background:white;
-  border:2px solid black;
-  touch-action:none;
-}
-
-#area{
+#paper{
   position:relative;
-  margin:auto;
   width:350px;
   height:500px;
+  margin:10px auto;
+  background:white;
+  border:2px solid black;
+  overflow:hidden;
   transform-origin:center;
 }
 
-.item{
+canvas{
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+
+.object{
   position:absolute;
   user-select:none;
   touch-action:none;
+}
+
+.selected{
+  outline:2px solid #4da6ff;
 }
 
 </style>
@@ -64,28 +74,30 @@ canvas{
 
 <div id="tools">
 
-<button onclick="pen()">ペン</button>
-<button onclick="eraser()">消しゴム</button>
+<button onclick="togglePen()">ペンON/OFF</button>
 
-<button onclick="colorSet('black')">黒</button>
-<button onclick="colorSet('red')">赤</button>
-<button onclick="colorSet('blue')">青</button>
+<button onclick="setTool('eraser')">消しゴム</button>
 
-<input type="range" id="size" min="1" max="50" value="5">
+<button onclick="setColor('black')">黒</button>
+<button onclick="setColor('red')">赤</button>
+<button onclick="setColor('blue')">青</button>
 
-<button onclick="zoomIn()">ズーム+</button>
-<button onclick="zoomOut()">ズーム-</button>
-<button onclick="resetZoom()">戻す</button>
+<input id="penSize" type="range" min="1" max="40" value="5">
 
 <button onclick="addText()">文字</button>
-<input type="file" accept="image/*" onchange="addPhoto(event)">
 
-<button onclick="finish()">完成</button>
+<input type="file" accept="image/*" onchange="addImage(event)">
+
+<button onclick="zoomPage(1.1)">画面＋</button>
+<button onclick="zoomPage(0.9)">画面−</button>
+<button onclick="resetPage()">戻す</button>
+
+<button onclick="save()">完成</button>
 
 </div>
 
 
-<div id="area">
+<div id="paper">
 
 <canvas id="canvas" width="350" height="500"></canvas>
 
@@ -94,111 +106,104 @@ canvas{
 
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
-const area=document.getElementById("area");
+const paper=document.getElementById("paper");
 
-let drawMode="pen";
+let penMode=false;
+let tool="pen";
 let color="black";
-let zoom=1;
+
+let pageZoom=1;
 
 let drawing=false;
 
 
-function pen(){
- drawMode="pen";
-}
-
-function eraser(){
- drawMode="eraser";
-}
-
-function colorSet(c){
- color=c;
+function togglePen(){
+  penMode=!penMode;
+  tool=penMode?"pen":"none";
 }
 
 
+function setTool(t){
+  tool=t;
+  penMode=true;
+}
 
-canvas.addEventListener("touchstart",start);
+
+function setColor(c){
+  color=c;
+}
+
+
+
+canvas.addEventListener("touchstart",startDraw);
 canvas.addEventListener("touchmove",draw);
-canvas.addEventListener("touchend",stop);
+canvas.addEventListener("touchend",endDraw);
 
 
-function start(e){
- drawing=true;
- draw(e);
-}
+function startDraw(e){
 
+  if(tool!=="pen" && tool!=="eraser") return;
 
-function stop(){
- drawing=false;
- ctx.beginPath();
+  drawing=true;
+  draw(e);
+
 }
 
 
 function draw(e){
 
- if(!drawing)return;
-
- let r=canvas.getBoundingClientRect();
-
- let x=e.touches[0].clientX-r.left;
- let y=e.touches[0].clientY-r.top;
+  if(!drawing)return;
 
 
- ctx.lineWidth=document.getElementById("size").value;
- ctx.lineCap="round";
+  let r=canvas.getBoundingClientRect();
+
+  let x=e.touches[0].clientX-r.left;
+  let y=e.touches[0].clientY-r.top;
 
 
- if(drawMode==="eraser"){
-  ctx.strokeStyle="white";
- }else{
-  ctx.strokeStyle=color;
- }
+  ctx.lineWidth=document.getElementById("penSize").value;
+
+  ctx.lineCap="round";
 
 
- ctx.lineTo(x,y);
- ctx.stroke();
+  if(tool==="eraser"){
+    ctx.strokeStyle="white";
+  }else{
+    ctx.strokeStyle=color;
+  }
 
- ctx.beginPath();
- ctx.moveTo(x,y);
 
- e.preventDefault();
+  ctx.lineTo(x,y);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+
+
+  e.preventDefault();
 
 }
 
 
-
-function zoomIn(){
- zoom+=0.1;
- area.style.transform=`scale(${zoom})`;
-}
-
-
-function zoomOut(){
- if(zoom>0.5){
-  zoom-=0.1;
-  area.style.transform=`scale(${zoom})`;
- }
-}
-
-
-function resetZoom(){
- zoom=1;
- area.style.transform="scale(1)";
+function endDraw(){
+  drawing=false;
+  ctx.beginPath();
 }
 
 
 
 function addText(){
 
- let t=prompt("文字を入力");
+ let text=prompt("文字を入力");
 
- if(!t)return;
+ if(!text)return;
 
 
  let div=document.createElement("div");
 
- div.className="item";
- div.innerText=t;
+ div.className="object";
+
+ div.innerText=text;
 
  div.style.left="50px";
  div.style.top="50px";
@@ -206,22 +211,25 @@ function addText(){
  div.style.color=color;
 
 
- area.appendChild(div);
+ paper.appendChild(div);
 
 
- moveItem(div);
+ objectControl(div);
 
 }
 
 
 
-function addPhoto(e){
+function addImage(e){
 
  let file=e.target.files[0];
 
+ if(!file)return;
+
+
  let img=document.createElement("img");
 
- img.className="item";
+ img.className="object";
 
  img.src=URL.createObjectURL(file);
 
@@ -231,64 +239,190 @@ function addPhoto(e){
  img.style.top="50px";
 
 
- area.appendChild(img);
+ paper.appendChild(img);
 
- moveItem(img);
+
+ objectControl(img);
+
+}
+let fixedObjects = new Set();
+
+
+function objectControl(el){
+
+  let startX=0;
+  let startY=0;
+  let startLeft=0;
+  let startTop=0;
+
+  let startDistance=0;
+  let startSize=1;
+
+  let timer;
+
+
+  // タップで文字編集
+  el.addEventListener("dblclick",function(){
+
+    if(el.tagName==="DIV"){
+
+      let newText=prompt("文字を変更",el.innerText);
+
+      if(newText!==null){
+        el.innerText=newText;
+      }
+
+    }
+
+  });
+
+
+  // 長押しで固定・解除
+  el.addEventListener("touchstart",function(e){
+
+    timer=setTimeout(()=>{
+
+      if(fixedObjects.has(el)){
+
+        fixedObjects.delete(el);
+        el.style.opacity="1";
+
+      }else{
+
+        fixedObjects.add(el);
+        el.style.opacity="0.6";
+
+      }
+
+    },700);
+
+
+    if(e.touches.length===1){
+
+      startX=e.touches[0].clientX;
+      startY=e.touches[0].clientY;
+
+      startLeft=el.offsetLeft;
+      startTop=el.offsetTop;
+
+    }
+
+
+    if(e.touches.length===2){
+
+      startDistance=getDistance(e.touches);
+      startSize=parseFloat(el.dataset.size||1);
+
+    }
+
+
+  });
+
+
+
+  el.addEventListener("touchmove",function(e){
+
+    if(fixedObjects.has(el)) return;
+
+
+    clearTimeout(timer);
+
+
+    // 移動
+    if(e.touches.length===1){
+
+      let dx=e.touches[0].clientX-startX;
+      let dy=e.touches[0].clientY-startY;
+
+
+      el.style.left=startLeft+dx+"px";
+      el.style.top=startTop+dy+"px";
+
+    }
+
+
+    // サイズ変更
+    if(e.touches.length===2){
+
+      let now=getDistance(e.touches);
+
+      let scale=now/startDistance;
+
+      let size=startSize*scale;
+
+
+      if(size<0.3) size=0.3;
+      if(size>5) size=5;
+
+
+      el.style.transform="scale("+size+")";
+      el.dataset.size=size;
+
+    }
+
+
+    e.preventDefault();
+
+  });
+
+
+  el.addEventListener("touchend",function(){
+
+    clearTimeout(timer);
+
+  });
+
 
 }
 
 
 
-function moveItem(el){
+function getDistance(touches){
 
- let move=false;
- let x=0;
- let y=0;
+  let x=touches[0].clientX-touches[1].clientX;
+  let y=touches[0].clientY-touches[1].clientY;
 
-
- el.addEventListener("touchstart",e=>{
-
-  move=true;
-
-  x=e.touches[0].clientX-el.offsetLeft;
-  y=e.touches[0].clientY-el.offsetTop;
-
- });
-
-
- el.addEventListener("touchmove",e=>{
-
-  if(!move)return;
-
-  el.style.left=
-  e.touches[0].clientX-x+"px";
-
-  el.style.top=
-  e.touches[0].clientY-y+"px";
-
- });
-
-
- el.addEventListener("touchend",()=>{
-  move=false;
- });
-
+  return Math.sqrt(x*x+y*y);
 
 }
 
 
 
-function finish(){
+function zoomPage(num){
 
- let a=document.createElement("a");
+  pageZoom*=num;
 
- a.download="作品.png";
+  if(pageZoom<0.5)pageZoom=0.5;
+  if(pageZoom>3)pageZoom=3;
 
- a.href=canvas.toDataURL();
-
- a.click();
+  paper.style.transform="scale("+pageZoom+")";
 
 }
+
+
+
+function resetPage(){
+
+  pageZoom=1;
+
+  paper.style.transform="scale(1)";
+
+}
+
+
+
+function save(){
+
+ let link=document.createElement("a");
+
+ link.download="作品.png";
+
+ link.href=canvas.toDataURL();
+
+ link.click();
+
+}
+
 
 </script>
 
