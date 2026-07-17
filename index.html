@@ -85,19 +85,10 @@ canvas{
 <input type="file" accept="image/*" onchange="addPhoto(event)">
 
 
-
-<button onclick="zoomPaper(1.1)">画面＋</button>
-
-<button onclick="zoomPaper(0.9)">画面−</button>
-
-<button onclick="resetZoom()">戻す</button>
-
-
 <button onclick="saveImage()">完成</button>
 
 
 </div>
-
 
 
 <div id="paper">
@@ -115,8 +106,6 @@ const paper=document.getElementById("paper");
 let tool="none";
 let color="black";
 let drawing=false;
-
-let paperZoom=1;
 
 
 
@@ -148,6 +137,7 @@ canvas.addEventListener("touchstart",e=>{
 
  if(tool!=="pen" && tool!=="eraser")return;
 
+
  drawing=true;
 
  draw(e);
@@ -175,7 +165,6 @@ function draw(e){
 
 
  let r=canvas.getBoundingClientRect();
-
 
  let x=e.touches[0].clientX-r.left;
 
@@ -209,7 +198,6 @@ function draw(e){
 
 
 
-
 // 文字追加
 
 function addText(){
@@ -223,7 +211,7 @@ function addText(){
  let div=document.createElement("div");
 
 
- div.className="object";
+ div.className="object text";
 
 
  div.innerText=text;
@@ -233,11 +221,12 @@ function addText(){
 
  div.style.top="20px";
 
-
  div.style.fontSize="30px";
 
  div.style.color=color;
 
+
+ // 最初は改行しない
 
  div.style.whiteSpace="nowrap";
 
@@ -245,18 +234,117 @@ function addText(){
  paper.appendChild(div);
 
 
- controlObject(div);
+ textControl(div);
+
+}
+ function textControl(el){
+
+ let startX=0;
+ let startY=0;
+
+ let startLeft=0;
+ let startTop=0;
+
+
+
+ el.addEventListener("touchstart",e=>{
+
+
+  startX=e.touches[0].clientX;
+
+  startY=e.touches[0].clientY;
+
+
+  startLeft=el.offsetLeft;
+
+  startTop=el.offsetTop;
+
+
+ });
+
+
+
+ el.addEventListener("touchmove",e=>{
+
+
+  let x=startLeft+
+  e.touches[0].clientX-startX;
+
+
+  let y=startTop+
+  e.touches[0].clientY-startY;
+
+
+
+  // 左上だけ制限
+
+  if(x<0)x=0;
+
+  if(y<0)y=0;
+
+
+
+  el.style.left=x+"px";
+
+  el.style.top=y+"px";
+
+
+
+  // 壁に当たったら文字だけ幅変更
+
+  if(el.offsetLeft+el.offsetWidth>paper.clientWidth){
+
+
+   el.style.width=
+   (paper.clientWidth-el.offsetLeft)+"px";
+
+
+   el.style.whiteSpace="normal";
+
+
+  }
+
+
+
+  e.preventDefault();
+
+
+ });
+
 
 }
 
 
 
-// 写真追加
+// 文字編集
+
+document.addEventListener("dblclick",e=>{
+
+
+ if(e.target.classList.contains("text")){
+
+
+  let t=prompt(
+   "文字を変更",
+   e.target.innerText
+  );
+
+
+  if(t!==null){
+
+   e.target.innerText=t;
+
+  }
+
+
+ }
+
+});
+ // 写真追加
 
 function addPhoto(e){
 
  let file=e.target.files[0];
-
 
  if(!file)return;
 
@@ -264,14 +352,13 @@ function addPhoto(e){
  let img=document.createElement("img");
 
 
- img.className="object";
+ img.className="object photo";
 
 
  img.src=URL.createObjectURL(file);
 
 
  img.style.width="150px";
-
 
  img.style.left="20px";
 
@@ -281,15 +368,15 @@ function addPhoto(e){
  paper.appendChild(img);
 
 
- controlObject(img);
+ photoControl(img);
 
 }
- function controlObject(el){
 
- let fixed=false;
 
- let timer;
 
+// 写真操作
+
+function photoControl(el){
 
  let startX,startY;
 
@@ -299,6 +386,10 @@ function addPhoto(e){
  let startDistance=0;
 
  let scale=1;
+
+ let fixed=false;
+
+ let timer;
 
 
 
@@ -327,6 +418,7 @@ function addPhoto(e){
    startTop=el.offsetTop;
 
   }
+
 
 
   if(e.touches.length===2){
@@ -362,27 +454,9 @@ function addPhoto(e){
 
 
 
-   // 紙から出さない
+   if(x<0)x=0;
 
-   x=Math.max(0,x);
-
-   y=Math.max(0,y);
-
-
-
-   if(x+el.offsetWidth>paper.clientWidth){
-
-    x=paper.clientWidth-el.offsetWidth;
-
-   }
-
-
-   if(y+el.offsetHeight>paper.clientHeight){
-
-    y=paper.clientHeight-el.offsetHeight;
-
-   }
-
+   if(y<0)y=0;
 
 
    el.style.left=x+"px";
@@ -390,29 +464,9 @@ function addPhoto(e){
    el.style.top=y+"px";
 
 
-
-   // 端に来た時だけ文字を折り返す
-
-   if(el.tagName==="DIV"){
-
-    if(el.offsetLeft+el.offsetWidth>paper.clientWidth){
-
-     el.style.whiteSpace="normal";
-
-     el.style.width=
-     (paper.clientWidth-el.offsetLeft)+"px";
-
-    }
-
-   }
-
-
   }
 
 
-
-
-  // 拡大縮小
 
   if(e.touches.length===2){
 
@@ -434,10 +488,13 @@ function addPhoto(e){
 
    startDistance=now;
 
+
   }
 
 
+
   e.preventDefault();
+
 
  });
 
@@ -447,29 +504,6 @@ function addPhoto(e){
   clearTimeout(timer);
 
  });
-
-
- // 文字編集
-
- if(el.tagName==="DIV"){
-
-  el.addEventListener("dblclick",()=>{
-
-   let t=prompt(
-   "文字を変更",
-   el.innerText
-   );
-
-
-   if(t!==null){
-
-    el.innerText=t;
-
-   }
-
-  });
-
- }
 
 
 }
@@ -484,35 +518,6 @@ function getDistance(t){
 
 
  return Math.sqrt(x*x+y*y);
-
-}
-
-
-
-// 画面ズーム
-
-function zoomPaper(v){
-
- paperZoom*=v;
-
-
- if(paperZoom<0.5)paperZoom=0.5;
-
- if(paperZoom>3)paperZoom=3;
-
-
- paper.style.transform=
- "scale("+paperZoom+")";
-
-}
-
-
-
-function resetZoom(){
-
- paperZoom=1;
-
- paper.style.transform="scale(1)";
 
 }
 
@@ -533,8 +538,8 @@ function saveImage(){
 
  a.click();
 
-}
 
+}
 
 
 </script>
