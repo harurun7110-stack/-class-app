@@ -396,14 +396,6 @@ function textControl(el){
  el.addEventListener("touchstart",e=>{
 
 
-  timer=setTimeout(()=>{
-
-   fixed=!fixed;
-
-   el.style.opacity=fixed?"0.5":"1";
-
-  },700);
-
 
 
   startX=e.touches[0].clientX;
@@ -423,7 +415,7 @@ function textControl(el){
  el.addEventListener("touchmove",e=>{
 
 
-  if(fixed)return;
+
 
 
   let x=startLeft+
@@ -563,9 +555,7 @@ function photoControl(el){
 
  let startLeft,startTop;
 
- let fixed=false;
-
- let timer;
+ 
 
 
  let scale=1;
