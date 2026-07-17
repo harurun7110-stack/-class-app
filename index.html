@@ -359,7 +359,17 @@ function saveWork(){
 }
 
 
+function saveWork(){
 
+ let a=document.createElement("a");
+
+ a.download="作品.png";
+
+ a.href=canvas.toDataURL();
+
+ a.click();
+
+}
 </script>
 
 </body>
