@@ -6,89 +6,185 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>お絵描きアプリ</title>
+<title>新聞・チラシ作成アプリ</title>
 
 <style>
 
 body{
  margin:0;
- background:#eee;
+ background:#ddd;
  font-family:sans-serif;
  text-align:center;
 }
 
-#tools{
- display:flex;
- flex-wrap:wrap;
- justify-content:center;
- gap:5px;
+
+#menuBtn{
+ position:fixed;
+ top:10px;
+ left:10px;
+ z-index:10;
+ font-size:25px;
+ padding:10px;
+ border-radius:12px;
+ border:0;
+ background:#4da6ff;
+ color:white;
 }
 
-button{
- padding:8px;
+
+#menu{
+ position:fixed;
+ top:60px;
+ left:10px;
+ width:220px;
+ max-height:80vh;
+ overflow:auto;
+ background:white;
+ border-radius:15px;
+ padding:10px;
+ display:none;
+ z-index:10;
+ box-shadow:0 0 10px #777;
+}
+
+
+.menuItem{
+ width:100%;
+ margin:5px 0;
+ padding:10px;
  border:0;
  border-radius:10px;
  background:#4da6ff;
  color:white;
 }
 
+
+
 #paper{
+
  width:350px;
  height:500px;
+
  background:white;
+
  border:2px solid black;
- margin:10px auto;
+
+ margin:70px auto 20px;
+
  position:relative;
+
  overflow:hidden;
+
 }
+
+
 
 canvas{
+
  position:absolute;
+
  left:0;
+
  top:0;
+
  width:350px;
+
  height:500px;
+
  touch-action:none;
+
 }
 
+
+
 .object{
+
  position:absolute;
+
  user-select:none;
+
  touch-action:none;
+
 }
+
+
 
 </style>
 </head>
 
 <body>
 
-<h1>お絵描きアプリ</h1>
+
+<button id="menuBtn" onclick="openMenu()">☰</button>
+<button class="menuItem" onclick="deleteSelected()">🗑 削除</button>
+
+<button class="menuItem" onclick="changeTextSize()">🔠 文字サイズ</button>
+
+<button class="menuItem" onclick="addBox()">⬜ 四角追加</button>
+
+<div id="menu">
+
+<h3>機能メニュー</h3>
 
 
-<div id="tools">
+<button class="menuItem" onclick="togglePen()">✏️ ペンON/OFF</button>
 
-<button onclick="togglePen()">ペンON/OFF</button>
-
-<button onclick="setTool('eraser')">消しゴム</button>
-
-<button onclick="setColor('black')">黒</button>
-<button onclick="setColor('red')">赤</button>
-<button onclick="setColor('blue')">青</button>
+<button class="menuItem" onclick="setEraser()">🧽 消しゴム</button>
 
 
-<input id="penSize" type="range" min="1" max="40" value="5">
+<button class="menuItem" onclick="changePaper()">📄 紙の色</button>
 
 
-<button onclick="addText()">文字</button>
+<button class="menuItem" onclick="addText()">🔤 文字追加</button>
 
 
-<input type="file" accept="image/*" onchange="addPhoto(event)">
+<button class="menuItem" onclick="addPhoto()">🖼 写真追加</button>
 
 
-<button onclick="saveImage()">完成</button>
+<button class="menuItem" onclick="saveImage()">💾 保存</button>
+<button class="menuItem" onclick="paperPattern()">📰 紙の柄</button>
 
+<button class="menuItem" onclick="addTitle()">⭐ 見出し</button>
 
+<button class="menuItem" onclick="addStamp()">😀 スタンプ</button>
+
+<button class="menuItem" onclick="clearAll()">🧹 全消し</button>
+<button class="menuItem" onclick="undo()">↩️ 元に戻す</button>
+
+<button class="menuItem" onclick="redo()">↪️ やり直し</button>
+
+<button class="menuItem" onclick="zoomPaper(1.1)">🔍 拡大</button>
+
+<button class="menuItem" onclick="zoomPaper(0.9)">🔎 縮小</button>
+
+<button class="menuItem" onclick="rotateSelected()">🔄 回転</button>
+<button class="menuItem" onclick="fontChange()">🔤 フォント</button>
+
+<button class="menuItem" onclick="boldText()">💪 太文字</button>
+
+<button class="menuItem" onclick="outlineText()">✨ 文字ふち</button>
+
+<button class="menuItem" onclick="addLine()">➖ 線</button>
+
+<button class="menuItem" onclick="addCircle()">⚪ 丸</button>
+
+<button class="menuItem" onclick="addArrow()">➡️ 矢印</button>
+
+<button class="menuItem" onclick="flipPhoto()">🔃 写真反転</button>
+ <button class="menuItem" onclick="alignCenter()">↔️ 横中央</button>
+
+<button class="menuItem" onclick="alignMiddle()">↕️ 縦中央</button>
+
+<button class="menuItem" onclick="bringFront()">⬆️ 前へ</button>
+
+<button class="menuItem" onclick="sendBack()">⬇️ 後ろへ</button>
+
+<button class="menuItem" onclick="copyObject()">📋 複製</button>
+
+<button class="menuItem" onclick="unselect()">❌ 選択解除</button>
+ 
 </div>
+
 
 
 <div id="paper">
@@ -98,6 +194,7 @@ canvas{
 </div>
 <script>
 
+const menu=document.getElementById("menu");
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 const paper=document.getElementById("paper");
@@ -106,6 +203,23 @@ const paper=document.getElementById("paper");
 let tool="none";
 let color="black";
 let drawing=false;
+
+
+// メニュー開閉
+
+function openMenu(){
+
+ if(menu.style.display==="block"){
+
+  menu.style.display="none";
+
+ }else{
+
+  menu.style.display="block";
+
+ }
+
+}
 
 
 
@@ -118,11 +232,13 @@ function togglePen(){
 }
 
 
-function setTool(t){
 
- tool=t;
+function setEraser(){
+
+ tool="eraser";
 
 }
+
 
 
 function setColor(c){
@@ -133,6 +249,28 @@ function setColor(c){
 
 
 
+// 紙色
+
+function changePaper(){
+
+ let c=prompt(
+ "紙の色を入力（例 red / yellow / white）",
+ "white"
+ );
+
+
+ if(c){
+
+  paper.style.background=c;
+
+ }
+
+}
+
+
+
+// 描く
+
 canvas.addEventListener("touchstart",e=>{
 
  if(tool!=="pen" && tool!=="eraser")return;
@@ -142,11 +280,13 @@ canvas.addEventListener("touchstart",e=>{
 
  draw(e);
 
+
 });
 
 
 
 canvas.addEventListener("touchmove",draw);
+
 
 
 canvas.addEventListener("touchend",()=>{
@@ -159,6 +299,7 @@ canvas.addEventListener("touchend",()=>{
 
 
 
+
 function draw(e){
 
  if(!drawing)return;
@@ -166,19 +307,26 @@ function draw(e){
 
  let r=canvas.getBoundingClientRect();
 
+
  let x=e.touches[0].clientX-r.left;
 
  let y=e.touches[0].clientY-r.top;
 
 
-
- ctx.lineWidth=document.getElementById("penSize").value;
+ ctx.lineWidth=5;
 
  ctx.lineCap="round";
 
 
- ctx.strokeStyle=
- tool==="eraser"?"white":color;
+ if(tool==="eraser"){
+
+  ctx.strokeStyle="white";
+
+ }else{
+
+  ctx.strokeStyle=color;
+
+ }
 
 
  ctx.lineTo(x,y);
@@ -194,11 +342,7 @@ function draw(e){
  e.preventDefault();
 
 }
-
-
-
-
-// 文字追加
+ // 文字追加
 
 function addText(){
 
@@ -223,11 +367,6 @@ function addText(){
 
  div.style.fontSize="30px";
 
- div.style.color=color;
-
-
- // 最初は改行しない
-
  div.style.whiteSpace="nowrap";
 
 
@@ -237,155 +376,16 @@ function addText(){
  textControl(div);
 
 }
- function textControl(el){
 
- let startX=0;
- let startY=0;
 
- let startLeft=0;
- let startTop=0;
 
+// 文字操作
 
-
- el.addEventListener("touchstart",e=>{
-
-
-  startX=e.touches[0].clientX;
-
-  startY=e.touches[0].clientY;
-
-
-  startLeft=el.offsetLeft;
-
-  startTop=el.offsetTop;
-
-
- });
-
-
-
- el.addEventListener("touchmove",e=>{
-
-
-  let x=startLeft+
-  e.touches[0].clientX-startX;
-
-
-  let y=startTop+
-  e.touches[0].clientY-startY;
-
-
-
-  // 左上だけ制限
-
-  if(x<0)x=0;
-
-  if(y<0)y=0;
-
-
-
-  el.style.left=x+"px";
-
-  el.style.top=y+"px";
-
-
-
-  // 壁に当たったら文字だけ幅変更
-
-  if(el.offsetLeft+el.offsetWidth>paper.clientWidth){
-
-
-   el.style.width=
-   (paper.clientWidth-el.offsetLeft)+"px";
-
-
-   el.style.whiteSpace="normal";
-
-
-  }
-
-
-
-  e.preventDefault();
-
-
- });
-
-
-}
-
-
-
-// 文字編集
-
-document.addEventListener("dblclick",e=>{
-
-
- if(e.target.classList.contains("text")){
-
-
-  let t=prompt(
-   "文字を変更",
-   e.target.innerText
-  );
-
-
-  if(t!==null){
-
-   e.target.innerText=t;
-
-  }
-
-
- }
-
-});
- // 写真追加
-
-function addPhoto(e){
-
- let file=e.target.files[0];
-
- if(!file)return;
-
-
- let img=document.createElement("img");
-
-
- img.className="object photo";
-
-
- img.src=URL.createObjectURL(file);
-
-
- img.style.width="150px";
-
- img.style.left="20px";
-
- img.style.top="20px";
-
-
- paper.appendChild(img);
-
-
- photoControl(img);
-
-}
-
-
-
-// 写真操作
-
-function photoControl(el){
+function textControl(el){
 
  let startX,startY;
 
  let startLeft,startTop;
-
-
- let startDistance=0;
-
- let scale=1;
 
  let fixed=false;
 
@@ -406,26 +406,14 @@ function photoControl(el){
 
 
 
-  if(e.touches.length===1){
+  startX=e.touches[0].clientX;
 
-   startX=e.touches[0].clientX;
-
-   startY=e.touches[0].clientY;
+  startY=e.touches[0].clientY;
 
 
-   startLeft=el.offsetLeft;
+  startLeft=el.offsetLeft;
 
-   startTop=el.offsetTop;
-
-  }
-
-
-
-  if(e.touches.length===2){
-
-   startDistance=getDistance(e.touches);
-
-  }
+  startTop=el.offsetTop;
 
 
  });
@@ -438,56 +426,43 @@ function photoControl(el){
   if(fixed)return;
 
 
-  clearTimeout(timer);
+  let x=startLeft+
+  e.touches[0].clientX-startX;
+
+
+  let y=startTop+
+  e.touches[0].clientY-startY;
 
 
 
-  if(e.touches.length===1){
+  if(x<0)x=0;
 
-
-   let x=startLeft+
-   e.touches[0].clientX-startX;
-
-
-   let y=startTop+
-   e.touches[0].clientY-startY;
+  if(y<0)y=0;
 
 
 
-   if(x<0)x=0;
+  el.style.left=x+"px";
 
-   if(y<0)y=0;
-
-
-   el.style.left=x+"px";
-
-   el.style.top=y+"px";
-
-
-  }
+  el.style.top=y+"px";
 
 
 
-  if(e.touches.length===2){
+  // 壁に当たった時だけ改行
 
+  if(x+el.offsetWidth>paper.clientWidth){
 
-   let now=getDistance(e.touches);
+   el.style.whiteSpace="normal";
 
+   el.style.width=
+   paper.clientWidth-x+"px";
 
-   scale*=now/startDistance;
+  }else{
 
+   // 壁から離れたら戻す
 
-   if(scale<0.3)scale=0.3;
+   el.style.whiteSpace="nowrap";
 
-   if(scale>5)scale=5;
-
-
-   el.style.transform=
-   "scale("+scale+")";
-
-
-   startDistance=now;
-
+   el.style.width="auto";
 
   }
 
@@ -499,6 +474,7 @@ function photoControl(el){
  });
 
 
+
  el.addEventListener("touchend",()=>{
 
   clearTimeout(timer);
@@ -506,43 +482,843 @@ function photoControl(el){
  });
 
 
+
+ // 2回タップ編集
+
+ el.addEventListener("dblclick",()=>{
+
+
+  let t=prompt(
+  "文字変更",
+  el.innerText
+  );
+
+
+  if(t!==null){
+
+   el.innerText=t;
+
+  }
+
+
+ });
+
+}
+ // 写真追加
+
+function addPhoto(){
+
+ let input=document.createElement("input");
+
+ input.type="file";
+
+ input.accept="image/*";
+
+
+ input.onchange=e=>{
+
+
+  let file=e.target.files[0];
+
+
+  if(!file)return;
+
+
+  let img=document.createElement("img");
+
+
+  img.className="object photo";
+
+
+  img.src=URL.createObjectURL(file);
+
+
+  img.style.width="150px";
+
+  img.style.left="20px";
+
+  img.style.top="20px";
+
+
+  paper.appendChild(img);
+
+
+  photoControl(img);
+
+
+ };
+
+
+ input.click();
+
 }
 
 
 
-function getDistance(t){
+// 写真操作
 
- let x=t[0].clientX-t[1].clientX;
+function photoControl(el){
 
- let y=t[0].clientY-t[1].clientY;
+ let startX,startY;
+
+ let startLeft,startTop;
+
+ let fixed=false;
+
+ let timer;
 
 
- return Math.sqrt(x*x+y*y);
+ let scale=1;
+
+ let rotate=0;
+
+ let flip=false;
+
+
+
+ el.addEventListener("touchstart",e=>{
+
+
+  timer=setTimeout(()=>{
+
+   fixed=!fixed;
+
+   el.style.opacity=fixed?"0.5":"1";
+
+  },700);
+
+
+
+  startX=e.touches[0].clientX;
+
+  startY=e.touches[0].clientY;
+
+
+  startLeft=el.offsetLeft;
+
+  startTop=el.offsetTop;
+
+
+ });
+
+
+
+ el.addEventListener("touchmove",e=>{
+
+
+  if(fixed)return;
+
+
+  let x=startLeft+
+  e.touches[0].clientX-startX;
+
+
+  let y=startTop+
+  e.touches[0].clientY-startY;
+
+
+
+  el.style.left=x+"px";
+
+  el.style.top=y+"px";
+
+
+  e.preventDefault();
+
+
+ });
+
+
+
+ el.addEventListener("touchend",()=>{
+
+  clearTimeout(timer);
+
+ });
+
+
+
+ // 2回タップで反転
+
+ el.addEventListener("dblclick",()=>{
+
+
+  flip=!flip;
+
+
+  el.style.transform=
+  "scaleX("+(flip?-1:1)+") rotate("+rotate+"deg)";
+
+
+ });
+
+
+}
+ // 選択中のもの
+let selectedObject=null;
+
+
+// クリックした物を選択
+document.addEventListener("click",e=>{
+
+ if(e.target.classList.contains("object")){
+
+  selectedObject=e.target;
+
+ }
+
+});
+
+
+// 削除
+
+function deleteSelected(){
+
+ if(selectedObject){
+
+  selectedObject.remove();
+
+  selectedObject=null;
+
+ }
+
+}
+
+
+// 文字サイズ変更
+
+function changeTextSize(){
+
+ if(!selectedObject)return;
+
+
+ if(selectedObject.classList.contains("text")){
+
+
+  let size=prompt(
+   "文字サイズ",
+   parseInt(selectedObject.style.fontSize)
+  );
+
+
+  if(size){
+
+   selectedObject.style.fontSize=size+"px";
+
+  }
+
+ }
+
+}
+
+
+// 四角追加
+
+function addBox(){
+
+ let box=document.createElement("div");
+
+
+ box.className="object";
+
+
+ box.style.left="50px";
+
+ box.style.top="50px";
+
+
+ box.style.width="100px";
+
+ box.style.height="100px";
+
+
+ box.style.background="black";
+
+
+ paper.appendChild(box);
+
+
+ moveBox(box);
 
 }
 
 
 
-// 保存
+// 四角移動
 
-function saveImage(){
+function moveBox(el){
 
- let a=document.createElement("a");
-
-
- a.download="作品.png";
+ let sx,sy,l,t;
 
 
- a.href=canvas.toDataURL();
+ el.addEventListener("touchstart",e=>{
 
 
- a.click();
+  sx=e.touches[0].clientX;
 
+  sy=e.touches[0].clientY;
+
+
+  l=el.offsetLeft;
+
+  t=el.offsetTop;
+
+
+ });
+
+
+ el.addEventListener("touchmove",e=>{
+
+
+  el.style.left=
+  l+e.touches[0].clientX-sx+"px";
+
+
+  el.style.top=
+  t+e.touches[0].clientY-sy+"px";
+
+
+  e.preventDefault();
+
+ });
+
+
+}
+ // 紙の柄変更
+
+function paperPattern(){
+
+ let p=prompt(
+  "柄を選択\n1:ノート\n2:新聞風\n3:ドット\n4:なし",
+  "1"
+ );
+
+
+ if(p==="1"){
+
+  paper.style.background=
+  "linear-gradient(#fff 95%,#ddd 95%)";
+
+ }else if(p==="2"){
+
+  paper.style.background=
+  "#f5f5f5";
+
+ }else if(p==="3"){
+
+  paper.style.background=
+  "radial-gradient(#ccc 1px,transparent 1px)";
+
+  paper.style.backgroundSize="10px 10px";
+
+ }else{
+
+  paper.style.background="white";
+
+ }
 
 }
 
 
-</script>
+
+// 見出し文字
+
+function addTitle(){
+
+ let t=prompt("見出し");
+
+ if(!t)return;
+
+
+ let div=document.createElement("div");
+
+
+ div.className="object text";
+
+
+ div.innerText=t;
+
+
+ div.style.left="20px";
+
+ div.style.top="20px";
+
+ div.style.fontSize="50px";
+
+ div.style.fontWeight="bold";
+
+
+ paper.appendChild(div);
+
+
+ textControl(div);
+
+}
+
+
+
+// スタンプ
+
+function addStamp(){
+
+ let div=document.createElement("div");
+
+
+ div.className="object";
+
+
+ div.innerText="⭐";
+
+
+ div.style.fontSize="60px";
+
+ div.style.left="100px";
+
+ div.style.top="100px";
+
+
+ paper.appendChild(div);
+
+
+ textControl(div);
+
+}
+
+
+
+// 全消し
+
+function clearAll(){
+
+ if(confirm("全部消しますか？")){
+
+
+  document.querySelectorAll(".object")
+  .forEach(e=>e.remove());
+
+
+  ctx.clearRect(
+   0,
+   0,
+   canvas.width,
+   canvas.height
+  );
+
+
+ }
+
+}
+ // 元に戻す・やり直し
+
+let history=[];
+let redoHistory=[];
+
+
+// 状態保存
+
+function saveHistory(){
+
+ let data=paper.innerHTML;
+
+ history.push(data);
+
+ redoHistory=[];
+
+}
+
+
+
+// 元に戻す
+
+function undo(){
+
+ if(history.length===0)return;
+
+
+ redoHistory.push(paper.innerHTML);
+
+
+ paper.innerHTML=
+ history.pop();
+
+}
+
+
+
+// やり直し
+
+function redo(){
+
+ if(redoHistory.length===0)return;
+
+
+ history.push(paper.innerHTML);
+
+
+ paper.innerHTML=
+ redoHistory.pop();
+
+}
+
+
+
+// ズーム
+
+let paperScale=1;
+
+
+function zoomPaper(v){
+
+ paperScale*=v;
+
+
+ if(paperScale<0.5)paperScale=0.5;
+
+ if(paperScale>3)paperScale=3;
+
+
+ paper.style.transform=
+ "scale("+paperScale+")";
+
+}
+
+
+
+// 選択したものを回転
+
+function rotateSelected(){
+
+ if(!selectedObject)return;
+
+
+ let r=
+ parseInt(
+ selectedObject.dataset.rotate || 0
+ );
+
+
+ r+=15;
+
+
+ selectedObject.dataset.rotate=r;
+
+
+ selectedObject.style.transform=
+ "rotate("+r+"deg)";
+
+}
+ // フォント変更
+
+function fontChange(){
+
+ if(!selectedObject)return;
+
+ if(!selectedObject.classList.contains("text"))return;
+
+
+ let f=prompt(
+ "フォント名",
+ "sans-serif"
+ );
+
+
+ if(f){
+
+  selectedObject.style.fontFamily=f;
+
+ }
+
+}
+
+
+
+// 太文字
+
+function boldText(){
+
+ if(!selectedObject)return;
+
+
+ if(selectedObject.classList.contains("text")){
+
+  selectedObject.style.fontWeight="bold";
+
+ }
+
+}
+
+
+
+// 文字ふち
+
+function outlineText(){
+
+ if(!selectedObject)return;
+
+
+ if(selectedObject.classList.contains("text")){
+
+
+  selectedObject.style.webkitTextStroke=
+  "1px black";
+
+
+ }
+
+}
+
+
+
+// 線
+
+function addLine(){
+
+ let line=document.createElement("div");
+
+
+ line.className="object";
+
+
+ line.style.width="150px";
+
+ line.style.height="3px";
+
+ line.style.background="black";
+
+ line.style.left="50px";
+
+ line.style.top="50px";
+
+
+ paper.appendChild(line);
+
+
+ textControl(line);
+
+}
+
+
+
+// 丸
+
+function addCircle(){
+
+ let c=document.createElement("div");
+
+
+ c.className="object";
+
+
+ c.style.width="80px";
+
+ c.style.height="80px";
+
+ c.style.borderRadius="50%";
+
+ c.style.background="red";
+
+
+ c.style.left="100px";
+
+ c.style.top="100px";
+
+
+ paper.appendChild(c);
+
+
+ textControl(c);
+
+}
+
+
+
+// 矢印
+
+function addArrow(){
+
+ let a=document.createElement("div");
+
+
+ a.className="object";
+
+
+ a.innerText="➡️";
+
+
+ a.style.fontSize="70px";
+
+
+ a.style.left="100px";
+
+ a.style.top="100px";
+
+
+ paper.appendChild(a);
+
+
+ textControl(a);
+
+}
+
+
+
+// 写真反転
+
+function flipPhoto(){
+
+ if(!selectedObject)return;
+
+
+ if(!selectedObject.classList.contains("photo"))
+ return;
+
+
+ selectedObject.dataset.flip =
+ selectedObject.dataset.flip==="1" ? "0":"1";
+
+
+ selectedObject.style.transform =
+ selectedObject.dataset.flip==="1"
+ ? "scaleX(-1)"
+ : "scaleX(1)";
+
+}
+ // 選択枠
+
+document.addEventListener("click",e=>{
+
+ if(e.target.classList.contains("object")){
+
+  if(selectedObject){
+
+   selectedObject.style.outline="none";
+
+  }
+
+
+  selectedObject=e.target;
+
+
+  selectedObject.style.outline=
+  "2px solid blue";
+
+ }
+
+});
+
+
+
+// 選択解除
+
+function unselect(){
+
+ if(selectedObject){
+
+  selectedObject.style.outline="none";
+
+ }
+
+
+ selectedObject=null;
+
+}
+
+
+
+// 横中央
+
+function alignCenter(){
+
+ if(!selectedObject)return;
+
+
+ selectedObject.style.left=
+ (paper.clientWidth-
+ selectedObject.offsetWidth)/2+"px";
+
+}
+
+
+
+// 縦中央
+
+function alignMiddle(){
+
+ if(!selectedObject)return;
+
+
+ selectedObject.style.top=
+ (paper.clientHeight-
+ selectedObject.offsetHeight)/2+"px";
+
+}
+
+
+
+// 前へ
+
+function bringFront(){
+
+ if(!selectedObject)return;
+
+
+ selectedObject.style.zIndex=
+ Number(selectedObject.style.zIndex||0)+1;
+
+}
+
+
+
+// 後ろへ
+
+function sendBack(){
+
+ if(!selectedObject)return;
+
+
+ selectedObject.style.zIndex=0;
+
+}
+
+
+
+// 複製
+
+function copyObject(){
+
+ if(!selectedObject)return;
+
+
+ let copy=
+ selectedObject.cloneNode(true);
+
+
+ copy.style.left=
+ selectedObject.offsetLeft+20+"px";
+
+
+ copy.style.top=
+ selectedObject.offsetTop+20+"px";
+
+
+ paper.appendChild(copy);
+
+
+ if(copy.classList.contains("text")){
+
+  textControl(copy);
+
+ }
+
+ if(copy.classList.contains("photo")){
+
+  photoControl(copy);
+
+ }
+
+
+}
+ </script>
 
 </body>
 </html>
