@@ -4,11 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Art Studio</title>
-
 
 <style>
 
@@ -16,49 +14,36 @@
 box-sizing:border-box;
 }
 
-
 body{
-
 margin:0;
-
-background:#222;
-
+background:#202020;
 font-family:sans-serif;
-
 overflow:hidden;
-
 }
 
 
-
+/* アプリ全体 */
 
 #app{
 
 height:100vh;
-
 display:flex;
-
 flex-direction:column;
 
 }
 
 
 
-
-/* 上 */
+/* 上バー */
 
 #top{
 
 height:55px;
-
 background:#111;
-
 color:white;
 
 display:flex;
-
 align-items:center;
-
 justify-content:space-between;
 
 padding:0 15px;
@@ -67,10 +52,9 @@ padding:0 15px;
 
 
 
-#top button{
+.topButton{
 
 background:#333;
-
 color:white;
 
 border:0;
@@ -79,8 +63,9 @@ border-radius:12px;
 
 padding:8px;
 
-}
+font-size:18px;
 
+}
 
 
 
@@ -98,14 +83,13 @@ display:flex;
 
 
 
-
 /* レイヤー */
 
-#layers{
+#layerBox{
 
 width:160px;
 
-background:#181818;
+background:#171717;
 
 color:white;
 
@@ -131,24 +115,21 @@ border-radius:10px;
 
 
 
-
 /* キャンバス */
 
-#area{
+#canvasArea{
 
 flex:1;
 
-display:flex;
+background:#333;
 
-justify-content:center;
+display:flex;
 
 align-items:center;
 
-background:#333;
+justify-content:center;
 
 }
-
-
 
 
 
@@ -163,12 +144,11 @@ box-shadow:0 0 20px black;
 
 
 
+/* 下メニュー */
 
-/* 下ツール */
+#toolbar{
 
-#tools{
-
-height:65px;
+height:70px;
 
 background:#111;
 
@@ -178,7 +158,7 @@ justify-content:center;
 
 align-items:center;
 
-gap:7px;
+gap:8px;
 
 }
 
@@ -186,19 +166,58 @@ gap:7px;
 
 .tool{
 
-width:45px;
+width:48px;
 
-height:45px;
-
-border-radius:15px;
+height:48px;
 
 border:0;
+
+border-radius:15px;
 
 background:#333;
 
 color:white;
 
-font-size:20px;
+font-size:22px;
+
+}
+
+
+
+
+.tool.active{
+
+background:#4285f4;
+
+}
+
+
+
+
+
+/* 設定パネル */
+
+#panel{
+
+position:absolute;
+
+bottom:80px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+background:#111;
+
+color:white;
+
+padding:15px;
+
+border-radius:20px;
+
+min-width:220px;
+
+display:none;
 
 }
 
@@ -214,7 +233,7 @@ position:fixed;
 
 right:8px;
 
-bottom:3px;
+bottom:4px;
 
 font-size:10px;
 
@@ -223,19 +242,17 @@ color:#aaa;
 }
 
 
-
-
 </style>
 
 
 </head>
 
 
-
 <body>
 
 
 <div id="app">
+
 
 
 <div id="top">
@@ -248,17 +265,18 @@ color:#aaa;
 </div>
 
 
+
 <div>
 
 
-<button>
+<button class="topButton">
 
 ⭐
 
 </button>
 
 
-<button>
+<button class="topButton">
 
 ⚙️
 
@@ -268,7 +286,9 @@ color:#aaa;
 </div>
 
 
+
 </div>
+
 
 
 
@@ -278,7 +298,7 @@ color:#aaa;
 
 
 
-<div id="layers">
+<div id="layerBox">
 
 
 <h3>🗂レイヤー</h3>
@@ -298,22 +318,6 @@ color:#aaa;
 </div>
 
 
-</div>
-
-
-
-
-
-
-<div id="area">
-
-
-<canvas id="canvas" width="800" height="500"></canvas>
-
-
-</div>
-
-
 
 </div>
 
@@ -323,14 +327,30 @@ color:#aaa;
 
 
 
-<div id="tools">
+<div id="canvasArea">
+
+
+<canvas id="canvas" width="900" height="550"></canvas>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div id="toolbar">
 
 
 <button class="tool">✏️</button>
 
 <button class="tool">🧽</button>
-
-<button class="tool">🎨</button>
 
 <button class="tool">🔤</button>
 
@@ -354,168 +374,97 @@ color:#aaa;
 
 
 
+<div id="panel"></div>
+
+
+
 <div id="author">
 
 作者 アリーナ真面目役
 
 </div>
-<style>
-
-#penMenu{
-
-position:absolute;
-
-bottom:80px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-
-#penMenu input{
-
-width:200px;
-
-}
-
-</style>
-
-
-
-
-
-<div id="penMenu">
-
-
-<h3>✏️ペン設定</h3>
-
-
-色
-
-<input type="color" id="penColor" value="#000000">
-
-
-<br><br>
-
-
-太さ
-
-<input type="range" id="penSize" min="1" max="80" value="8">
-
-
-<br><br>
-
-
-透明度
-
-<input type="range" id="penAlpha" min="10" max="100" value="100">
-
-
-
-<br><br>
-
-
-<button id="normalBrush">
-
-普通ペン
-
-</button>
-
-
-<button id="markerBrush">
-
-マーカー
-
-</button>
-
-
-<button id="pencilBrush">
-
-鉛筆
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-
 <script>
 
 
-const canvas =
-document.getElementById("canvas");
+const canvas = document.getElementById("canvas");
+
+const ctx = canvas.getContext("2d");
 
 
-const ctx =
-canvas.getContext("2d");
+const panel = document.getElementById("panel");
+
+const tools = document.querySelectorAll(".tool");
 
 
+
+let currentMenu="";
+
+
+
+let drawMode="pen";
 
 let drawing=false;
 
 
-let mode="pen";
-
-
 let penColor="#000000";
-
 
 let penSize=8;
 
-
-let alpha=1;
-
-
-let brush="normal";
+let opacity=1;
 
 
 
 
 
 
-function position(e){
+// メニューを1個だけ表示
+
+function openMenu(text){
+
+
+if(currentMenu===text){
+
+
+panel.style.display="none";
+
+currentMenu="";
+
+
+return;
+
+
+}
+
+
+
+currentMenu=text;
+
+
+panel.style.display="block";
+
+
+}
+
+
+
+
+
+// 座標取得
+
+function getPos(e){
 
 
 let r=canvas.getBoundingClientRect();
 
 
-if(e.touches){
-
 return{
 
-x:e.touches[0].clientX-r.left,
-
-y:e.touches[0].clientY-r.top
-
-};
-
-}
-
-
-return{
 
 x:e.clientX-r.left,
 
 y:e.clientY-r.top
 
+
 };
 
 
@@ -527,44 +476,53 @@ y:e.clientY-r.top
 
 
 
-function start(e){
+// 描画開始
+
+canvas.addEventListener("mousedown",function(e){
 
 
 drawing=true;
 
 
-let p=position(e);
+let p=getPos(e);
 
 
 ctx.beginPath();
 
-
 ctx.moveTo(p.x,p.y);
 
 
-}
+});
 
 
 
 
 
 
-function move(e){
+// 描画中
+
+canvas.addEventListener("mousemove",function(e){
 
 
 if(!drawing)return;
 
 
 
-let p=position(e);
+let p=getPos(e);
 
 
 
-ctx.globalAlpha=alpha;
+ctx.globalAlpha=opacity;
+
+
+ctx.lineWidth=penSize;
+
+
+ctx.lineCap="round";
 
 
 
-if(mode==="eraser"){
+if(drawMode==="eraser"){
 
 
 ctx.strokeStyle="white";
@@ -580,45 +538,21 @@ ctx.strokeStyle=penColor;
 
 
 
-
-ctx.lineWidth=penSize;
-
-
-ctx.lineCap="round";
-
-
-
-if(brush==="marker"){
-
-ctx.globalAlpha=0.4;
-
-}
-
-
-
-if(brush==="pencil"){
-
-ctx.lineWidth=2;
-
-}
-
-
-
-
 ctx.lineTo(p.x,p.y);
 
 
 ctx.stroke();
 
 
-
-}
-
+});
 
 
 
 
-function end(){
+
+
+
+canvas.addEventListener("mouseup",function(){
 
 
 drawing=false;
@@ -627,26 +561,7 @@ drawing=false;
 ctx.globalAlpha=1;
 
 
-}
-
-
-
-
-
-
-canvas.addEventListener("mousedown",start);
-
-canvas.addEventListener("mousemove",move);
-
-canvas.addEventListener("mouseup",end);
-
-
-
-canvas.addEventListener("touchstart",start);
-
-canvas.addEventListener("touchmove",move);
-
-canvas.addEventListener("touchend",end);
+});
 
 
 
@@ -654,8 +569,94 @@ canvas.addEventListener("touchend",end);
 
 
 
-let tools=
-document.querySelectorAll(".tool");
+// タッチ対応
+
+canvas.addEventListener("touchstart",function(e){
+
+
+e.preventDefault();
+
+
+let t=e.touches[0];
+
+
+let r=canvas.getBoundingClientRect();
+
+
+
+ctx.beginPath();
+
+
+ctx.moveTo(
+
+t.clientX-r.left,
+
+t.clientY-r.top
+
+);
+
+
+drawing=true;
+
+
+
+});
+
+
+
+
+canvas.addEventListener("touchmove",function(e){
+
+
+e.preventDefault();
+
+
+if(!drawing)return;
+
+
+let t=e.touches[0];
+
+let r=canvas.getBoundingClientRect();
+
+
+
+ctx.lineWidth=penSize;
+
+ctx.strokeStyle=
+
+drawMode==="eraser"
+
+?"white"
+
+:penColor;
+
+
+
+ctx.lineTo(
+
+t.clientX-r.left,
+
+t.clientY-r.top
+
+);
+
+
+ctx.stroke();
+
+
+
+});
+
+
+
+
+canvas.addEventListener("touchend",function(){
+
+
+drawing=false;
+
+
+});
 
 
 
@@ -663,724 +664,196 @@ document.querySelectorAll(".tool");
 
 
 
-// ペン
-
-tools[0].onclick=function(){
 
 
+// ツールボタン
 
-penMenu.style.display=
-
-penMenu.style.display==="block"
-
-?"none"
-
-:"block";
+tools.forEach(function(btn,index){
 
 
 
-mode="pen";
+btn.onclick=function(){
 
 
-};
+
+tools.forEach(b=>b.classList.remove("active"));
+
+
+this.classList.add("active");
 
 
 
 
 
-
-// 消しゴム
-
-tools[1].onclick=function(){
+if(index===0){
 
 
-mode="eraser";
+drawMode="pen";
 
 
-};
+openMenu("✏️ペン");
+
+
+panel.innerHTML=`
+
+<h3>✏️ペン設定</h3>
+
+
+色<br>
+
+<input id="penColor" type="color" value="${penColor}">
+
+
+<br><br>
+
+
+太さ<br>
+
+<input id="penSize" type="range" min="1" max="100" value="${penSize}">
+
+
+<br><br>
+
+
+透明度<br>
+
+<input id="penOpacity" type="range" min="10" max="100" value="100">
+
+
+
+`;
 
 
 
 
 
-
-// 色
-
-penColor.oninput=function(){
-
+document.getElementById("penColor").oninput=function(){
 
 penColor=this.value;
 
-
 };
 
 
 
-
-
-
-
-// 太さ
-
-document.getElementById("penSize")
-.oninput=function(){
-
+document.getElementById("penSize").oninput=function(){
 
 penSize=this.value;
 
-
 };
 
 
 
+document.getElementById("penOpacity").oninput=function(){
 
-
-
-// 透明度
-
-document.getElementById("penAlpha")
-.oninput=function(){
-
-
-alpha=this.value/100;
-
+opacity=this.value/100;
 
 };
 
 
-
-
-
-
-normalBrush.onclick=function(){
-
-
-brush="normal";
-
-
-};
-
-
-
-markerBrush.onclick=function(){
-
-
-brush="marker";
-
-
-};
-
-
-
-pencilBrush.onclick=function(){
-
-
-brush="pencil";
-
-
-};
-
-
-
-</script>
-<style>
-
-#layerMenu{
-
-position:absolute;
-
-left:170px;
-
-top:70px;
-
-width:220px;
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:15px;
-
-display:none;
 
 }
 
 
 
-#layerInfo{
 
-font-size:12px;
 
-color:#bbb;
 
-margin-top:10px;
+if(index===1){
+
+
+
+drawMode="eraser";
+
+
+openMenu("🧽消しゴム");
+
+
+panel.innerHTML=`
+
+<h3>🧽消しゴム</h3>
+
+線を消せます
+
+`;
+
+
 
 }
 
 
-</style>
 
 
 
 
+if(index>=2){
 
-<div id="layerMenu">
-
-
-<h3>🗂 レイヤー</h3>
-
-
-<button id="addLayer">
-
-＋追加
-
-</button>
-
-
-
-<button id="deleteLayer">
-
-🗑削除
-
-</button>
-
-
-
-<button id="hideLayer">
-
-👁表示切替
-
-</button>
-
-
-
-<button id="upLayer">
-
-⬆上へ
-
-</button>
-
-
-
-<button id="downLayer">
-
-⬇下へ
-
-</button>
-
-
-
-<div id="layerInfo">
-
-
-レイヤーとは？<br>
-絵を重ねて管理する機能です。<br>
-上のレイヤーほど前に表示されます。
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-<script>
-
-
-let layers=[
-
-{
-
-name:"背景",
-
-visible:true
-
-},
-
-{
-
-name:"レイヤー1",
-
-visible:true
+openMenu(btn.innerText);
 
 }
 
-];
-
-
-
-let currentLayer=1;
-
-
-
-
-function updateLayers(){
-
-
-
-let box=
-document.getElementById("layers");
-
-
-
-box.innerHTML="<h3>🗂レイヤー</h3>";
-
-
-
-
-layers.forEach(function(l,i){
-
-
-
-let div=document.createElement("div");
-
-
-
-div.className="layer";
-
-
-
-div.innerHTML=
-
-(l.visible?"👁 ":"🚫 ")
-
-+l.name;
-
-
-
-div.onclick=function(){
-
-
-currentLayer=i;
 
 
 };
-
-
-
-box.appendChild(div);
 
 
 
 });
+  // =====================
+// 文字システム
+// =====================
 
 
+let texts=[];
 
-}
 
+let textColor="#000000";
 
+let textSize=40;
 
 
 
 
+function redrawObjects(){
 
-// レイヤー表示
 
-document.querySelector("#top button:nth-child(2)")
-.onclick=function(){
+ctx.clearRect(
 
+0,
 
+0,
 
-layerMenu.style.display=
+canvas.width,
 
-layerMenu.style.display==="block"
+canvas.height
 
-?"none"
+);
 
-:"block";
 
 
-};
 
 
+// 文字表示
 
-
-
-
-
-// 追加
-
-addLayer.onclick=function(){
-
-
-
-layers.push({
-
-name:"レイヤー"+layers.length,
-
-visible:true
-
-});
-
-
-
-updateLayers();
-
-
-};
-
-
-
-
-
-
-// 削除
-
-deleteLayer.onclick=function(){
-
-
-
-if(layers.length>1){
-
-
-
-layers.splice(currentLayer,1);
-
-
-currentLayer=0;
-
-
-updateLayers();
-
-
-}
-
-
-
-};
-
-
-
-
-
-
-
-// 表示切替
-
-hideLayer.onclick=function(){
-
-
-layers[currentLayer].visible=
-
-!layers[currentLayer].visible;
-
-
-updateLayers();
-
-
-
-};
-
-
-
-
-
-
-
-// 上へ
-
-upLayer.onclick=function(){
-
-
-if(currentLayer<layers.length-1){
-
-
-
-let a=layers[currentLayer];
-
-
-layers[currentLayer]=layers[currentLayer+1];
-
-
-layers[currentLayer+1]=a;
-
-
-
-currentLayer++;
-
-
-updateLayers();
-
-
-}
-
-
-
-};
-
-
-
-
-
-
-// 下へ
-
-downLayer.onclick=function(){
-
-
-
-if(currentLayer>0){
-
-
-
-let a=layers[currentLayer];
-
-
-layers[currentLayer]=layers[currentLayer-1];
-
-
-layers[currentLayer-1]=a;
-
-
-
-currentLayer--;
-
-
-updateLayers();
-
-
-}
-
-
-
-};
-
-
-
-</script>
-<style>
-
-#textMenu{
-
-position:absolute;
-
-bottom:80px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-
-#textMenu input{
-
-width:200px;
-
-}
-
-
-</style>
-
-
-
-
-
-<div id="textMenu">
-
-
-<h3>🔤文字</h3>
-
-
-<input id="textValue" placeholder="文字を入力">
-
-
-<br><br>
-
-
-<button id="addText">
-
-追加
-
-</button>
-
-
-<button id="textBig">
-
-大きく
-
-</button>
-
-
-<button id="textSmall">
-
-小さく
-
-</button>
-
-
-<br><br>
-
-
-色
-
-<input type="color" id="textColor">
-
-
-<br><br>
-
-
-<button id="removeText">
-
-削除
-
-</button>
-
-
-
-<div style="font-size:12px;color:#aaa">
-
-
-文字を選択して編集できます
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-<script>
-
-
-let textObjects=[];
-
-
-let selectedText=null;
-
-
-let textOpen=false;
-
-
-
-
-
-// 文字ボタン
-
-tools[3].onclick=function(){
-
-
-textOpen=!textOpen;
-
-
-
-textMenu.style.display=
-
-textOpen?"block":"none";
-
-
-};
-
-
-
-
-
-
-// 追加
-
-addText.onclick=function(){
-
-
-
-let value=textValue.value;
-
-
-
-if(!value)return;
-
-
-
-
-textObjects.push({
-
-text:value,
-
-x:300,
-
-y:250,
-
-size:40,
-
-color:"#000",
-
-angle:0
-
-});
-
-
-
-redrawAll();
-
-
-};
-
-
-
-
-
-
-// 描画に文字追加
-
-function drawTexts(){
-
-
-
-textObjects.forEach(function(t){
-
+texts.forEach(function(t){
 
 
 ctx.save();
 
 
-
-ctx.translate(t.x,t.y);
-
-
-
-ctx.rotate(t.angle);
-
-
-
 ctx.font=t.size+"px sans-serif";
 
-
 ctx.fillStyle=t.color;
-
 
 
 ctx.fillText(
 
 t.text,
 
-0,
+t.x,
 
-0
+t.y
 
 );
-
 
 
 ctx.restore();
@@ -1397,22 +870,71 @@ ctx.restore();
 
 
 
-// 文字サイズ
-
-textBig.onclick=function(){
 
 
-if(selectedText){
+
+// 文字ボタン
+
+tools[2].onclick=function(){
 
 
-selectedText.size+=5;
+
+openMenu("🔤文字");
 
 
-redrawAll();
+
+panel.innerHTML=`
+
+<h3>🔤文字</h3>
 
 
-}
+<input id="txt" placeholder="文字入力">
 
+
+<br><br>
+
+
+色
+
+<input id="txtColor" type="color">
+
+
+<br><br>
+
+
+大きさ
+
+<input id="txtSize" type="range" min="10" max="120" value="40">
+
+
+<br><br>
+
+
+<button id="addTxt">
+
+追加
+
+</button>
+
+
+
+`;
+
+
+
+
+
+document.getElementById("txtColor").oninput=function(){
+
+textColor=this.value;
+
+};
+
+
+
+document.getElementById("txtSize").oninput=function(){
+
+textSize=this.value;
 
 };
 
@@ -1420,194 +942,85 @@ redrawAll();
 
 
 
-textSmall.onclick=function(){
+document.getElementById("addTxt").onclick=function(){
 
 
+let value=document.getElementById("txt").value;
 
-if(selectedText){
 
 
-selectedText.size=Math.max(
+if(!value)return;
 
-10,
 
-selectedText.size-5
 
-);
+texts.push({
 
+text:value,
 
-redrawAll();
+x:200,
 
+y:200,
 
-}
+size:textSize,
 
-
-
-};
-
-
-
-
-
-
-
-// 色
-
-textColor.oninput=function(){
-
-
-
-if(selectedText){
-
-
-
-selectedText.color=this.value;
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-// 削除
-
-removeText.onclick=function(){
-
-
-if(selectedText){
-
-
-
-textObjects.splice(
-
-textObjects.indexOf(selectedText),
-
-1
-
-);
-
-
-
-selectedText=null;
-
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-// 選択
-
-canvas.addEventListener(
-
-"click",
-
-function(e){
-
-
-
-let x=e.offsetX;
-
-
-let y=e.offsetY;
-
-
-
-textObjects.forEach(function(t){
-
-
-
-if(
-
-x>t.x-20 &&
-
-x<t.x+200 &&
-
-y>t.y-t.size &&
-
-y<t.y+20
-
-){
-
-
-
-selectedText=t;
-
-
-}
-
-
+color:textColor
 
 });
 
 
 
-});
+drawAll();
+
+
+
+};
 
 
 
 
 
-</script>
-<style>
-
-#photoMenu{
-
-position:absolute;
-
-bottom:80px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-</style>
+};
 
 
 
 
-<div id="photoMenu">
 
+
+
+
+
+// =====================
+// 写真システム
+// =====================
+
+
+
+let photos=[];
+
+
+
+let selectedPhoto=null;
+
+
+
+
+
+
+
+tools[3].onclick=function(){
+
+
+
+openMenu("🖼写真");
+
+
+
+panel.innerHTML=`
 
 <h3>🖼写真</h3>
 
 
-<input 
-type="file"
-id="photoFile"
-accept="image/*">
+<input type="file" id="photoInput" accept="image/*">
 
 
 <br><br>
@@ -1627,34 +1040,10 @@ accept="image/*">
 </button>
 
 
-<br>
+<br><br>
 
 
-<button id="rotatePhoto">
-
-↻回転
-
-</button>
-
-
-<button id="flipX">
-
-↔反転
-
-</button>
-
-
-<button id="flipY">
-
-↕反転
-
-</button>
-
-
-<br>
-
-
-<button id="deletePhoto">
+<button id="photoDelete">
 
 🗑削除
 
@@ -1662,46 +1051,7 @@ accept="image/*">
 
 
 
-</div>
-
-
-
-
-
-
-<script>
-
-
-let photos=[];
-
-
-let selectedPhoto=null;
-
-
-let photoOpen=false;
-
-
-
-
-
-
-// 写真ボタン
-
-tools[4].onclick=function(){
-
-
-
-photoOpen=!photoOpen;
-
-
-
-photoMenu.style.display=
-
-photoOpen?"block":"none";
-
-
-
-};
+`;
 
 
 
@@ -1709,17 +1059,11 @@ photoOpen?"block":"none";
 
 
 
-
-// 追加
-
-photoFile.onchange=function(e){
+document.getElementById("photoInput").onchange=function(e){
 
 
 
 let file=e.target.files[0];
-
-
-if(!file)return;
 
 
 
@@ -1727,9 +1071,7 @@ let reader=new FileReader();
 
 
 
-
 reader.onload=function(){
-
 
 
 let img=new Image();
@@ -1740,31 +1082,32 @@ img.onload=function(){
 
 
 
-photos.push({
+let p={
 
 
 img:img,
 
-x:200,
+x:250,
 
 y:150,
 
 w:250,
 
-h:180,
-
-angle:0,
-
-flipX:1,
-
-flipY:1
+h:180
 
 
-});
+};
 
 
 
-redrawAll();
+photos.push(p);
+
+
+selectedPhoto=p;
+
+
+drawAll();
+
 
 
 };
@@ -1790,82 +1133,7 @@ reader.readAsDataURL(file);
 
 
 
-
-
-// 写真描画
-
-function drawPhotos(){
-
-
-
-photos.forEach(function(p){
-
-
-
-ctx.save();
-
-
-
-ctx.translate(
-
-p.x+p.w/2,
-
-p.y+p.h/2
-
-);
-
-
-
-ctx.rotate(p.angle);
-
-
-
-ctx.scale(
-
-p.flipX,
-
-p.flipY
-
-);
-
-
-
-ctx.drawImage(
-
-p.img,
-
--p.w/2,
-
--p.h/2,
-
-p.w,
-
-p.h
-
-);
-
-
-
-ctx.restore();
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-// サイズ
-
-photoBig.onclick=function(){
+document.getElementById("photoBig").onclick=function(){
 
 
 if(selectedPhoto){
@@ -1877,7 +1145,7 @@ selectedPhoto.w+=20;
 selectedPhoto.h+=20;
 
 
-redrawAll();
+drawAll();
 
 
 }
@@ -1890,7 +1158,8 @@ redrawAll();
 
 
 
-photoSmall.onclick=function(){
+
+document.getElementById("photoSmall").onclick=function(){
 
 
 if(selectedPhoto){
@@ -1902,32 +1171,7 @@ selectedPhoto.w-=20;
 selectedPhoto.h-=20;
 
 
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-// 回転
-
-rotatePhoto.onclick=function(){
-
-
-if(selectedPhoto){
-
-
-selectedPhoto.angle+=0.2;
-
-
-redrawAll();
+drawAll();
 
 
 }
@@ -1941,64 +1185,12 @@ redrawAll();
 
 
 
-// 左右反転
-
-flipX.onclick=function(){
+document.getElementById("photoDelete").onclick=function(){
 
 
 
 if(selectedPhoto){
 
-
-selectedPhoto.flipX*= -1;
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-// 上下反転
-
-flipY.onclick=function(){
-
-
-if(selectedPhoto){
-
-
-selectedPhoto.flipY*= -1;
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-// 削除
-
-deletePhoto.onclick=function(){
-
-
-
-if(selectedPhoto){
 
 
 photos.splice(
@@ -2010,10 +1202,12 @@ photos.indexOf(selectedPhoto),
 );
 
 
+
 selectedPhoto=null;
 
 
-redrawAll();
+drawAll();
+
 
 
 }
@@ -2026,182 +1220,84 @@ redrawAll();
 
 
 
-</script>
-<style>
 
-#materialMenu{
-
-position:absolute;
-
-bottom:80px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-#materialMenu button{
-
-margin:4px;
-
-font-size:20px;
-
-}
-
-
-</style>
+};
 
 
 
 
 
-<div id="materialMenu">
 
+
+
+
+// =====================
+// 素材
+// =====================
+
+
+
+let materials=[];
+
+
+
+tools[4].onclick=function(){
+
+
+
+openMenu("🧩素材");
+
+
+
+panel.innerHTML=`
 
 <h3>🧩素材</h3>
 
 
-<button id="addHeart">
+<button id="heart">
 
 ❤️
 
 </button>
 
 
-<button id="addStar">
+<button id="star">
 
 ⭐
 
 </button>
 
 
-<button id="addCircle">
+<button id="circle">
 
 ⚪
 
 </button>
 
 
-<button id="addSquare">
 
-⬜
-
-</button>
-
-
-<br><br>
-
-
-<button id="materialBig">
-
-🔍大きく
-
-</button>
-
-
-<button id="materialSmall">
-
-🔎小さく
-
-</button>
-
-
-<br>
-
-
-<button id="materialRotate">
-
-↻回転
-
-</button>
-
-
-<button id="deleteMaterial">
-
-🗑削除
-
-</button>
-
-
-</div>
+`;
 
 
 
 
-
-
-<script>
-
-
-let materials=[];
-
-
-let selectedMaterial=null;
-
-
-let materialOpen=false;
-
-
-
-
-
-// 素材ボタン
-
-tools[5].onclick=function(){
-
-
-materialOpen=!materialOpen;
-
-
-materialMenu.style.display=
-
-materialOpen?"block":"none";
-
-
-
-};
-
-
-
-
-
-
-
-function addMaterial(type){
-
+function addMaterial(x){
 
 
 materials.push({
 
+text:x,
 
-type:type,
-
-x:350,
+x:300,
 
 y:250,
 
-size:60,
-
-angle:0
-
+size:50
 
 });
 
 
-
-redrawAll();
+drawAll();
 
 
 }
@@ -2209,238 +1305,27 @@ redrawAll();
 
 
 
-
-
-
-addHeart.onclick=function(){
+document.getElementById("heart").onclick=function(){
 
 addMaterial("❤️");
 
 };
 
 
-addStar.onclick=function(){
+
+document.getElementById("star").onclick=function(){
 
 addMaterial("⭐");
 
 };
 
 
-addCircle.onclick=function(){
 
-addMaterial("circle");
+document.getElementById("circle").onclick=function(){
 
-};
-
-
-addSquare.onclick=function(){
-
-addMaterial("square");
+addMaterial("⚪");
 
 };
-
-
-
-
-
-
-
-
-function drawMaterials(){
-
-
-
-materials.forEach(function(m){
-
-
-
-ctx.save();
-
-
-
-ctx.translate(
-
-m.x,
-
-m.y
-
-);
-
-
-
-ctx.rotate(m.angle);
-
-
-
-
-if(
-
-m.type==="circle"
-
-){
-
-
-ctx.beginPath();
-
-
-ctx.fillStyle="skyblue";
-
-
-ctx.arc(
-
-0,
-
-0,
-
-m.size/2,
-
-0,
-
-Math.PI*2
-
-);
-
-
-ctx.fill();
-
-
-
-}
-
-else if(
-
-m.type==="square"
-
-){
-
-
-
-ctx.fillStyle="orange";
-
-
-ctx.fillRect(
-
--m.size/2,
-
--m.size/2,
-
-m.size,
-
-m.size
-
-);
-
-
-
-}
-
-else{
-
-
-ctx.font=m.size+"px sans-serif";
-
-
-ctx.fillText(
-
-m.type,
-
--m.size/2,
-
-m.size/2
-
-);
-
-
-
-}
-
-
-
-
-ctx.restore();
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-
-materialBig.onclick=function(){
-
-
-if(selectedMaterial){
-
-
-selectedMaterial.size+=10;
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-materialSmall.onclick=function(){
-
-
-
-if(selectedMaterial){
-
-
-
-selectedMaterial.size=Math.max(
-
-10,
-
-selectedMaterial.size-10
-
-);
-
-
-redrawAll();
-
-
-}
-
-
-};
-
-
-
-
-
-
-materialRotate.onclick=function(){
-
-
-
-if(selectedMaterial){
-
-
-
-selectedMaterial.angle+=0.2;
-
-
-redrawAll();
-
-
-}
 
 
 
@@ -2452,270 +1337,10 @@ redrawAll();
 
 
 
-deleteMaterial.onclick=function(){
 
+// 全部描画
 
-if(selectedMaterial){
-
-
-
-materials.splice(
-
-materials.indexOf(selectedMaterial),
-
-1
-
-);
-
-
-
-selectedMaterial=null;
-
-
-redrawAll();
-
-
-
-}
-
-
-};
-
-
-
-
-
-</script>
-<style>
-
-#editMenu{
-
-position:absolute;
-
-bottom:80px;
-
-right:20px;
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-</style>
-
-
-
-
-
-<div id="editMenu">
-
-
-<h3>✂️編集</h3>
-
-
-<button id="undo">
-
-↩️戻る
-
-</button>
-
-
-<button id="redo">
-
-↪️やり直し
-
-</button>
-
-
-<br><br>
-
-
-<button id="copyObj">
-
-📄コピー
-
-</button>
-
-
-<button id="pasteObj">
-
-📋貼り付け
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-<script>
-
-
-let history=[];
-
-
-let redoList=[];
-
-
-let clipboard=null;
-
-
-
-
-
-
-function saveState(){
-
-
-history.push(canvas.toDataURL());
-
-
-if(history.length>40){
-
-history.shift();
-
-}
-
-
-redoList=[];
-
-
-}
-
-
-
-
-
-
-canvas.addEventListener(
-
-"mouseup",
-
-function(){
-
-saveState();
-
-});
-
-
-
-
-
-
-// 編集メニュー
-
-let editOpen=false;
-
-
-
-// 設定ボタンの横に追加する形
-
-document.getElementById("top")
-.children[1]
-.children[1]
-.onclick=function(){
-
-
-editOpen=!editOpen;
-
-
-editMenu.style.display=
-
-editOpen?"block":"none";
-
-
-};
-
-
-
-
-
-
-
-
-undo.onclick=function(){
-
-
-
-if(history.length<=1)return;
-
-
-
-let now=
-
-history.pop();
-
-
-redoList.push(now);
-
-
-
-loadCanvas(
-
-history[history.length-1]
-
-);
-
-
-
-};
-
-
-
-
-
-
-
-redo.onclick=function(){
-
-
-
-if(redoList.length===0)return;
-
-
-
-let data=
-
-redoList.pop();
-
-
-
-history.push(data);
-
-
-
-loadCanvas(data);
-
-
-
-};
-
-
-
-
-
-
-
-function loadCanvas(data){
-
-
-
-let img=new Image();
-
-
-
-img.onload=function(){
+function drawAll(){
 
 
 
@@ -2733,16 +1358,476 @@ canvas.height
 
 
 
+
+
+photos.forEach(function(p){
+
+
 ctx.drawImage(
 
-img,
+p.img,
 
-0,
+p.x,
 
-0
+p.y,
+
+p.w,
+
+p.h
 
 );
 
+
+});
+
+
+
+
+
+texts.forEach(function(t){
+
+
+ctx.font=t.size+"px sans-serif";
+
+
+ctx.fillStyle=t.color;
+
+
+ctx.fillText(
+
+t.text,
+
+t.x,
+
+t.y
+
+);
+
+
+});
+
+
+
+
+
+materials.forEach(function(m){
+
+
+
+ctx.font=m.size+"px sans-serif";
+
+
+ctx.fillText(
+
+m.text,
+
+m.x,
+
+m.y
+
+);
+
+
+
+});
+
+
+}
+  // =====================
+// レイヤー
+// =====================
+
+
+let layerList=[
+
+"レイヤー1"
+
+];
+
+
+
+
+
+let layerBtn=document.getElementById("layerBox");
+
+
+
+function updateLayers(){
+
+
+layerBtn.innerHTML="<h3>🗂レイヤー</h3>";
+
+
+
+layerList.forEach(function(l){
+
+
+
+let p=document.createElement("p");
+
+
+p.innerHTML="📄 "+l;
+
+
+layerBtn.appendChild(p);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+// =====================
+// お気に入り
+// =====================
+
+
+
+let favorites=[];
+
+
+
+document.querySelectorAll(".topButton")[0].onclick=function(){
+
+
+
+openMenu("⭐お気に入り");
+
+
+
+panel.innerHTML=`
+
+<h3>⭐お気に入り</h3>
+
+
+<button id="saveFav">
+
+今の作品を登録
+
+</button>
+
+
+<div id="favList"></div>
+
+
+`;
+
+
+
+
+
+
+document.getElementById("saveFav").onclick=function(){
+
+
+
+let data=canvas.toDataURL();
+
+
+
+favorites.push(data);
+
+
+
+let img=document.createElement("img");
+
+
+img.src=data;
+
+
+img.width=80;
+
+
+document.getElementById("favList").appendChild(img);
+
+
+
+localStorage.setItem(
+
+"favorites",
+
+JSON.stringify(favorites)
+
+);
+
+
+
+};
+
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================
+// 設定
+// =====================
+
+
+
+document.querySelectorAll(".topButton")[1].onclick=function(){
+
+
+
+openMenu("⚙️設定");
+
+
+
+panel.innerHTML=`
+
+<h3>⚙️設定</h3>
+
+
+<p>
+
+✏️ペン<br>
+
+線を描く道具です
+
+</p>
+
+
+<p>
+
+🔤文字<br>
+
+文字を追加できます
+
+</p>
+
+
+<p>
+
+🖼写真<br>
+
+写真を入れて編集できます
+
+</p>
+
+
+<p>
+
+⭐お気に入り<br>
+
+作品を保存できます
+
+</p>
+
+
+<p>
+
+💾保存<br>
+
+画像として保存します
+
+</p>
+
+
+`;
+
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================
+// 保存
+// =====================
+
+
+
+tools[7].onclick=function(){
+
+
+
+let a=document.createElement("a");
+
+
+a.download="ArtStudio.png";
+
+
+a.href=canvas.toDataURL();
+
+
+
+a.click();
+
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================
+// 戻る・やり直し
+// =====================
+
+
+
+let history=[];
+
+
+let redoHistory=[];
+
+
+
+
+
+function saveHistory(){
+
+
+
+history.push(
+
+canvas.toDataURL()
+
+);
+
+
+
+if(history.length>30){
+
+history.shift();
+
+}
+
+
+
+}
+
+
+
+
+
+canvas.addEventListener(
+
+"mouseup",
+
+function(){
+
+saveHistory();
+
+}
+
+);
+
+
+
+
+
+
+
+
+tools[5].onclick=function(){
+
+
+
+if(history.length>1){
+
+
+
+redoHistory.push(
+
+history.pop()
+
+);
+
+
+
+let img=new Image();
+
+
+
+img.onload=function(){
+
+
+ctx.clearRect(
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
+);
+
+
+ctx.drawImage(img,0,0);
+
+
+};
+
+
+img.src=
+
+history[history.length-1];
+
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+tools[6].onclick=function(){
+
+
+
+if(redoHistory.length){
+
+
+
+let data=
+
+redoHistory.pop();
+
+
+
+let img=new Image();
+
+
+
+img.onload=function(){
+
+
+ctx.drawImage(img,0,0);
 
 
 };
@@ -2757,790 +1842,208 @@ img.src=data;
 
 
 
-
-
-
-
-// コピー
-
-copyObj.onclick=function(){
-
-
-
-if(selectedText){
-
-clipboard={
-
-type:"text",
-
-data:{...selectedText}
-
 };
+  // =====================
+// 写真移動
+// =====================
+
+
+let movePhoto=false;
+
+let moveX=0;
+
+let moveY=0;
+
+
+
+canvas.addEventListener("mousedown",function(e){
+
+
+let x=e.offsetX;
+
+let y=e.offsetY;
+
+
+
+photos.forEach(function(p){
+
+
+if(
+
+x>p.x &&
+
+x<p.x+p.w &&
+
+y>p.y &&
+
+y<p.y+p.h
+
+){
+
+
+selectedPhoto=p;
+
+
+movePhoto=true;
+
+
+moveX=x-p.x;
+
+
+moveY=y-p.y;
 
 
 }
 
 
+});
 
-else if(selectedPhoto){
 
+});
 
 
-clipboard={
 
-type:"photo",
 
-data:{...selectedPhoto}
 
-};
+canvas.addEventListener("mousemove",function(e){
 
 
-}
+if(!movePhoto)return;
 
 
 
-else if(selectedMaterial){
+selectedPhoto.x=
 
+e.offsetX-moveX;
 
 
-clipboard={
+selectedPhoto.y=
 
-type:"material",
+e.offsetY-moveY;
 
-data:{...selectedMaterial}
 
-};
 
+drawAll();
 
-}
 
 
+});
 
-};
 
 
 
 
+canvas.addEventListener("mouseup",function(){
 
 
+movePhoto=false;
 
 
+});
 
-// 貼り付け
 
-pasteObj.onclick=function(){
 
 
 
-if(!clipboard)return;
 
 
 
-let copy=
+// =====================
+// 写真回転・反転
+// =====================
 
-JSON.parse(
 
-JSON.stringify(
+// 写真編集用の追加ボタンを表示
 
-clipboard.data
 
-)
+let oldPhotoOpen=tools[3].onclick;
 
-);
 
 
+tools[3].onclick=function(){
 
-copy.x+=40;
 
-copy.y+=40;
 
+oldPhotoOpen();
 
 
 
-if(clipboard.type==="text"){
+if(panel.innerHTML.includes("🖼写真")){
 
 
-textObjects.push(copy);
 
+panel.innerHTML+=`
 
-}
+<br><br>
 
+<button id="rotate">
 
-
-if(clipboard.type==="material"){
-
-
-materials.push(copy);
-
-
-}
-
-
-
-if(clipboard.type==="photo"){
-
-
-photos.push(copy);
-
-
-}
-
-
-
-redrawAll();
-
-
-
-};
-
-
-
-
-</script>
-<style>
-
-#settingMenu,
-#favoriteMenu{
-
-position:absolute;
-
-top:65px;
-
-right:15px;
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-width:240px;
-
-display:none;
-
-font-size:14px;
-
-}
-
-
-#settingMenu h3,
-#favoriteMenu h3{
-
-margin-top:0;
-
-}
-
-
-
-</style>
-
-
-
-
-
-
-<div id="favoriteMenu">
-
-
-<h3>⭐お気に入り</h3>
-
-
-<button id="saveFavorite">
-
-今の作品を登録
+↻回転
 
 </button>
 
 
-<div id="favoriteItems">
+<button id="flip">
 
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div id="settingMenu">
-
-
-<h3>⚙️設定</h3>
-
-
-
-<p>
-
-✏️ペン<br>
-
-色・太さ・透明度を変更できます
-
-</p>
-
-
-
-<p>
-
-🗂レイヤー<br>
-
-絵を重ねて管理できます
-
-</p>
-
-
-
-<p>
-
-🖼写真<br>
-
-移動・回転・反転ができます
-
-</p>
-
-
-
-<p>
-
-⭐お気に入り<br>
-
-よく使う作品を保存できます
-
-</p>
-
-
-
-<p>
-
-💾保存<br>
-
-画像として保存します
-
-</p>
-
-
-
-</div>
-
-
-
-
-
-
-<script>
-
-
-let favorites=[];
-
-
-
-
-// ⭐ボタン
-
-document.querySelector("#top button:first-child")
-.onclick=function(){
-
-
-
-favoriteMenu.style.display=
-
-favoriteMenu.style.display==="block"
-
-?"none"
-
-:"block";
-
-
-
-};
-
-
-
-
-
-
-
-// ⚙️ボタン
-
-document.querySelector("#top button:nth-child(2)")
-.onclick=function(){
-
-
-
-settingMenu.style.display=
-
-settingMenu.style.display==="block"
-
-?"none"
-
-:"block";
-
-
-
-};
-
-
-
-
-
-
-
-// お気に入り追加
-
-saveFavorite.onclick=function(){
-
-
-
-let img=
-
-document.createElement("img");
-
-
-
-img.src=
-
-canvas.toDataURL();
-
-
-
-img.width=80;
-
-
-
-img.style.margin="5px";
-
-
-
-favorites.push(
-
-img.src
-
-);
-
-
-
-favoriteItems.appendChild(img);
-
-
-
-};
-
-
-
-
-
-
-
-
-// 保存ボタン
-
-tools[8].onclick=function(){
-
-
-
-let a=document.createElement("a");
-
-
-a.download="ArtStudio.png";
-
-
-a.href=
-
-canvas.toDataURL();
-
-
-
-a.click();
-
-
-
-};
-
-
-
-
-</script>
-<style>
-
-#zoomText{
-
-position:absolute;
-
-top:65px;
-
-left:15px;
-
-background:#111;
-
-color:white;
-
-padding:8px 12px;
-
-border-radius:12px;
-
-font-size:12px;
-
-}
-
-
-</style>
-
-
-
-
-
-<div id="zoomText">
-
-🔍 100%
-
-</div>
-
-
-
-
-
-
-
-<script>
-
-
-let zoom=1;
-
-
-let offsetX=0;
-
-
-let offsetY=0;
-
-
-let pinchStart=null;
-
-
-
-
-
-function updateCanvas(){
-
-
-
-canvas.style.transform=
-
-"translate("+offsetX+"px,"+offsetY+"px) scale("+zoom+")";
-
-
-
-zoomText.innerHTML=
-
-"🔍 "+Math.round(zoom*100)+"%";
-
-
-
-}
-
-
-
-
-
-
-
-// ピンチズーム
-
-canvas.addEventListener(
-
-"touchmove",
-
-function(e){
-
-
-
-if(e.touches.length===2){
-
-
-
-let a=e.touches[0];
-
-let b=e.touches[1];
-
-
-
-
-let distance=Math.hypot(
-
-a.clientX-b.clientX,
-
-a.clientY-b.clientY
-
-);
-
-
-
-
-if(pinchStart){
-
-
-
-zoom +=
-
-(distance-pinchStart)/500;
-
-
-
-if(zoom<0.5)
-
-zoom=0.5;
-
-
-
-if(zoom>4)
-
-zoom=4;
-
-
-
-updateCanvas();
-
-
-
-}
-
-
-
-pinchStart=distance;
-
-
-
-}
-
-
-
-},
-
-{passive:false}
-
-);
-
-
-
-
-
-
-
-canvas.addEventListener(
-
-"touchend",
-
-function(){
-
-
-
-pinchStart=null;
-
-
-});
-
-
-
-
-
-
-
-
-// 長押し移動用
-
-let moveCanvas=false;
-
-
-let lastX=0;
-
-
-let lastY=0;
-
-
-
-
-
-canvas.addEventListener(
-
-"pointerdown",
-
-function(e){
-
-
-
-if(e.button===1){
-
-
-
-moveCanvas=true;
-
-
-lastX=e.clientX;
-
-
-lastY=e.clientY;
-
-
-
-}
-
-
-});
-
-
-
-
-
-
-canvas.addEventListener(
-
-"pointermove",
-
-function(e){
-
-
-
-if(moveCanvas){
-
-
-
-offsetX+=e.clientX-lastX;
-
-
-offsetY+=e.clientY-lastY;
-
-
-
-lastX=e.clientX;
-
-
-lastY=e.clientY;
-
-
-
-updateCanvas();
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-canvas.addEventListener(
-
-"pointerup",
-
-function(){
-
-
-
-moveCanvas=false;
-
-
-
-});
-
-
-
-</script>
-<style>
-
-#extraMenu{
-
-position:absolute;
-
-bottom:80px;
-
-right:20px;
-
-background:#111;
-
-color:white;
-
-padding:15px;
-
-border-radius:18px;
-
-display:none;
-
-}
-
-
-</style>
-
-
-
-
-
-<div id="extraMenu">
-
-
-<h3>🎨追加ツール</h3>
-
-
-<button id="lineTool">
-
-📏直線
+↔反転
 
 </button>
 
 
-<button id="fillTool">
-
-🪣塗りつぶし
-
-</button>
-
-
-<button id="softTool">
-
-🌫やわらか筆
-
-</button>
-
-
-</div>
+`;
 
 
 
 
+document.getElementById("rotate").onclick=function(){
 
 
-<script>
+
+if(selectedPhoto){
 
 
-let extraOpen=false;
+selectedPhoto.angle=
+
+(selectedPhoto.angle||0)+0.2;
 
 
-let extraMode="brush";
+drawAll();
+
+
+}
+
+
+
+};
 
 
 
 
 
-// ペン長押しで表示
-
-tools[0].ondblclick=function(){
+document.getElementById("flip").onclick=function(){
 
 
 
-extraOpen=!extraOpen;
+if(selectedPhoto){
+
+
+selectedPhoto.flip=
+
+!selectedPhoto.flip;
+
+
+drawAll();
+
+
+}
 
 
 
-extraMenu.style.display=
+};
 
-extraOpen?"block":"none";
+
+
+}
 
 
 
@@ -3552,438 +2055,23 @@ extraOpen?"block":"none";
 
 
 
-// 直線
 
-lineTool.onclick=function(){
 
+// =====================
+// 初期保存
+// =====================
 
-extraMode="line";
 
 
-};
+saveHistory();
 
 
 
 
 
-
-// 塗りつぶし
-
-fillTool.onclick=function(){
-
-
-extraMode="fill";
-
-
-};
-
-
-
-
-
-
-
-// やわらか筆
-
-softTool.onclick=function(){
-
-
-brush="soft";
-
-
-};
-
-
-
-
-
-
-
-// 直線描画
-
-let lineStart=null;
-
-
-
-
-canvas.addEventListener(
-
-"pointerdown",
-
-function(e){
-
-
-
-if(extraMode==="line"){
-
-
-
-lineStart=position(e);
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-canvas.addEventListener(
-
-"pointerup",
-
-function(e){
-
-
-
-if(extraMode==="line" && lineStart){
-
-
-
-let end=position(e);
-
-
-
-ctx.strokeStyle=penColor;
-
-
-ctx.lineWidth=penSize;
-
-
-ctx.globalAlpha=alpha;
-
-
-
-ctx.beginPath();
-
-
-ctx.moveTo(
-
-lineStart.x,
-
-lineStart.y
-
-);
-
-
-ctx.lineTo(
-
-end.x,
-
-end.y
-
-);
-
-
-ctx.stroke();
-
-
-
-lineStart=null;
-
-
-ctx.globalAlpha=1;
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-// 簡易塗りつぶし
-
-canvas.addEventListener(
-
-"click",
-
-function(e){
-
-
-
-if(extraMode==="fill"){
-
-
-
-ctx.fillStyle=penColor;
-
-
-ctx.fillRect(
-
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-</script>
-<style>
-
-
-/* 選択中ツール */
-
-.tool.selected{
-
-background:#4a90e2;
-
-transform:scale(1.1);
-
-}
-
-
-
-/* パネル統一 */
-
-#penMenu,
-#layerMenu,
-#textMenu,
-#photoMenu,
-#materialMenu,
-#editMenu,
-#settingMenu,
-#favoriteMenu,
-#extraMenu{
-
-box-shadow:0 5px 20px black;
-
-}
-
-
-
-/* 作者 */
-
-#author{
-
-font-size:9px;
-
-letter-spacing:1px;
-
-opacity:0.7;
-
-}
-
-
-
-
-
-</style>
-
-
-
-
-
-
-<script>
-
-
-// ボタン選択表示
-
-
-tools.forEach(function(btn){
-
-
-
-btn.addEventListener(
-
-"click",
-
-function(){
-
-
-
-tools.forEach(function(b){
-
-
-b.classList.remove("selected");
-
-
-});
-
-
-
-this.classList.add("selected");
-
-
-
-});
-
-
-
-});
-
-
-
-
-
-
-</script>
-<script>
-
-
-// お気に入り保存
-
-function saveFavorites(){
-
-
-localStorage.setItem(
-
-"ArtStudioFavorites",
-
-JSON.stringify(favorites)
-
-);
-
-
-}
-
-
-
-
-
-// 起動時読み込み
-
-let savedFavorites=
-
-localStorage.getItem(
-
-"ArtStudioFavorites"
-
-);
-
-
-
-if(savedFavorites){
-
-
-
-favorites=
-
-JSON.parse(savedFavorites);
-
-
-
-favorites.forEach(function(src){
-
-
-
-let img=document.createElement("img");
-
-
-img.src=src;
-
-
-img.width=80;
-
-
-img.style.margin="5px";
-
-
-favoriteItems.appendChild(img);
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-// お気に入り追加を保存対応に変更
-
-saveFavorite.onclick=function(){
-
-
-
-let img=document.createElement("img");
-
-
-
-img.src=
-
-canvas.toDataURL();
-
-
-
-img.width=80;
-
-
-
-img.style.margin="5px";
-
-
-
-favorites.push(img.src);
-
-
-
-favoriteItems.appendChild(img);
-
-
-
-saveFavorites();
-
-
-
-};
-
-
-
-
-
-
-
-// 設定を保存
-
-localStorage.setItem(
-
-"ArtStudioVersion",
-
-"1.0"
-
-);
-
-
-
-
-
-
-console.log(
-
-"Art Studio 起動完了"
-
-);
-
+// =====================
+// 終了
+// =====================
 
 
 </script>
