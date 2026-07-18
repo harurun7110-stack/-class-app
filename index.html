@@ -1,1314 +1,1885 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
 
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>新聞・チラシ作成アプリ</title>
+<title>Canva風 新聞・チラシメーカー</title>
+
 
 <style>
 
 body{
- margin:0;
- background:#ddd;
- font-family:sans-serif;
- text-align:center;
+
+margin:0;
+
+font-family:sans-serif;
+
+background:#eee;
+
 }
 
 
-#menuBtn{
- position:fixed;
- top:10px;
- left:10px;
- z-index:10;
- font-size:25px;
- padding:10px;
- border-radius:12px;
- border:0;
- background:#4da6ff;
- color:white;
+#app{
+
+display:flex;
+
+height:90vh;
+
 }
 
 
-#menu{
- position:fixed;
- top:60px;
- left:10px;
- width:220px;
- max-height:80vh;
- overflow:auto;
- background:white;
- border-radius:15px;
- padding:10px;
- display:none;
- z-index:10;
- box-shadow:0 0 10px #777;
+
+/* 左メニュー */
+
+#sidebar{
+
+width:180px;
+
+background:white;
+
+padding:10px;
+
+border-right:1px solid #ccc;
+
 }
 
 
-.menuItem{
- width:100%;
- margin:5px 0;
- padding:10px;
- border:0;
- border-radius:10px;
- background:#4da6ff;
- color:white;
+.menuButton{
+
+width:100%;
+
+height:45px;
+
+margin:5px 0;
+
+border:none;
+
+border-radius:12px;
+
+background:#eee;
+
+font-size:16px;
+
 }
 
 
+
+.menuButton:active{
+
+background:#ddd;
+
+}
+
+
+
+
+
+/* 作業エリア */
+
+#workspace{
+
+flex:1;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+position:relative;
+
+}
+
+
+
+
+
+/* キャンバス */
 
 #paper{
 
- width:350px;
- height:500px;
+width:700px;
 
- background:white;
+height:450px;
 
- border:2px solid black;
+background:white;
 
- margin:70px auto 20px;
+box-shadow:0 5px 20px #999;
 
- position:relative;
-
- overflow:hidden;
+position:relative;
 
 }
 
 
 
-canvas{
 
- position:absolute;
 
- left:0;
+/* お気に入り */
 
- top:0;
+#favorite{
 
- width:350px;
+position:absolute;
 
- height:500px;
+right:20px;
 
- touch-action:none;
+top:20px;
+
+background:white;
+
+padding:12px;
+
+border-radius:15px;
+
+box-shadow:0 3px 10px #aaa;
 
 }
 
 
 
-.object{
 
- position:absolute;
 
- user-select:none;
+/* 作者 */
 
- touch-action:none;
+#author{
+
+height:10vh;
+
+background:white;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:18px;
 
 }
 
 
 
 </style>
+
+
 </head>
+
+
 
 <body>
 
 
-<button id="menuBtn" onclick="openMenu()">☰</button>
-<button class="menuItem" onclick="deleteSelected()">🗑 削除</button>
-
-<button class="menuItem" onclick="changeTextSize()">🔠 文字サイズ</button>
-
-<button class="menuItem" onclick="addBox()">⬜ 四角追加</button>
-
-<div id="menu">
-
-<h3>機能メニュー</h3>
+<div id="app">
 
 
-<button class="menuItem" onclick="togglePen()">✏️ ペンON/OFF</button>
 
-<button class="menuItem" onclick="setEraser()">🧽 消しゴム</button>
-
-
-<button class="menuItem" onclick="changePaper()">📄 紙の色</button>
+<aside id="sidebar">
 
 
-<button class="menuItem" onclick="addText()">🔤 文字追加</button>
+<h2>編集</h2>
 
 
-<button class="menuItem" onclick="addPhoto()">🖼 写真追加</button>
+<button class="menuButton">
+✏️ 描く
+</button>
 
 
-<button class="menuItem" onclick="saveImage()">💾 保存</button>
-<button class="menuItem" onclick="paperPattern()">📰 紙の柄</button>
+<button class="menuButton">
+🔤 文字
+</button>
 
-<button class="menuItem" onclick="addTitle()">⭐ 見出し</button>
 
-<button class="menuItem" onclick="addStamp()">😀 スタンプ</button>
+<button class="menuButton">
+🖼 写真
+</button>
 
-<button class="menuItem" onclick="clearAll()">🧹 全消し</button>
-<button class="menuItem" onclick="undo()">↩️ 元に戻す</button>
 
-<button class="menuItem" onclick="redo()">↪️ やり直し</button>
+<button class="menuButton">
+📄 紙
+</button>
 
-<button class="menuItem" onclick="zoomPaper(1.1)">🔍 拡大</button>
 
-<button class="menuItem" onclick="zoomPaper(0.9)">🔎 縮小</button>
+<button class="menuButton">
+🧩 素材
+</button>
 
-<button class="menuItem" onclick="rotateSelected()">🔄 回転</button>
-<button class="menuItem" onclick="fontChange()">🔤 フォント</button>
 
-<button class="menuItem" onclick="boldText()">💪 太文字</button>
+<button class="menuButton">
+✂️ 編集
+</button>
 
-<button class="menuItem" onclick="outlineText()">✨ 文字ふち</button>
 
-<button class="menuItem" onclick="addLine()">➖ 線</button>
+<button class="menuButton">
+💾 保存
+</button>
 
-<button class="menuItem" onclick="addCircle()">⚪ 丸</button>
 
-<button class="menuItem" onclick="addArrow()">➡️ 矢印</button>
+</aside>
 
-<button class="menuItem" onclick="flipPhoto()">🔃 写真反転</button>
- <button class="menuItem" onclick="alignCenter()">↔️ 横中央</button>
 
-<button class="menuItem" onclick="alignMiddle()">↕️ 縦中央</button>
 
-<button class="menuItem" onclick="bringFront()">⬆️ 前へ</button>
 
-<button class="menuItem" onclick="sendBack()">⬇️ 後ろへ</button>
+<main id="workspace">
 
-<button class="menuItem" onclick="copyObject()">📋 複製</button>
 
-<button class="menuItem" onclick="unselect()">❌ 選択解除</button>
- 
+<div id="favorite">
+
+⭐ お気に入り
+
 </div>
 
 
 
 <div id="paper">
 
-<canvas id="canvas" width="350" height="500"></canvas>
+</div>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<div id="author">
+
+作者　アリーナ真面目役
 
 </div>
 <script>
 
-const menu=document.getElementById("menu");
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const paper=document.getElementById("paper");
+
+// キャンバス作成
+
+const paper =
+document.getElementById("paper");
 
 
-let tool="none";
-let color="black";
+const canvas =
+document.createElement("canvas");
+
+
+canvas.width=700;
+
+canvas.height=450;
+
+
+paper.appendChild(canvas);
+
+
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+
+// ペン設定
+
+let penColor="black";
+
+let penSize=5;
+
 let drawing=false;
 
 
-// メニュー開閉
-
-function openMenu(){
-
- if(menu.style.display==="block"){
-
-  menu.style.display="none";
-
- }else{
-
-  menu.style.display="block";
-
- }
-
-}
 
 
+// 描き始め
 
-// ペン
-
-function togglePen(){
-
- tool = tool==="pen" ? "none" : "pen";
-
-}
+canvas.addEventListener(
+"mousedown",
+function(e){
 
 
-
-function setEraser(){
-
- tool="eraser";
-
-}
+drawing=true;
 
 
-
-function setColor(c){
-
- color=c;
-
-}
+ctx.beginPath();
 
 
+ctx.moveTo(
 
-// 紙色
+e.offsetX,
 
-function changePaper(){
+e.offsetY
 
- let c=prompt(
- "紙の色を入力（例 red / yellow / white）",
- "white"
- );
+);
 
 
- if(c){
+});
 
-  paper.style.background=c;
-
- }
-
-}
 
 
 
 // 描く
 
-canvas.addEventListener("touchstart",e=>{
+canvas.addEventListener(
+"mousemove",
+function(e){
 
- if(tool!=="pen" && tool!=="eraser")return;
+
+if(!drawing)return;
 
 
- drawing=true;
 
- draw(e);
+ctx.lineWidth=penSize;
+
+ctx.lineCap="round";
+
+ctx.strokeStyle=penColor;
+
+
+
+ctx.lineTo(
+
+e.offsetX,
+
+e.offsetY
+
+);
+
+
+
+ctx.stroke();
+
 
 
 });
 
 
 
-canvas.addEventListener("touchmove",draw);
+
+
+// 終了
+
+canvas.addEventListener(
+"mouseup",
+function(){
+
+
+drawing=false;
+
+
+});
 
 
 
-canvas.addEventListener("touchend",()=>{
+</script>
+<style>
 
- drawing=false;
+#drawPanel{
 
- ctx.beginPath();
+position:absolute;
+
+left:200px;
+
+top:20px;
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+box-shadow:0 3px 10px #aaa;
+
+display:none;
+
+}
+
+
+</style>
+
+
+
+<div id="drawPanel">
+
+<h3>✏️ 描く</h3>
+
+
+色
+
+<input type="color" id="penColor">
+
+
+
+<br><br>
+
+
+太さ
+
+<input 
+type="range"
+id="penSize"
+min="1"
+max="40"
+value="5"
+>
+
+
+
+<br><br>
+
+
+<button id="eraserButton">
+
+消しゴム
+
+</button>
+
+
+
+<button id="penButton">
+
+ペン
+
+</button>
+
+
+</div>
+
+
+
+
+<script>
+
+
+let eraser=false;
+
+
+
+// 描くボタン
+
+document.querySelectorAll(".menuButton")[0]
+.onclick=function(){
+
+
+document.getElementById("drawPanel")
+.style.display="block";
+
+
+};
+
+
+
+
+
+// 色変更
+
+document.getElementById("penColor")
+.oninput=function(){
+
+
+penColor=this.value;
+
+eraser=false;
+
+
+};
+
+
+
+
+
+
+// 太さ変更
+
+document.getElementById("penSize")
+.oninput=function(){
+
+
+penSize=this.value;
+
+
+};
+
+
+
+
+
+
+// 消しゴム
+
+document.getElementById("eraserButton")
+.onclick=function(){
+
+
+eraser=true;
+
+penColor="white";
+
+
+};
+
+
+
+
+
+
+// ペンに戻す
+
+document.getElementById("penButton")
+.onclick=function(){
+
+
+eraser=false;
+
+penColor=
+document.getElementById("penColor").value;
+
+
+};
+
+
+
+</script>
+<style>
+
+#textPanel{
+
+position:absolute;
+
+left:200px;
+
+top:180px;
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+box-shadow:0 3px10px #aaa;
+
+display:none;
+
+}
+
+
+</style>
+
+
+
+
+<div id="textPanel">
+
+
+<h3>🔤 文字</h3>
+
+
+<input 
+id="textInput"
+placeholder="文字を入力">
+
+
+
+<br><br>
+
+
+
+<button id="addTextButton">
+
+追加
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+let textObjects=[];
+
+
+
+
+
+// 文字ボタン
+
+document.querySelectorAll(".menuButton")[1]
+.onclick=function(){
+
+
+document.getElementById("textPanel")
+.style.display="block";
+
+
+};
+
+
+
+
+
+
+// 文字追加
+
+document.getElementById("addTextButton")
+.onclick=function(){
+
+
+
+let text=
+
+document.getElementById("textInput").value;
+
+
+
+if(text=="")return;
+
+
+
+
+
+textObjects.push({
+
+
+text:text,
+
+x:100,
+
+y:100,
+
+size:30,
+
+color:"black"
+
 
 });
 
 
 
 
-function draw(e){
 
- if(!drawing)return;
+drawAll();
 
 
- let r=canvas.getBoundingClientRect();
 
+};
 
- let x=e.touches[0].clientX-r.left;
 
- let y=e.touches[0].clientY-r.top;
 
 
- ctx.lineWidth=5;
 
- ctx.lineCap="round";
 
 
- if(tool==="eraser"){
+// 全部描画
 
-  ctx.strokeStyle="white";
+function drawAll(){
 
- }else{
 
-  ctx.strokeStyle=color;
 
- }
+ctx.clearRect(
 
+0,
 
- ctx.lineTo(x,y);
+0,
 
- ctx.stroke();
+canvas.width,
 
+canvas.height
 
- ctx.beginPath();
+);
 
- ctx.moveTo(x,y);
 
 
- e.preventDefault();
 
-}
- // 文字追加
 
-function addText(){
 
- let text=prompt("文字を入力");
+// 文字
 
+textObjects.forEach(function(obj){
 
- if(!text)return;
 
 
- let div=document.createElement("div");
+ctx.font=
 
+obj.size+"px sans-serif";
 
- div.className="object text";
 
 
- div.innerText=text;
+ctx.fillStyle=
 
+obj.color;
 
- div.style.left="20px";
 
- div.style.top="20px";
 
- div.style.fontSize="30px";
+ctx.fillText(
 
- div.style.whiteSpace="nowrap";
+obj.text,
 
+obj.x,
 
- paper.appendChild(div);
+obj.y
 
+);
 
- textControl(div);
 
-}
-
-
-
-// 文字操作
-
-function textControl(el){
-
- let startX,startY;
-
- let startLeft,startTop;
-
- let fixed=false;
-
- let timer;
-
-
-
- el.addEventListener("touchstart",e=>{
-
-
-
-
-  startX=e.touches[0].clientX;
-
-  startY=e.touches[0].clientY;
-
-
-  startLeft=el.offsetLeft;
-
-  startTop=el.offsetTop;
-
-
- });
-
-
-
- el.addEventListener("touchmove",e=>{
-
-
-
-
-
-  let x=startLeft+
-  e.touches[0].clientX-startX;
-
-
-  let y=startTop+
-  e.touches[0].clientY-startY;
-
-
-
-  if(x<0)x=0;
-
-  if(y<0)y=0;
-
-
-
-  el.style.left=x+"px";
-
-  el.style.top=y+"px";
-
-
-
-  // 壁に当たった時だけ改行
-
-  if(x+el.offsetWidth>paper.clientWidth){
-
-   el.style.whiteSpace="normal";
-
-   el.style.width=
-   paper.clientWidth-x+"px";
-
-  }else{
-
-   // 壁から離れたら戻す
-
-   el.style.whiteSpace="nowrap";
-
-   el.style.width="auto";
-
-  }
-
-
-
-  e.preventDefault();
-
-
- });
-
-
-
- el.addEventListener("touchend",()=>{
-
-  clearTimeout(timer);
-
- });
-
-
-
- // 2回タップ編集
-
- el.addEventListener("dblclick",()=>{
-
-
-  let t=prompt(
-  "文字変更",
-  el.innerText
-  );
-
-
-  if(t!==null){
-
-   el.innerText=t;
-
-  }
-
-
- });
-
-}
- // 写真追加
-
-function addPhoto(){
-
- let input=document.createElement("input");
-
- input.type="file";
-
- input.accept="image/*";
-
-
- input.onchange=e=>{
-
-
-  let file=e.target.files[0];
-
-
-  if(!file)return;
-
-
-  let img=document.createElement("img");
-
-
-  img.className="object photo";
-
-
-  img.src=URL.createObjectURL(file);
-
-
-  img.style.width="150px";
-
-  img.style.left="20px";
-
-  img.style.top="20px";
-
-
-  paper.appendChild(img);
-
-
-  photoControl(img);
-
-
- };
-
-
- input.click();
-
-}
-
-
-
-// 写真操作
-
-function photoControl(el){
-
- let startX,startY;
-
- let startLeft,startTop;
-
- 
-
-
- let scale=1;
-
- let rotate=0;
-
- let flip=false;
-
-
-
- el.addEventListener("touchstart",e=>{
-
-
-  timer=setTimeout(()=>{
-
-   fixed=!fixed;
-
-   el.style.opacity=fixed?"0.5":"1";
-
-  },700);
-
-
-
-  startX=e.touches[0].clientX;
-
-  startY=e.touches[0].clientY;
-
-
-  startLeft=el.offsetLeft;
-
-  startTop=el.offsetTop;
-
-
- });
-
-
-
- el.addEventListener("touchmove",e=>{
-
-
-  if(fixed)return;
-
-
-  let x=startLeft+
-  e.touches[0].clientX-startX;
-
-
-  let y=startTop+
-  e.touches[0].clientY-startY;
-
-
-
-  el.style.left=x+"px";
-
-  el.style.top=y+"px";
-
-
-  e.preventDefault();
-
-
- });
-
-
-
- el.addEventListener("touchend",()=>{
-
-  clearTimeout(timer);
-
- });
-
-
-
- // 2回タップで反転
-
- el.addEventListener("dblclick",()=>{
-
-
-  flip=!flip;
-
-
-  el.style.transform=
-  "scaleX("+(flip?-1:1)+") rotate("+rotate+"deg)";
-
-
- });
-
-
-}
- // 選択中のもの
-let selectedObject=null;
-
-
-// クリックした物を選択
-document.addEventListener("click",e=>{
-
- if(e.target.classList.contains("object")){
-
-  selectedObject=e.target;
-
- }
 
 });
+
+
+
+}
+
+
+
+</script>
+<script>
+
+
+let selectedText=null;
+
+let textMoveX=0;
+
+let textMoveY=0;
+
+
+
+
+
+// 文字を選択
+
+canvas.addEventListener(
+
+"mousedown",
+
+function(e){
+
+
+let x=e.offsetX;
+
+let y=e.offsetY;
+
+
+
+for(
+
+let i=textObjects.length-1;
+
+i>=0;
+
+i--
+
+){
+
+
+let obj=textObjects[i];
+
+
+
+if(
+
+x>=obj.x &&
+
+x<=obj.x+300 &&
+
+y<=obj.y &&
+
+y>=obj.y-obj.size
+
+){
+
+
+selectedText=obj;
+
+
+
+textMoveX=
+
+x-obj.x;
+
+
+
+textMoveY=
+
+y-obj.y;
+
+
+
+break;
+
+
+}
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+// 移動
+
+canvas.addEventListener(
+
+"mousemove",
+
+function(e){
+
+
+
+if(selectedText==null)return;
+
+
+
+selectedText.x=
+
+e.offsetX-textMoveX;
+
+
+
+selectedText.y=
+
+e.offsetY-textMoveY;
+
+
+
+drawAll();
+
+
+
+});
+
+
+
+
+
+
+// 離す
+
+canvas.addEventListener(
+
+"mouseup",
+
+function(){
+
+
+selectedText=null;
+
+
+});
+
+
+
+</script>
+<style>
+
+#textEditPanel{
+
+position:absolute;
+
+left:200px;
+
+top:350px;
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+box-shadow:0 3px 10px #aaa;
+
+display:none;
+
+}
+
+
+</style>
+
+
+
+
+<div id="textEditPanel">
+
+
+<h3>✂️ 文字編集</h3>
+
+
+<button id="textUp">
+
+🔼 大きく
+
+</button>
+
+
+
+<button id="textDown">
+
+🔽 小さく
+
+</button>
+
+
+<br><br>
+
+
+<input 
+type="color"
+id="textColorPicker">
+
+
+<br><br>
+
+
+<button id="deleteText">
+
+🗑 削除
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+// 編集ボタン
+
+document.querySelectorAll(".menuButton")[5]
+.onclick=function(){
+
+
+document.getElementById("textEditPanel")
+.style.display="block";
+
+
+};
+
+
+
+
+
+
+// 大きく
+
+document.getElementById("textUp")
+.onclick=function(){
+
+
+if(selectedText){
+
+
+selectedText.size+=5;
+
+
+drawAll();
+
+
+}
+
+
+};
+
+
+
+
+
+
+// 小さく
+
+document.getElementById("textDown")
+.onclick=function(){
+
+
+if(selectedText && selectedText.size>10){
+
+
+selectedText.size-=5;
+
+
+drawAll();
+
+
+}
+
+
+};
+
+
+
+
+
+
+// 色変更
+
+document.getElementById("textColorPicker")
+.oninput=function(){
+
+
+if(selectedText){
+
+
+selectedText.color=this.value;
+
+
+drawAll();
+
+
+}
+
+
+};
+
+
+
+
 
 
 // 削除
 
-function deleteSelected(){
+document.getElementById("deleteText")
+.onclick=function(){
 
- if(selectedObject){
 
-  selectedObject.remove();
+if(selectedText){
 
-  selectedObject=null;
 
- }
+
+let i=
+
+textObjects.indexOf(selectedText);
+
+
+
+if(i!=-1){
+
+
+textObjects.splice(i,1);
+
+
+}
+
+
+
+selectedText=null;
+
+
+drawAll();
+
 
 }
 
 
-// 文字サイズ変更
-
-function changeTextSize(){
-
- if(!selectedObject)return;
+};
 
 
- if(selectedObject.classList.contains("text")){
 
+</script>
+<style>
 
-  let size=prompt(
-   "文字サイズ",
-   parseInt(selectedObject.style.fontSize)
-  );
+#photoPanel{
 
+position:absolute;
 
-  if(size){
+right:20px;
 
-   selectedObject.style.fontSize=size+"px";
+top:80px;
 
-  }
+background:white;
 
- }
+padding:15px;
 
-}
+border-radius:15px;
 
+box-shadow:0 3px10px #aaa;
 
-// 四角追加
-
-function addBox(){
-
- let box=document.createElement("div");
-
-
- box.className="object";
-
-
- box.style.left="50px";
-
- box.style.top="50px";
-
-
- box.style.width="100px";
-
- box.style.height="100px";
-
-
- box.style.background="black";
-
-
- paper.appendChild(box);
-
-
- moveBox(box);
+display:none;
 
 }
 
 
+</style>
 
-// 四角移動
 
-function moveBox(el){
 
- let sx,sy,l,t;
 
+<div id="photoPanel">
 
- el.addEventListener("touchstart",e=>{
 
+<h3>🖼 写真</h3>
 
-  sx=e.touches[0].clientX;
 
-  sy=e.touches[0].clientY;
+<input 
+type="file"
+id="photoInput"
+accept="image/*">
 
 
-  l=el.offsetLeft;
 
-  t=el.offsetTop;
+</div>
 
 
- });
 
 
- el.addEventListener("touchmove",e=>{
 
+<script>
 
-  el.style.left=
-  l+e.touches[0].clientX-sx+"px";
 
+let photos=[];
 
-  el.style.top=
-  t+e.touches[0].clientY-sy+"px";
 
 
-  e.preventDefault();
 
- });
 
+// 写真ボタン
 
-}
- // 紙の柄変更
+document.querySelectorAll(".menuButton")[2]
+.onclick=function(){
 
-function paperPattern(){
 
- let p=prompt(
-  "柄を選択\n1:ノート\n2:新聞風\n3:ドット\n4:なし",
-  "1"
- );
+document.getElementById("photoPanel")
+.style.display="block";
 
 
- if(p==="1"){
+};
 
-  paper.style.background=
-  "linear-gradient(#fff 95%,#ddd 95%)";
 
- }else if(p==="2"){
 
-  paper.style.background=
-  "#f5f5f5";
 
- }else if(p==="3"){
 
-  paper.style.background=
-  "radial-gradient(#ccc 1px,transparent 1px)";
 
-  paper.style.backgroundSize="10px 10px";
+// 写真追加
 
- }else{
+document.getElementById("photoInput")
+.onchange=function(e){
 
-  paper.style.background="white";
 
- }
 
-}
+let file=e.target.files[0];
 
 
 
-// 見出し文字
+if(!file)return;
 
-function addTitle(){
 
- let t=prompt("見出し");
 
- if(!t)return;
 
 
- let div=document.createElement("div");
+let reader=new FileReader();
 
 
- div.className="object text";
 
 
- div.innerText=t;
 
+reader.onload=function(){
 
- div.style.left="20px";
 
- div.style.top="20px";
 
- div.style.fontSize="50px";
+let img=new Image();
 
- div.style.fontWeight="bold";
 
 
- paper.appendChild(div);
+img.src=reader.result;
 
 
- textControl(div);
 
-}
+img.onload=function(){
 
 
 
-// スタンプ
+photos.push({
 
-function addStamp(){
 
- let div=document.createElement("div");
+image:img,
 
+x:150,
 
- div.className="object";
+y:150,
 
+width:200,
 
- div.innerText="⭐";
+height:150
 
-
- div.style.fontSize="60px";
-
- div.style.left="100px";
-
- div.style.top="100px";
-
-
- paper.appendChild(div);
-
-
- textControl(div);
-
-}
-
-
-
-// 全消し
-
-function clearAll(){
-
- if(confirm("全部消しますか？")){
-
-
-  document.querySelectorAll(".object")
-  .forEach(e=>e.remove());
-
-
-  ctx.clearRect(
-   0,
-   0,
-   canvas.width,
-   canvas.height
-  );
-
-
- }
-
-}
- // 元に戻す・やり直し
-
-let history=[];
-let redoHistory=[];
-
-
-// 状態保存
-
-function saveHistory(){
-
- let data=paper.innerHTML;
-
- history.push(data);
-
- redoHistory=[];
-
-}
-
-
-
-// 元に戻す
-
-function undo(){
-
- if(history.length===0)return;
-
-
- redoHistory.push(paper.innerHTML);
-
-
- paper.innerHTML=
- history.pop();
-
-}
-
-
-
-// やり直し
-
-function redo(){
-
- if(redoHistory.length===0)return;
-
-
- history.push(paper.innerHTML);
-
-
- paper.innerHTML=
- redoHistory.pop();
-
-}
-
-
-
-// ズーム
-
-let paperScale=1;
-
-
-function zoomPaper(v){
-
- paperScale*=v;
-
-
- if(paperScale<0.5)paperScale=0.5;
-
- if(paperScale>3)paperScale=3;
-
-
- paper.style.transform=
- "scale("+paperScale+")";
-
-}
-
-
-
-// 選択したものを回転
-
-function rotateSelected(){
-
- if(!selectedObject)return;
-
-
- let r=
- parseInt(
- selectedObject.dataset.rotate || 0
- );
-
-
- r+=15;
-
-
- selectedObject.dataset.rotate=r;
-
-
- selectedObject.style.transform=
- "rotate("+r+"deg)";
-
-}
- // フォント変更
-
-function fontChange(){
-
- if(!selectedObject)return;
-
- if(!selectedObject.classList.contains("text"))return;
-
-
- let f=prompt(
- "フォント名",
- "sans-serif"
- );
-
-
- if(f){
-
-  selectedObject.style.fontFamily=f;
-
- }
-
-}
-
-
-
-// 太文字
-
-function boldText(){
-
- if(!selectedObject)return;
-
-
- if(selectedObject.classList.contains("text")){
-
-  selectedObject.style.fontWeight="bold";
-
- }
-
-}
-
-
-
-// 文字ふち
-
-function outlineText(){
-
- if(!selectedObject)return;
-
-
- if(selectedObject.classList.contains("text")){
-
-
-  selectedObject.style.webkitTextStroke=
-  "1px black";
-
-
- }
-
-}
-
-
-
-// 線
-
-function addLine(){
-
- let line=document.createElement("div");
-
-
- line.className="object";
-
-
- line.style.width="150px";
-
- line.style.height="3px";
-
- line.style.background="black";
-
- line.style.left="50px";
-
- line.style.top="50px";
-
-
- paper.appendChild(line);
-
-
- textControl(line);
-
-}
-
-
-
-// 丸
-
-function addCircle(){
-
- let c=document.createElement("div");
-
-
- c.className="object";
-
-
- c.style.width="80px";
-
- c.style.height="80px";
-
- c.style.borderRadius="50%";
-
- c.style.background="red";
-
-
- c.style.left="100px";
-
- c.style.top="100px";
-
-
- paper.appendChild(c);
-
-
- textControl(c);
-
-}
-
-
-
-// 矢印
-
-function addArrow(){
-
- let a=document.createElement("div");
-
-
- a.className="object";
-
-
- a.innerText="➡️";
-
-
- a.style.fontSize="70px";
-
-
- a.style.left="100px";
-
- a.style.top="100px";
-
-
- paper.appendChild(a);
-
-
- textControl(a);
-
-}
-
-
-
-// 写真反転
-
-function flipPhoto(){
-
- if(!selectedObject)return;
-
-
- if(!selectedObject.classList.contains("photo"))
- return;
-
-
- selectedObject.dataset.flip =
- selectedObject.dataset.flip==="1" ? "0":"1";
-
-
- selectedObject.style.transform =
- selectedObject.dataset.flip==="1"
- ? "scaleX(-1)"
- : "scaleX(1)";
-
-}
- // 選択枠
-
-document.addEventListener("click",e=>{
-
- if(e.target.classList.contains("object")){
-
-  if(selectedObject){
-
-   selectedObject.style.outline="none";
-
-  }
-
-
-  selectedObject=e.target;
-
-
-  selectedObject.style.outline=
-  "2px solid blue";
-
- }
 
 });
 
 
 
-// 選択解除
-
-function unselect(){
-
- if(selectedObject){
-
-  selectedObject.style.outline="none";
-
- }
+drawAllPhotos();
 
 
- selectedObject=null;
+
+};
+
+
+
+};
+
+
+
+reader.readAsDataURL(file);
+
+
+
+};
+
+
+
+
+
+
+// 写真描画
+
+function drawAllPhotos(){
+
+
+
+photos.forEach(function(obj){
+
+
+
+ctx.drawImage(
+
+obj.image,
+
+obj.x,
+
+obj.y,
+
+obj.width,
+
+obj.height
+
+);
+
+
+
+});
+
+
 
 }
 
 
 
-// 横中央
-
-function alignCenter(){
-
- if(!selectedObject)return;
+</script>
+<script>
 
 
- selectedObject.style.left=
- (paper.clientWidth-
- selectedObject.offsetWidth)/2+"px";
+let selectedPhoto=null;
+
+
+let photoMoveX=0;
+
+let photoMoveY=0;
+
+
+
+
+
+
+// 写真選択
+
+canvas.addEventListener(
+
+"mousedown",
+
+function(e){
+
+
+let x=e.offsetX;
+
+let y=e.offsetY;
+
+
+
+
+for(
+
+let i=photos.length-1;
+
+i>=0;
+
+i--
+
+){
+
+
+
+let obj=photos[i];
+
+
+
+if(
+
+x>=obj.x &&
+
+x<=obj.x+obj.width &&
+
+y>=obj.y &&
+
+y<=obj.y+obj.height
+
+){
+
+
+
+selectedPhoto=obj;
+
+
+
+photoMoveX=
+
+x-obj.x;
+
+
+
+photoMoveY=
+
+y-obj.y;
+
+
+
+break;
+
+
+
+}
+
+
 
 }
 
 
 
-// 縦中央
-
-function alignMiddle(){
-
- if(!selectedObject)return;
+});
 
 
- selectedObject.style.top=
- (paper.clientHeight-
- selectedObject.offsetHeight)/2+"px";
+
+
+
+
+
+// 写真移動
+
+canvas.addEventListener(
+
+"mousemove",
+
+function(e){
+
+
+
+if(selectedPhoto==null)return;
+
+
+
+
+selectedPhoto.x=
+
+e.offsetX-photoMoveX;
+
+
+
+selectedPhoto.y=
+
+e.offsetY-photoMoveY;
+
+
+
+drawAllPhotos();
+
+
+
+});
+
+
+
+
+
+
+
+// 離す
+
+canvas.addEventListener(
+
+"mouseup",
+
+function(){
+
+
+selectedPhoto=null;
+
+
+});
+
+
+
+
+</script>
+<style>
+
+#paperPanel{
+
+position:absolute;
+
+right:20px;
+
+top:250px;
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+box-shadow:0 3px 10px #aaa;
+
+display:none;
 
 }
 
 
 
-// 前へ
+#materialPanel{
 
-function bringFront(){
+position:absolute;
 
- if(!selectedObject)return;
+right:20px;
+
+top:400px;
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+box-shadow:0 3px 10px #aaa;
+
+display:none;
+
+}
 
 
- selectedObject.style.zIndex=
- Number(selectedObject.style.zIndex||0)+1;
+</style>
+
+
+
+
+
+<div id="paperPanel">
+
+
+<h3>📄 紙</h3>
+
+
+<input 
+type="color"
+id="paperColor">
+
+
+
+</div>
+
+
+
+
+
+
+<div id="materialPanel">
+
+
+<h3>🧩 素材</h3>
+
+
+<button id="squareButton">
+
+⬜ 四角
+
+</button>
+
+
+
+<button id="starButton">
+
+⭐ 星
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+let materials=[];
+
+
+
+// 紙ボタン
+
+document.querySelectorAll(".menuButton")[3]
+.onclick=function(){
+
+
+document.getElementById("paperPanel")
+.style.display="block";
+
+
+};
+
+
+
+
+
+
+// 背景変更
+
+document.getElementById("paperColor")
+.oninput=function(){
+
+
+document.getElementById("paper")
+.style.background=this.value;
+
+
+};
+
+
+
+
+
+
+
+
+// 素材ボタン
+
+document.querySelectorAll(".menuButton")[4]
+.onclick=function(){
+
+
+document.getElementById("materialPanel")
+.style.display="block";
+
+
+};
+
+
+
+
+
+
+// 四角
+
+document.getElementById("squareButton")
+.onclick=function(){
+
+
+materials.push({
+
+
+type:"square",
+
+x:250,
+
+y:150,
+
+size:80
+
+
+});
+
+
+drawMaterials();
+
+
+};
+
+
+
+
+
+
+
+// 星
+
+document.getElementById("starButton")
+.onclick=function(){
+
+
+materials.push({
+
+
+type:"star",
+
+x:300,
+
+y:200
+
+});
+
+
+drawMaterials();
+
+
+};
+
+
+
+
+
+
+
+// 素材描画
+
+function drawMaterials(){
+
+
+
+materials.forEach(function(obj){
+
+
+
+if(obj.type=="square"){
+
+
+
+ctx.fillStyle="orange";
+
+
+ctx.fillRect(
+
+obj.x,
+
+obj.y,
+
+obj.size,
+
+obj.size
+
+);
+
+
 
 }
 
 
 
-// 後ろへ
-
-function sendBack(){
-
- if(!selectedObject)return;
+if(obj.type=="star"){
 
 
- selectedObject.style.zIndex=0;
+
+ctx.font="60px sans-serif";
+
+
+ctx.fillText(
+
+"⭐",
+
+obj.x,
+
+obj.y
+
+);
+
+
+
+}
+
+
+
+});
+
+
 
 }
 
 
 
-// 複製
-
-function copyObject(){
-
- if(!selectedObject)return;
+</script>
+<script>
 
 
- let copy=
- selectedObject.cloneNode(true);
+let favorites=[];
 
 
- copy.style.left=
- selectedObject.offsetLeft+20+"px";
+
+// お気に入りエリア
+
+const favoriteBox =
+document.getElementById("favorite");
 
 
- copy.style.top=
- selectedObject.offsetTop+20+"px";
 
 
- paper.appendChild(copy);
+// キャンバス保存
+
+function saveImage(){
 
 
- if(copy.classList.contains("text")){
+let link=document.createElement("a");
 
-  textControl(copy);
 
- }
+link.download="design.png";
 
- if(copy.classList.contains("photo")){
 
-  photoControl(copy);
+link.href=canvas.toDataURL();
 
- }
+
+link.click();
 
 
 }
- </script>
+
+
+
+
+
+// 保存ボタン
+
+document.querySelectorAll(".menuButton")[6]
+.onclick=function(){
+
+
+saveImage();
+
+
+};
+
+
+
+
+
+
+// キャンバスをお気に入り登録
+
+favoriteBox.onclick=function(){
+
+
+
+let img=
+
+canvas.toDataURL();
+
+
+
+
+favorites.push(img);
+
+
+
+showFavorites();
+
+
+
+};
+
+
+
+
+
+
+// 表示
+
+function showFavorites(){
+
+
+
+favoriteBox.innerHTML=
+
+"⭐ お気に入り<br>";
+
+
+
+favorites.forEach(function(img,index){
+
+
+
+let p=document.createElement("img");
+
+
+p.src=img;
+
+
+p.width=80;
+
+
+p.style.margin="5px";
+
+
+
+favoriteBox.appendChild(p);
+
+
+
+});
+
+
+
+}
+
+
+
+
+</script>
+<style>
+
+/* キャンバスをきれいに表示 */
+
+canvas{
+
+display:block;
+
+}
+
+
+
+/* ボタン見た目調整 */
+
+button{
+
+cursor:pointer;
+
+}
+
+
+
+/* パネル文字 */
+
+h3{
+
+margin-top:0;
+
+}
+
+
+
+</style>
+
+
 
 </body>
+
 </html>
