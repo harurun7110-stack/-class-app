@@ -2,6 +2,46 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クラスアプリ</title>
+
+<style>
+body { font-family: sans-serif; text-align: center; }
+button { padding: 10px; margin: 5px; font-size: 16px; }
+
+#home { display:none; }
+
+.red { background:red; color:white; }
+.blue { background:blue; color:white; }
+.green { background:green; color:white; }
+</style>
+</head>
+
+<body>
+
+<!-- ログイン画面 -->
+<div id="login">
+<h2>ログイン / 登録</h2>
+<input id="name" placeholder="ユーザーネーム"><br>
+<input id="email" placeholder="メール"><br>
+<input id="password" type="password" placeholder="パスワード"><br>
+<button onclick="register()">登録</button>
+<button onclick="loginUser()">ログイン</button>
+<p id="msg"></p>
+</div>
+
+<!-- ホーム -->
+<div id="home">
+<h2 id="username"></h2>
+
+<button class="red" onclick="openShop()">ショップ</button>
+<button class="blue" onclick="showPoint()">ポイント</button>
+<button class="green" onclick="openAdmin()">管理者</button>
+
+<p id="point"></p>
+<div id="content"></div>
+</div>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>20枠ショップ</title>
 
 <style>
@@ -18,20 +58,108 @@ body{font-family:sans-serif;text-align:center;margin:0;}
 }
 input{width:90%;margin:3px;}
 button{margin-top:5px;}
-</style>
-</head>
+// 登録
+window.register = async () => {
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const pass = passwordInput.value;
 
-<body>
+  const user = await createUserWithEmailAndPassword(auth, email, pass);
+  uid = user.user.uid;
+
+  await setDoc(doc(db,"users",uid),{
+    name:name,
+    point:3000
+  });
+
+  msg.innerText="登録成功";
+}
+
+// ログイン
+window.loginUser = async () => {
+  const email = emailInput.value;
+  const pass = passwordInput.value;
+
+  const user = await signInWithEmailAndPassword(auth, email, pass);
+  uid = user.user.uid;
+
+  loadUser();
+}
+
+// ユーザー読み込み
+async function loadUser(){
+  const snap = await getDoc(doc(db,"users",uid));
+  const data = snap.data();
+
+  login.style.display="none";
+  home.style.display="block";
+
+  username.innerText = data.name;
+  point.innerText = "ポイント："+data.point;
+}
+
+// ショップ
+window.openShop = () => {
+  content.innerHTML = `
+  <h3>ショップ</h3>
+  <button onclick="buyItem()">情報（10pt）</button>
+  `;
+}
+
+// 購入
+window.buyItem = async () => {
+  const ref = doc(db,"users",uid);
+  const snap = await getDoc(ref);
+  let p = snap.data().point;
+
+  if(p >= 10){
+    if(confirm("購入しますか？")){
+      await updateDoc(ref,{point:p-10});
+      alert("購入ありがとう！");
+      loadUser();
+    }
+  } else {
+    alert("ポイント足りない");
+  }
+}
+
+// ポイント表示
+window.showPoint = async () => {
+  const snap = await getDoc(doc(db,"users",uid));
+  alert("ポイント："+snap.data().point);
+}
+
+// 管理者
+window.openAdmin = () => {
+  const code = prompt("コード入力");
+  if(code === "582854"){
+    content.innerHTML = `
+    <h3>管理者</h3>
+    <button onclick="addPoint()">+10ポイント</button>
+    `;
+  } else {
+    alert("違う");
+  }
+}
+
+// ポイント追加
+window.addPoint = async () => {
+  const ref = doc(db,"users",uid);
+  const snap = await getDoc(ref);
+  let p = snap.data().point;
+
+  await updateDoc(ref,{point:p+10});
+  loadUser();
 
 <h2>ショップ（20枠）</h2>
 
-<div>ポイント: <span id="points">100</span></div>
+<div>ポイント: <span id="points">3000</span></div>
 
 <div class="grid" id="shop"></div>
 
 <script>
 
-let points = 3000;
+let points = 100;
 
 // ===== 20枠を最初から全部作成 =====
 let items = [
