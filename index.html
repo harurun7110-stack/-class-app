@@ -2,15 +2,15 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>クラスアプリ</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
-  font-family:sans-serif;
   margin:0;
+  font-family:sans-serif;
   background:#f4f5f7;
   color:#222;
 }
@@ -19,12 +19,10 @@ header{
   background:#222;
   color:white;
   text-align:center;
-  padding:15px 10px;
+  padding:15px;
 }
 
-header h1{
-  margin:0 0 5px;
-}
+header h1{margin:0 0 5px}
 
 nav{
   display:flex;
@@ -35,13 +33,13 @@ nav{
 
 nav button{
   flex:1;
-  min-width:90px;
-  padding:13px 5px;
-  margin:0;
+  min-width:85px;
   border:0;
   border-radius:0;
   background:white;
   color:#222;
+  padding:13px 5px;
+  margin:0;
   font-weight:bold;
 }
 
@@ -52,20 +50,18 @@ nav button.active{
 
 .page{
   display:none;
-  padding:15px;
   max-width:900px;
   margin:auto;
+  padding:15px;
 }
 
-.page.active{
-  display:block;
-}
+.page.active{display:block}
 
 .card{
   background:white;
-  border-radius:12px;
   padding:15px;
   margin-bottom:15px;
+  border-radius:12px;
   box-shadow:0 2px 8px #0001;
 }
 
@@ -85,14 +81,13 @@ button{
   margin:4px;
   background:#222;
   color:white;
-  cursor:pointer;
 }
 
 .green{background:#16833b}
 .blue{background:#2878d0}
 .red{background:#d33}
-.gray{background:#777}
 .orange{background:#d77b00}
+.gray{background:#777}
 
 .points{
   font-size:28px;
@@ -103,7 +98,6 @@ button{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
-  padding:10px 0;
 }
 
 .shopbox{
@@ -123,16 +117,23 @@ button{
   margin:8px 0;
 }
 
-.message{
-  background:#f1f1f1;
+.locked{
+  background:#eee;
+  padding:9px;
   border-radius:7px;
-  padding:8px;
-  font-size:13px;
+  color:#666;
 }
 
 .historybox{
   border-bottom:1px solid #ddd;
-  padding:10px 0;
+  padding:12px 0;
+}
+
+.historyMessage{
+  background:#f1f1f1;
+  padding:10px;
+  border-radius:8px;
+  margin-top:7px;
 }
 
 .codebox{
@@ -141,14 +142,6 @@ button{
   margin:5px 0;
   border-radius:8px;
   font-weight:bold;
-  letter-spacing:1px;
-}
-
-.notice{
-  background:#fff2b8;
-  padding:10px;
-  border-radius:8px;
-  margin:7px 0;
 }
 
 .success{
@@ -176,334 +169,344 @@ button{
 <body>
 
 <header>
-  <h1>🏫 クラスアプリ</h1>
-  <div id="headerUser">ログインしてください</div>
+<h1>🏫 クラスアプリ</h1>
+<div id="headerUser">ログインしてください</div>
 </header>
 
 
 <!-- =========================
-     ログイン
+ログイン・登録
 ========================= -->
 
 <section id="loginPage" class="page active">
 
-  <div class="card">
+<div class="card">
 
-    <h2>🔐 ログイン</h2>
+<h2>🔐 ログイン</h2>
 
-    <input
-      id="loginName"
-      placeholder="ユーザー名">
+<input id="loginName" placeholder="ユーザー名">
 
-    <input
-      id="loginPass"
-      type="password"
-      placeholder="パスワード">
+<input id="loginPass"
+type="password"
+placeholder="パスワード">
 
-    <br>
+<br>
 
-    <button
-      class="blue"
-      onclick="login()">
-      ログイン
-    </button>
+<button class="blue"
+onclick="login()">
+ログイン
+</button>
 
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h2>🆕 新規登録</h2>
+<h2>🆕 新規登録</h2>
 
-    <p>
-      登録すると最初に
-      <b>3000ポイント</b>
-      もらえます。
-    </p>
+<p>
+登録すると最初に
+<b>3000ポイント</b>
+もらえます。
+</p>
 
-    <input
-      id="regName"
-      placeholder="ユーザー名">
+<input id="regName"
+placeholder="ユーザー名">
 
-    <input
-      id="regPass"
-      type="password"
-      placeholder="パスワード">
+<input id="regPass"
+type="password"
+placeholder="パスワード">
 
-    <br>
+<br>
 
-    <button
-      class="green"
-      onclick="register()">
-      アカウント登録
-    </button>
+<button class="green"
+onclick="register()">
+アカウント登録
+</button>
 
-  </div>
+</div>
 
 </section>
 
 
 <!-- =========================
-     メイン
+メイン
 ========================= -->
 
 <div id="mainApp" class="hidden">
 
 <nav>
 
-  <button
-    id="nav-home"
-    onclick="showPage('home')">
-    🏠 ホーム
-  </button>
+<button id="nav-home"
+onclick="showPage('home')">
+🏠 ホーム
+</button>
 
-  <button
-    id="nav-shop"
-    onclick="showPage('shop')">
-    🛒 ショップ
-  </button>
+<button id="nav-shop"
+onclick="showPage('shop')">
+🛒 ショップ
+</button>
 
-  <button
-    id="nav-code"
-    onclick="showPage('code')">
-    🎫 コード
-  </button>
+<button id="nav-history"
+onclick="showPage('history')">
+🧾 履歴
+</button>
 
-  <button
-    id="nav-profile"
-    onclick="showPage('profile')">
-    👤 プロフィール
-  </button>
+<button id="nav-code"
+onclick="showPage('code')">
+🎫 コード
+</button>
 
-  <button
-    id="nav-admin"
-    onclick="showPage('admin')">
-    👑 管理者
-  </button>
+<button id="nav-profile"
+onclick="showPage('profile')">
+👤 プロフィール
+</button>
+
+<button id="nav-admin"
+onclick="showPage('admin')">
+👑 管理者
+</button>
 
 </nav>
 
 
 <!-- =========================
-     ホーム
+ホーム
 ========================= -->
 
 <section id="home" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>🏠 ホーム</h2>
+<h2>🏠 ホーム</h2>
 
-    <h3 id="welcome"></h3>
+<h3 id="welcome"></h3>
 
-    <p>現在のポイント</p>
+<p>現在のポイント</p>
 
-    <div class="points">
-      ⭐ <span id="homePoints">0</span>
-    </div>
+<div class="points">
+⭐ <span id="homePoints">0</span>
+</div>
 
-  </div>
+</div>
 
 </section>
 
 
 <!-- =========================
-     ショップ
+ショップ
 ========================= -->
 
 <section id="shop" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>🛒 ショップ（20枠）</h2>
+<h2>🛒 ショップ（20枠）</h2>
 
-    <div>
-      ポイント：
-      <span class="points" id="shopPoints">0</span>
-    </div>
+<p>
+ポイント：
+<b id="shopPoints">0</b>
+</p>
 
-  </div>
+<p>
+💡 商品を購入するまで
+メッセージは表示されません。
+</p>
 
-  <div
-    class="grid"
-    id="shopGrid">
-  </div>
+</div>
+
+<div
+id="shopGrid"
+class="grid">
+</div>
 
 </section>
 
 
 <!-- =========================
-     コード
+履歴
+========================= -->
+
+<section id="history" class="page">
+
+<div class="card">
+
+<h2>🧾 購入履歴</h2>
+
+<p>
+購入した商品とメッセージを確認できます。
+</p>
+
+<div id="historyList"></div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+コード
 ========================= -->
 
 <section id="code" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>🎫 ポイントコード</h2>
+<h2>🎫 ポイントコード</h2>
 
-    <p>
-      1コードにつき
-      <b>1000ポイント</b>
-    </p>
+<p>
+1コードにつき
+<b>1000ポイント</b>
+</p>
 
-    <p>
-      全50種類。
-      <b>同じコードは1人1回まで</b>。
-    </p>
+<p>
+同じコードは
+<b>1人1回まで</b>使用できます。
+</p>
 
-    <input
-      id="pointCodeInput"
-      placeholder="ポイントコード">
+<input
+id="pointCodeInput"
+placeholder="ポイントコード">
 
-    <br>
+<br>
 
-    <button
-      class="green"
-      onclick="usePointCode()">
-      コードを使う
-    </button>
+<button
+class="green"
+onclick="usePointCode()">
+コードを使う
+</button>
 
-    <p id="codeResult"></p>
+<p id="codeResult"></p>
 
-  </div>
+</div>
 
 </section>
 
 
 <!-- =========================
-     プロフィール
+プロフィール
 ========================= -->
 
 <section id="profile" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>👤 プロフィール</h2>
+<h2>👤 プロフィール</h2>
 
-    <h2 id="profileName"></h2>
+<h2 id="profileName"></h2>
 
-    <p>現在のポイント</p>
+<p>現在のポイント</p>
 
-    <div class="points">
-      ⭐ <span id="profilePoints">0</span>
-    </div>
+<div class="points">
+⭐ <span id="profilePoints">0</span>
+</div>
 
-    <p>
-      購入回数：
-      <span id="purchaseCount">0</span>回
-    </p>
+<p>
+購入回数：
+<span id="purchaseCount">0</span>回
+</p>
 
-    <p>
-      使用済みコード：
-      <span id="usedCodeCount">0</span>/50
-    </p>
+<p>
+使用済みコード：
+<span id="usedCodeCount">0</span>/50
+</p>
 
-    <button
-      class="red"
-      onclick="logout()">
-      ログアウト
-    </button>
+<button
+class="red"
+onclick="logout()">
+ログアウト
+</button>
 
-  </div>
-
-
-  <div class="card">
-
-    <h3>🧾 購入履歴</h3>
-
-    <div id="history"></div>
-
-  </div>
+</div>
 
 </section>
 
 
 <!-- =========================
-     管理者
+管理者
 ========================= -->
 
 <section id="admin" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>👑 管理者</h2>
+<h2>👑 管理者</h2>
 
-    <div id="adminLoginArea">
+<div id="adminLoginArea">
 
-      <p>
-        管理者コードを入力してください。
-      </p>
+<p>
+管理者コードを入力してください。
+</p>
 
-      <input
-        id="adminCodeInput"
-        type="password"
-        placeholder="管理者コード">
+<input
+id="adminCodeInput"
+type="password"
+placeholder="管理者コード">
 
-      <br>
+<br>
 
-      <button
-        class="orange"
-        onclick="adminLogin()">
-        管理者になる
-      </button>
+<button
+class="orange"
+onclick="adminLogin()">
+管理者になる
+</button>
 
-    </div>
-
-
-    <div
-      id="adminPanel"
-      class="hidden">
-
-      <h2 class="success">
-        👑 管理者モード
-      </h2>
+</div>
 
 
-      <!-- お金コード -->
+<div
+id="adminPanel"
+class="hidden">
 
-      <div class="card">
-
-        <h3>💰 お金コード</h3>
-
-        <p>
-          1000ポイント × 50個
-        </p>
-
-        <button
-          class="orange"
-          onclick="showMoneyCodes()">
-          お金コードを見る
-        </button>
-
-        <div
-          id="moneyCodes"
-          class="hidden">
-        </div>
-
-      </div>
+<h2 class="success">
+👑 管理者モード
+</h2>
 
 
-      <!-- ユーザーのポイント管理 -->
+<!-- お金コード -->
 
-      <div class="card">
+<div class="card">
 
-        <h3>👥 ユーザーのポイント管理</h3>
+<h3>💰 お金コード</h3>
 
-        <div id="userAdminList"></div>
+<p>
+1000ポイント × 50個
+</p>
 
-      </div>
+<button
+class="orange"
+onclick="showMoneyCodes()">
+お金コードを見る
+</button>
+
+<div
+id="moneyCodes"
+class="hidden">
+</div>
+
+</div>
 
 
-      <button
-        class="red"
-        onclick="adminLogout()">
-        管理者モード終了
-      </button>
+<!-- ユーザー -->
 
-    </div>
+<div class="card">
 
-  </div>
+<h3>👥 ユーザーのポイント</h3>
+
+<div id="userAdminList"></div>
+
+</div>
+
+
+<button
+class="red"
+onclick="adminLogout()">
+管理者モード終了
+</button>
+
+</div>
+
+</div>
 
 </section>
 
@@ -512,1251 +515,1211 @@ button{
 
 <script>
 
-/* =========================================
-   管理者コード
-========================================= */
+/* =================================
+管理者コード
+================================= */
 
-const ADMIN_CODE = "582869";
+const ADMIN_CODE="582869";
 
 
-/* =========================================
-   1000ポイントコード50個
-========================================= */
+/* =================================
+1000ポイントコード50個
+================================= */
 
-const MONEY_CODES = [
+const MONEY_CODES=[
 
-  "CL1000A1",
-  "CL1000A2",
-  "CL1000A3",
-  "CL1000A4",
-  "CL1000A5",
-  "CL1000A6",
-  "CL1000A7",
-  "CL1000A8",
-  "CL1000A9",
-  "CL1000A10",
+"CL1000A1",
+"CL1000A2",
+"CL1000A3",
+"CL1000A4",
+"CL1000A5",
+"CL1000A6",
+"CL1000A7",
+"CL1000A8",
+"CL1000A9",
+"CL1000A10",
 
-  "CL1000B1",
-  "CL1000B2",
-  "CL1000B3",
-  "CL1000B4",
-  "CL1000B5",
-  "CL1000B6",
-  "CL1000B7",
-  "CL1000B8",
-  "CL1000B9",
-  "CL1000B10",
+"CL1000B1",
+"CL1000B2",
+"CL1000B3",
+"CL1000B4",
+"CL1000B5",
+"CL1000B6",
+"CL1000B7",
+"CL1000B8",
+"CL1000B9",
+"CL1000B10",
 
-  "CL1000C1",
-  "CL1000C2",
-  "CL1000C3",
-  "CL1000C4",
-  "CL1000C5",
-  "CL1000C6",
-  "CL1000C7",
-  "CL1000C8",
-  "CL1000C9",
-  "CL1000C10",
+"CL1000C1",
+"CL1000C2",
+"CL1000C3",
+"CL1000C4",
+"CL1000C5",
+"CL1000C6",
+"CL1000C7",
+"CL1000C8",
+"CL1000C9",
+"CL1000C10",
 
-  "CL1000D1",
-  "CL1000D2",
-  "CL1000D3",
-  "CL1000D4",
-  "CL1000D5",
-  "CL1000D6",
-  "CL1000D7",
-  "CL1000D8",
-  "CL1000D9",
-  "CL1000D10",
+"CL1000D1",
+"CL1000D2",
+"CL1000D3",
+"CL1000D4",
+"CL1000D5",
+"CL1000D6",
+"CL1000D7",
+"CL1000D8",
+"CL1000D9",
+"CL1000D10",
 
-  "CL1000E1",
-  "CL1000E2",
-  "CL1000E3",
-  "CL1000E4",
-  "CL1000E5",
-  "CL1000E6",
-  "CL1000E7",
-  "CL1000E8",
-  "CL1000E9",
-  "CL1000E10"
+"CL1000E1",
+"CL1000E2",
+"CL1000E3",
+"CL1000E4",
+"CL1000E5",
+"CL1000E6",
+"CL1000E7",
+"CL1000E8",
+"CL1000E9",
+"CL1000E10"
 
 ];
 
 
-/* =========================================
-   ユーザーデータ
-========================================= */
+/* =================================
+ユーザー
+================================= */
 
-let users =
-  JSON.parse(
-    localStorage.getItem("classUsers")
-  ) || [];
+let users=
+JSON.parse(
+localStorage.getItem("classUsers")
+)||[];
 
-let currentUser =
-  localStorage.getItem("currentUser") || "";
+let currentUser=
+localStorage.getItem("currentUser")||"";
 
-let isAdmin = false;
+let isAdmin=false;
 
 
-/* =========================================
-   ショップ
-   15商品は最初から購入可能
-   残り5枠は商品なし
-========================================= */
+/* =================================
+ショップ
+================================= */
 
-const defaultItems = [
+const defaultItems=[
 
-  {
-    name:"焼きそば",
-    price:320,
-    message:"購入ありがとう！「焼きそば」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"焼きそば",
+price:320,
+message:"購入ありがとう！「焼きそば」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"たこ焼き",
-    price:250,
-    message:"購入ありがとう！「たこ焼き」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"たこ焼き",
+price:250,
+message:"購入ありがとう！「たこ焼き」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"きゅうり",
-    price:120,
-    message:"購入ありがとう！「きゅうり」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"きゅうり",
+price:120,
+message:"購入ありがとう！「きゅうり」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"ポテト",
-    price:200,
-    message:" 購入ありがとう！「ポテト」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"ポテト",
+price:200,
+message:"購入ありがとう！「ポテト」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"唐揚げ",
-    price:230,
-    message:"購入ありがとう！「唐揚げ」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"唐揚げ",
+price:230,
+message:"購入ありがとう！「唐揚げ」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"ポックンミョン",
-    price:280,
-    message:"購入ありがとう！「ポックンミョン」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"ポックンミョン",
+price:280,
+message:"購入ありがとう！「ポックンミョン」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"おにぎり",
-    price:150,
-    message:"購入ありがとう！「おにぎり」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"おにぎり",
+price:150,
+message:"購入ありがとう！「おにぎり」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"ぐるぐるポテト",
-    price:180,
-    message:"購入ありがとう！「ぐるぐるポテト」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"ぐるぐるポテト",
+price:180,
+message:"購入ありがとう！「ぐるぐるポテト」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"射的",
-    price:120,
-    message:"購入ありがとう！「射的」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"射的",
+price:120,
+message:"購入ありがとう！「射的」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"くじ引き",
-    price:150,
-    message:"購入ありがとう！「くじ引き」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"くじ引き",
+price:150,
+message:"購入ありがとう！「くじ引き」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"魚釣り",
-    price:130,
-    message:"購入ありがとう！「魚釣り」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"魚釣り",
+price:130,
+message:"購入ありがとう！「魚釣り」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"ビンゴ",
-    price:160,
-    message:"購入ありがとう！「ビンゴ」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"ビンゴ",
+price:160,
+message:"購入ありがとう！「ビンゴ」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"テレビ使用権小",
-    price:100,
-    message:"購入ありがとう！「テレビ使用権小」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"テレビ使用権小",
+price:100,
+message:"購入ありがとう！「テレビ使用権小」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"テレビ使用権中",
-    price:200,
-    message:"購入ありがとう！「テレビ使用権中」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"テレビ使用権中",
+price:200,
+message:"購入ありがとう！「テレビ使用権中」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"テレビ使用権大",
-    price:500,
-    message:"購入ありがとう！「テレビ使用権大」これを店員に見せよう！",
-    active:true
-  },
+{
+name:"テレビ使用権大",
+price:500,
+message:"購入ありがとう！「テレビ使用権大」これを店員に見せよう！",
+active:true
+},
 
-  {
-    name:"商品なし",
-    price:0,
-    message:"メッセージなし",
-    active:false
-  },
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
+active:false
+},
 
-  {
-    name:"商品なし",
-    price:0,
-    message:"メッセージなし",
-    active:false
-  },
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
+active:false
+},
 
-  {
-    name:"商品なし",
-    price:0,
-    message:"メッセージなし",
-    active:false
-  },
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
+active:false
+},
 
-  {
-    name:"商品なし",
-    price:0,
-    message:"メッセージなし",
-    active:false
-  },
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
+active:false
+},
 
-  {
-    name:"商品なし",
-    price:0,
-    message:"メッセージなし",
-    active:false
-  }
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
+active:false
+}
 
 ];
 
 
 /*
-  ショップは固定。
-  以前のlocalStorageに残っている
-  「未登録商品」データを使わない。
+ショップは固定。
+古いデータは使わない。
 */
 
-let items =
-  JSON.parse(
-    JSON.stringify(defaultItems)
-  );
-
-saveShop();
+let items=
+JSON.parse(
+JSON.stringify(defaultItems)
+);
 
 
-/* =========================================
-   保存
-========================================= */
+/* =================================
+保存
+================================= */
 
 function saveUsers(){
 
-  localStorage.setItem(
-    "classUsers",
-    JSON.stringify(users)
-  );
+localStorage.setItem(
+"classUsers",
+JSON.stringify(users)
+);
 
 }
 
 
-function saveShop(){
-
-  localStorage.setItem(
-    "classShop",
-    JSON.stringify(items)
-  );
-
-}
-
-
-/* =========================================
-   現在のユーザー
-========================================= */
+/* =================================
+現在ユーザー
+================================= */
 
 function getUser(){
 
-  return users.find(
-    u => u.name === currentUser
-  );
+return users.find(
+u=>u.name===currentUser
+);
 
 }
 
 
-/* =========================================
-   新規登録
-========================================= */
+/* =================================
+登録
+================================= */
 
 function register(){
 
-  const name =
-    document
-      .getElementById("regName")
-      .value
-      .trim();
+const name=
+document
+.getElementById("regName")
+.value.trim();
 
-  const pass =
-    document
-      .getElementById("regPass")
-      .value;
-
-
-  if(!name || !pass){
-
-    alert(
-      "ユーザー名とパスワードを入力してね。"
-    );
-
-    return;
-
-  }
+const pass=
+document
+.getElementById("regPass")
+.value;
 
 
-  if(
-    users.some(
-      u => u.name === name
-    )
-  ){
+if(!name||!pass){
 
-    alert(
-      "そのユーザー名はすでに使われています。"
-    );
+alert(
+"ユーザー名とパスワードを入力してね。"
+);
 
-    return;
-
-  }
-
-
-  users.push({
-
-    name:name,
-
-    pass:pass,
-
-    points:3000,
-
-    history:[],
-
-    usedCodes:[]
-
-  });
-
-
-  saveUsers();
-
-
-  document.getElementById(
-    "regName"
-  ).value="";
-
-  document.getElementById(
-    "regPass"
-  ).value="";
-
-
-  alert(
-    "登録完了！\n\n"+
-    "最初の3000ポイントをGET！"
-  );
+return;
 
 }
 
 
-/* =========================================
-   ログイン
-========================================= */
+if(
+users.some(u=>u.name===name)
+){
+
+alert(
+"そのユーザー名はすでに使われています。"
+);
+
+return;
+
+}
+
+
+users.push({
+
+name:name,
+
+pass:pass,
+
+points:3000,
+
+history:[],
+
+usedCodes:[]
+
+});
+
+
+saveUsers();
+
+
+document.getElementById(
+"regName"
+).value="";
+
+document.getElementById(
+"regPass"
+).value="";
+
+
+alert(
+"登録完了！\n\n"+
+"最初の3000ポイントをGET！"
+);
+
+}
+
+
+/* =================================
+ログイン
+================================= */
 
 function login(){
 
-  const name =
-    document
-      .getElementById("loginName")
-      .value
-      .trim();
+const name=
+document
+.getElementById("loginName")
+.value.trim();
 
-  const pass =
-    document
-      .getElementById("loginPass")
-      .value;
-
-
-  const user =
-    users.find(
-      u =>
-      u.name === name &&
-      u.pass === pass
-    );
+const pass=
+document
+.getElementById("loginPass")
+.value;
 
 
-  if(!user){
-
-    alert(
-      "ユーザー名またはパスワードが違います。"
-    );
-
-    return;
-
-  }
+const user=
+users.find(
+u=>
+u.name===name &&
+u.pass===pass
+);
 
 
-  if(typeof user.points !== "number"){
+if(!user){
 
-    user.points=3000;
+alert(
+"ユーザー名またはパスワードが違います。"
+);
 
-  }
-
-
-  if(!Array.isArray(user.history)){
-
-    user.history=[];
-
-  }
-
-
-  if(!Array.isArray(user.usedCodes)){
-
-    user.usedCodes=[];
-
-  }
-
-
-  currentUser=name;
-
-
-  localStorage.setItem(
-    "currentUser",
-    currentUser
-  );
-
-
-  saveUsers();
-
-
-  startApp();
+return;
 
 }
 
 
-/* =========================================
-   アプリ開始
-========================================= */
+if(typeof user.points!=="number")
+user.points=3000;
+
+if(!Array.isArray(user.history))
+user.history=[];
+
+if(!Array.isArray(user.usedCodes))
+user.usedCodes=[];
+
+
+currentUser=name;
+
+
+localStorage.setItem(
+"currentUser",
+currentUser
+);
+
+
+saveUsers();
+
+
+startApp();
+
+}
+
+
+/* =================================
+起動
+================================= */
 
 function startApp(){
 
-  if(!currentUser){
+if(!currentUser){
 
-    document
-      .getElementById("loginPage")
-      .classList.add("active");
+document
+.getElementById("loginPage")
+.classList.add("active");
 
-    document
-      .getElementById("mainApp")
-      .classList.add("hidden");
+document
+.getElementById("mainApp")
+.classList.add("hidden");
 
-    return;
-
-  }
-
-
-  const user=getUser();
-
-
-  if(!user){
-
-    currentUser="";
-
-    localStorage.removeItem(
-      "currentUser"
-    );
-
-    startApp();
-
-    return;
-
-  }
-
-
-  document
-    .getElementById("loginPage")
-    .classList.remove("active");
-
-
-  document
-    .getElementById("mainApp")
-    .classList.remove("hidden");
-
-
-  document.getElementById(
-    "headerUser"
-  ).innerText =
-    "ログイン中："+currentUser;
-
-
-  showPage("home");
+return;
 
 }
 
 
-/* =========================================
-   ページ切り替え
-========================================= */
+const user=getUser();
+
+
+if(!user){
+
+currentUser="";
+
+localStorage.removeItem(
+"currentUser"
+);
+
+startApp();
+
+return;
+
+}
+
+
+document
+.getElementById("loginPage")
+.classList.remove("active");
+
+document
+.getElementById("mainApp")
+.classList.remove("hidden");
+
+
+document.getElementById(
+"headerUser"
+).innerText=
+"ログイン中："+currentUser;
+
+
+showPage("home");
+
+}
+
+
+/* =================================
+ページ
+================================= */
 
 function showPage(page){
 
-  document
-    .querySelectorAll(".page")
-    .forEach(
-      p =>
-      p.classList.remove("active")
-    );
+document
+.querySelectorAll(".page")
+.forEach(
+p=>p.classList.remove("active")
+);
 
 
-  document
-    .querySelectorAll("nav button")
-    .forEach(
-      b =>
-      b.classList.remove("active")
-    );
+document
+.querySelectorAll("nav button")
+.forEach(
+b=>b.classList.remove("active")
+);
 
 
-  document
-    .getElementById(page)
-    .classList.add("active");
+document
+.getElementById(page)
+.classList.add("active");
 
 
-  const nav =
-    document.getElementById(
-      "nav-"+page
-    );
+const nav=
+document.getElementById(
+"nav-"+page
+);
+
+if(nav)
+nav.classList.add("active");
 
 
-  if(nav){
-
-    nav.classList.add("active");
-
-  }
-
-
-  updateAll();
+updateAll();
 
 }
 
 
-/* =========================================
-   画面更新
-========================================= */
+/* =================================
+全更新
+================================= */
 
 function updateAll(){
 
-  const user=getUser();
+const user=getUser();
 
-  if(!user)return;
-
-
-  document.getElementById(
-    "welcome"
-  ).innerText =
-    user.name+"さん、ようこそ！";
+if(!user)return;
 
 
-  document.getElementById(
-    "homePoints"
-  ).innerText =
-    user.points;
+document.getElementById(
+"welcome"
+).innerText=
+user.name+"さん、ようこそ！";
 
 
-  document.getElementById(
-    "shopPoints"
-  ).innerText =
-    user.points;
+document.getElementById(
+"homePoints"
+).innerText=user.points;
 
 
-  document.getElementById(
-    "profileName"
-  ).innerText =
-    user.name;
+document.getElementById(
+"shopPoints"
+).innerText=user.points;
 
 
-  document.getElementById(
-    "profilePoints"
-  ).innerText =
-    user.points;
+document.getElementById(
+"profileName"
+).innerText=user.name;
 
 
-  document.getElementById(
-    "purchaseCount"
-  ).innerText =
-    user.history.length;
+document.getElementById(
+"profilePoints"
+).innerText=user.points;
 
 
-  document.getElementById(
-    "usedCodeCount"
-  ).innerText =
-    user.usedCodes.length;
+document.getElementById(
+"purchaseCount"
+).innerText=
+user.history.length;
 
 
-  renderShop();
+document.getElementById(
+"usedCodeCount"
+).innerText=
+user.usedCodes.length;
 
-  renderHistory();
+
+renderShop();
+
+renderHistory();
 
 }
 
 
-/* =========================================
-   ショップ表示
-========================================= */
+/* =================================
+ショップ表示
+================================= */
 
 function renderShop(){
 
-  let html="";
+let html="";
 
 
-  items.forEach(
-    (item,i)=>{
+items.forEach(
+(item,i)=>{
 
-      if(!item.active){
+if(!item.active){
 
-        html+=`
+html+=`
 
-        <div class="shopbox">
+<div class="shopbox">
 
-          <h3>🔒 商品なし</h3>
+<h3>🔒 商品なし</h3>
 
-          <p>
-            この枠には商品がありません。
-          </p>
+<p>
+この枠には商品がありません。
+</p>
 
-        </div>
+</div>
 
-        `;
+`;
 
-        return;
-
-      }
-
-
-      html+=`
-
-      <div class="shopbox">
-
-        <h3>
-          ${escapeHTML(item.name)}
-        </h3>
-
-        <div class="price">
-          ⭐ ${item.price}ポイント
-        </div>
-
-        <p class="message">
-          ${escapeHTML(item.message)}
-        </p>
-
-        <button
-          class="green"
-          onclick="buy(${i})">
-
-          購入
-
-        </button>
-
-      </div>
-
-      `;
-
-    }
-  );
-
-
-  document.getElementById(
-    "shopGrid"
-  ).innerHTML=html;
+return;
 
 }
 
 
-/* =========================================
-   商品購入
-========================================= */
+html+=`
+
+<div class="shopbox">
+
+<h3>
+${escapeHTML(item.name)}
+</h3>
+
+<div class="price">
+⭐ ${item.price}ポイント
+</div>
+
+<div class="locked">
+🔒 購入するとメッセージが表示されます
+</div>
+
+<button
+class="green"
+onclick="buy(${i})">
+購入
+</button>
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById(
+"shopGrid"
+).innerHTML=html;
+
+}
+
+
+/* =================================
+購入
+================================= */
 
 function buy(i){
 
-  const user=getUser();
+const user=getUser();
 
-  const item=items[i];
-
-
-  if(!item.active){
-
-    alert(
-      "この商品は購入できません。"
-    );
-
-    return;
-
-  }
+const item=items[i];
 
 
-  if(user.points < item.price){
+if(!item.active){
 
-    alert(
-      "ポイント不足です。"
-    );
+alert(
+"この商品は購入できません。"
+);
 
-    return;
-
-  }
-
-
-  const ok =
-    confirm(
-      item.name+
-      "を"+
-      item.price+
-      "ポイントで購入しますか？"
-    );
-
-
-  if(!ok)return;
-
-
-  user.points -= item.price;
-
-
-  user.history.unshift({
-
-    name:item.name,
-
-    price:item.price,
-
-    date:new Date()
-      .toLocaleString("ja-JP")
-
-  });
-
-
-  saveUsers();
-
-
-  alert(
-    "購入完了！\n\n"+
-    item.name+
-    "\n\n"+
-    item.message
-  );
-
-
-  updateAll();
+return;
 
 }
 
 
-/* =========================================
-   ポイントコード
-========================================= */
+if(user.points<item.price){
 
-function usePointCode(){
+alert(
+"ポイント不足です。"
+);
 
-  const input =
-    document.getElementById(
-      "pointCodeInput"
-    );
-
-
-  const result =
-    document.getElementById(
-      "codeResult"
-    );
-
-
-  const code =
-    input.value
-      .trim()
-      .toUpperCase();
-
-
-  const user=getUser();
-
-
-  if(!code){
-
-    result.innerText =
-      "コードを入力してください。";
-
-    result.className="warning";
-
-    return;
-
-  }
-
-
-  if(
-    !MONEY_CODES.includes(code)
-  ){
-
-    result.innerText =
-      "❌ そのコードは存在しません。";
-
-    result.className="warning";
-
-    return;
-
-  }
-
-
-  if(
-    user.usedCodes.includes(code)
-  ){
-
-    result.innerText =
-      "❌ このコードはすでに使用済みです。";
-
-    result.className="warning";
-
-    return;
-
-  }
-
-
-  user.points += 1000;
-
-  user.usedCodes.push(code);
-
-
-  saveUsers();
-
-
-  input.value="";
-
-
-  result.innerText =
-    "🎉 1000ポイントGET！";
-
-  result.className="success";
-
-
-  alert(
-    "🎉 成功！\n\n"+
-    "1000ポイント追加されました！"
-  );
-
-
-  updateAll();
+return;
 
 }
 
 
-/* =========================================
-   管理者ログイン
-========================================= */
+if(
+!confirm(
+item.name+
+"を"+
+item.price+
+"ポイントで購入しますか？"
+)
+){
 
-function adminLogin(){
-
-  const code =
-    document
-      .getElementById(
-        "adminCodeInput"
-      )
-      .value;
-
-
-  if(code !== ADMIN_CODE){
-
-    alert(
-      "管理者コードが違います。"
-    );
-
-    return;
-
-  }
-
-
-  isAdmin=true;
-
-
-  document
-    .getElementById(
-      "adminLoginArea"
-    )
-    .classList.add("hidden");
-
-
-  document
-    .getElementById(
-      "adminPanel"
-    )
-    .classList.remove("hidden");
-
-
-  renderAdmin();
-
-
-  alert(
-    "👑 管理者になりました！"
-  );
+return;
 
 }
 
 
-/* =========================================
-   管理者終了
-========================================= */
-
-function adminLogout(){
-
-  isAdmin=false;
+user.points-=item.price;
 
 
-  document
-    .getElementById(
-      "adminLoginArea"
-    )
-    .classList.remove("hidden");
+user.history.unshift({
+
+name:item.name,
+
+price:item.price,
+
+message:item.message,
+
+date:new Date()
+.toLocaleString("ja-JP")
+
+});
 
 
-  document
-    .getElementById(
-      "adminPanel"
-    )
-    .classList.add("hidden");
+saveUsers();
 
 
-  document
-    .getElementById(
-      "moneyCodes"
-    )
-    .classList.add("hidden");
+alert(
+"🎉 購入完了！\n\n"+
+item.name+
+"\n\n"+
+item.message
+);
 
 
-  document.getElementById(
-    "adminCodeInput"
-  ).value="";
+updateAll();
 
 }
 
 
-/* =========================================
-   50個のお金コードを見る
-========================================= */
-
-function showMoneyCodes(){
-
-  if(!isAdmin){
-
-    alert(
-      "管理者だけが見られます。"
-    );
-
-    return;
-
-  }
-
-
-  const box =
-    document.getElementById(
-      "moneyCodes"
-    );
-
-
-  box.classList.remove("hidden");
-
-
-  let html="";
-
-
-  MONEY_CODES.forEach(
-    (code,i)=>{
-
-      html += `
-
-      <div class="codebox">
-
-        ${i+1}：
-        ${code}
-
-      </div>
-
-      `;
-
-    }
-  );
-
-
-  box.innerHTML = `
-
-    <p>
-      💰 1コード = 1000ポイント
-    </p>
-
-    <p>
-      全50コード
-    </p>
-
-    ${html}
-
-  `;
-
-}
-
-
-/* =========================================
-   管理者のユーザー一覧
-========================================= */
-
-function renderAdmin(){
-
-  if(!isAdmin)return;
-
-
-  let html="";
-
-
-  users.forEach(
-    (u,i)=>{
-
-      html += `
-
-      <div class="card">
-
-        <b>
-          ${escapeHTML(u.name)}
-        </b>
-
-        <br><br>
-
-        ⭐
-        ${u.points}
-        ポイント
-
-        <br>
-
-        <input
-          id="adminPoint-${i}"
-          type="number"
-          value="${u.points}"
-        >
-
-        <button
-          class="blue"
-          onclick="changePoints(${i})">
-
-          ポイント変更
-
-        </button>
-
-      </div>
-
-      `;
-
-    }
-  );
-
-
-  if(users.length===0){
-
-    html=
-      "<p>まだユーザーがいません。</p>";
-
-  }
-
-
-  document.getElementById(
-    "userAdminList"
-  ).innerHTML=html;
-
-}
-
-
-/* =========================================
-   管理者がポイント変更
-========================================= */
-
-function changePoints(i){
-
-  if(!isAdmin)return;
-
-
-  const value =
-    Number(
-      document.getElementById(
-        "adminPoint-"+i
-      ).value
-    );
-
-
-  if(!Number.isFinite(value) || value<0){
-
-    alert(
-      "0以上の数字を入力してください。"
-    );
-
-    return;
-
-  }
-
-
-  users[i].points=value;
-
-
-  saveUsers();
-
-  renderAdmin();
-
-  updateAll();
-
-
-  alert(
-    "ポイントを変更しました。"
-  );
-
-}
-
-
-/* =========================================
-   購入履歴
-========================================= */
+/* =================================
+履歴
+================================= */
 
 function renderHistory(){
 
-  const user=getUser();
+const user=getUser();
 
-  let html="";
-
-
-  if(
-    user.history.length===0
-  ){
-
-    html=
-      "<p>まだ購入履歴がありません。</p>";
-
-  }else{
-
-    user.history.forEach(
-      h=>{
-
-        html += `
-
-        <div class="historybox">
-
-          <b>
-            ${escapeHTML(h.name)}
-          </b>
-
-          <br>
-
-          ⭐ ${h.price}ポイント
-
-          <br>
-
-          <small>
-            ${escapeHTML(h.date)}
-          </small>
-
-        </div>
-
-        `;
-
-      }
-    );
-
-  }
+const box=
+document.getElementById(
+"historyList"
+);
 
 
-  document.getElementById(
-    "history"
-  ).innerHTML=html;
+if(
+!user ||
+user.history.length===0
+){
+
+box.innerHTML=
+"<p>まだ購入履歴がありません。</p>";
+
+return;
 
 }
 
 
-/* =========================================
-   ログアウト
-========================================= */
+let html="";
+
+
+user.history.forEach(
+(h,index)=>{
+
+html+=`
+
+<div class="historybox">
+
+<b>
+${escapeHTML(h.name)}
+</b>
+
+<br>
+
+⭐ ${h.price}ポイント
+
+<br>
+
+<small>
+${escapeHTML(h.date)}
+</small>
+
+<div class="historyMessage">
+
+🔓 購入済みメッセージ
+
+<br><br>
+
+${escapeHTML(h.message)}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+
+box.innerHTML=html;
+
+}
+
+
+/* =================================
+ポイントコード
+================================= */
+
+function usePointCode(){
+
+const input=
+document.getElementById(
+"pointCodeInput"
+);
+
+const result=
+document.getElementById(
+"codeResult"
+);
+
+const code=
+input.value
+.trim()
+.toUpperCase();
+
+const user=getUser();
+
+
+if(!code){
+
+result.innerText=
+"コードを入力してください。";
+
+result.className="warning";
+
+return;
+
+}
+
+
+if(
+!MONEY_CODES.includes(code)
+){
+
+result.innerText=
+"❌ そのコードは存在しません。";
+
+result.className="warning";
+
+return;
+
+}
+
+
+if(
+user.usedCodes.includes(code)
+){
+
+result.innerText=
+"❌ このコードはすでに使用済みです。";
+
+result.className="warning";
+
+return;
+
+}
+
+
+user.points+=1000;
+
+user.usedCodes.push(code);
+
+
+saveUsers();
+
+
+input.value="";
+
+
+result.innerText=
+"🎉 1000ポイントGET！";
+
+result.className="success";
+
+
+alert(
+"🎉 成功！\n\n"+
+"1000ポイント追加されました！"
+);
+
+
+updateAll();
+
+}
+
+
+/* =================================
+管理者ログイン
+================================= */
+
+function adminLogin(){
+
+const code=
+document.getElementById(
+"adminCodeInput"
+).value;
+
+
+if(code!==ADMIN_CODE){
+
+alert(
+"管理者コードが違います。"
+);
+
+return;
+
+}
+
+
+isAdmin=true;
+
+
+document
+.getElementById(
+"adminLoginArea"
+)
+.classList.add("hidden");
+
+
+document
+.getElementById(
+"adminPanel"
+)
+.classList.remove("hidden");
+
+
+renderAdmin();
+
+
+alert(
+"👑 管理者になりました！"
+);
+
+}
+
+
+/* =================================
+管理者終了
+================================= */
+
+function adminLogout(){
+
+isAdmin=false;
+
+
+document
+.getElementById(
+"adminLoginArea"
+)
+.classList.remove("hidden");
+
+
+document
+.getElementById(
+"adminPanel"
+)
+.classList.add("hidden");
+
+
+document
+.getElementById(
+"moneyCodes"
+)
+.classList.add("hidden");
+
+
+document.getElementById(
+"adminCodeInput"
+).value="";
+
+}
+
+
+/* =================================
+お金コード表示
+================================= */
+
+function showMoneyCodes(){
+
+if(!isAdmin){
+
+alert(
+"管理者だけが見られます。"
+);
+
+return;
+
+}
+
+
+const box=
+document.getElementById(
+"moneyCodes"
+);
+
+
+box.classList.remove("hidden");
+
+
+let html="";
+
+
+MONEY_CODES.forEach(
+(code,i)=>{
+
+html+=`
+
+<div class="codebox">
+
+${i+1}：
+${code}
+
+</div>
+
+`;
+
+});
+
+
+box.innerHTML=`
+
+<p>
+💰 1コード = 1000ポイント
+</p>
+
+${html}
+
+`;
+
+}
+
+
+/* =================================
+管理者ユーザー一覧
+================================= */
+
+function renderAdmin(){
+
+if(!isAdmin)return;
+
+
+let html="";
+
+
+users.forEach(
+(u,i)=>{
+
+html+=`
+
+<div class="card">
+
+<b>
+${escapeHTML(u.name)}
+</b>
+
+<br><br>
+
+⭐ ${u.points}ポイント
+
+<br>
+
+<input
+id="adminPoint-${i}"
+type="number"
+value="${u.points}">
+
+<button
+class="blue"
+onclick="changePoints(${i})">
+
+ポイント変更
+
+</button>
+
+</div>
+
+`;
+
+});
+
+
+if(users.length===0){
+
+html=
+"<p>まだユーザーがいません。</p>";
+
+}
+
+
+document.getElementById(
+"userAdminList"
+).innerHTML=html;
+
+}
+
+
+/* =================================
+管理者ポイント変更
+================================= */
+
+function changePoints(i){
+
+if(!isAdmin)return;
+
+
+const value=
+Number(
+document.getElementById(
+"adminPoint-"+i
+).value
+);
+
+
+if(
+!Number.isFinite(value) ||
+value<0
+){
+
+alert(
+"0以上の数字を入力してください。"
+);
+
+return;
+
+}
+
+
+users[i].points=value;
+
+
+saveUsers();
+
+renderAdmin();
+
+updateAll();
+
+
+alert(
+"ポイントを変更しました。"
+);
+
+}
+
+
+/* =================================
+ログアウト
+================================= */
 
 function logout(){
 
-  isAdmin=false;
+isAdmin=false;
 
-  currentUser="";
-
-
-  localStorage.removeItem(
-    "currentUser"
-  );
+currentUser="";
 
 
-  document
-    .getElementById(
-      "mainApp"
-    )
-    .classList.add("hidden");
+localStorage.removeItem(
+"currentUser"
+);
 
 
-  document
-    .getElementById(
-      "loginPage"
-    )
-    .classList.add("active");
+document
+.getElementById("mainApp")
+.classList.add("hidden");
 
 
-  document.getElementById(
-    "headerUser"
-  ).innerText =
-    "ログインしてください";
+document
+.getElementById("loginPage")
+.classList.add("active");
 
 
-  document.getElementById(
-    "loginName"
-  ).value="";
+document.getElementById(
+"headerUser"
+).innerText=
+"ログインしてください";
 
-  document.getElementById(
-    "loginPass"
-  ).value="";
+
+document.getElementById(
+"loginName"
+).value="";
+
+document.getElementById(
+"loginPass"
+).value="";
 
 }
 
 
-/* =========================================
-   HTMLエスケープ
-========================================= */
+/* =================================
+HTMLエスケープ
+================================= */
 
 function escapeHTML(str){
 
-  return String(str)
+return String(str)
 
-    .replaceAll("&","&amp;")
+.replaceAll("&","&amp;")
 
-    .replaceAll("<","&lt;")
+.replaceAll("<","&lt;")
 
-    .replaceAll(">","&gt;")
+.replaceAll(">","&gt;")
 
-    .replaceAll('"',"&quot;")
+.replaceAll('"',"&quot;")
 
-    .replaceAll("'","&#039;");
+.replaceAll("'","&#039;");
 
 }
 
 
-/* =========================================
-   起動
-========================================= */
+/* =================================
+開始
+================================= */
 
 startApp();
 
