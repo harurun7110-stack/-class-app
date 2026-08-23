@@ -168,7 +168,7 @@ button{
 </header>
 
 
-<!-- ログイン -->
+<!-- ログイン・登録 -->
 
 <section id="loginPage" class="page active">
 
@@ -459,7 +459,6 @@ const ADMIN_CODE="582869";
 
 /* =========================
 1000ポイントコード50個
-全部ランダム
 ========================= */
 
 const MONEY_CODES=[
@@ -523,7 +522,7 @@ const MONEY_CODES=[
 
 
 /* =========================
-ユーザーデータ
+ユーザー
 ========================= */
 
 let users =
@@ -650,16 +649,23 @@ active:true
 },
 
 {
-name:"クレーンゲーム一回",
+name:"クレーンゲーム1回",
 price:100,
 message:"購入ありがとう！「クレーンゲーム1回」これを店員に見せよう！",
-active:false
+active:true
 },
 
 {
 name:"クレーンゲーム6回",
 price:500,
 message:"購入ありがとう！「クレーンゲーム6回」これを店員に見せよう！",
+active:true
+},
+
+{
+name:"商品なし",
+price:0,
+message:"メッセージなし",
 active:false
 },
 
@@ -676,14 +682,6 @@ price:0,
 message:"メッセージなし",
 active:false
 }
-  
-{
-name:"商品なし",
-price:0,
-message:"メッセージなし",
-active:false
-},
-
 ];
 
 
@@ -715,41 +713,31 @@ u=>u.name===currentUser
 
 
 /* =========================
-新規登録
+登録
 ========================= */
 
 function register(){
 
 const name=
-document.getElementById(
-"regName"
-).value.trim();
+document.getElementById("regName")
+.value.trim();
 
 const pass=
-document.getElementById(
-"regPass"
-).value;
+document.getElementById("regPass")
+.value;
 
 if(!name||!pass){
 
-alert(
-"ユーザー名とパスワードを入力してね。"
-);
+alert("ユーザー名とパスワードを入力してね。");
 
 return;
-
 }
 
-if(
-users.some(u=>u.name===name)
-){
+if(users.some(u=>u.name===name)){
 
-alert(
-"そのユーザー名はすでに使われています。"
-);
+alert("そのユーザー名はすでに使われています。");
 
 return;
-
 }
 
 users.push({
@@ -768,13 +756,8 @@ usedCodes:[]
 
 saveUsers();
 
-document.getElementById(
-"regName"
-).value="";
-
-document.getElementById(
-"regPass"
-).value="";
+document.getElementById("regName").value="";
+document.getElementById("regPass").value="";
 
 alert(
 "🎉 登録完了！\n\n3000ポイントGET！"
@@ -790,14 +773,12 @@ alert(
 function login(){
 
 const name=
-document.getElementById(
-"loginName"
-).value.trim();
+document.getElementById("loginName")
+.value.trim();
 
 const pass=
-document.getElementById(
-"loginPass"
-).value;
+document.getElementById("loginPass")
+.value;
 
 const user=
 users.find(
@@ -811,7 +792,6 @@ alert(
 );
 
 return;
-
 }
 
 if(typeof user.points!=="number")
@@ -845,16 +825,13 @@ function startApp(){
 
 if(!currentUser){
 
-document
-.getElementById("loginPage")
+document.getElementById("loginPage")
 .classList.add("active");
 
-document
-.getElementById("mainApp")
+document.getElementById("mainApp")
 .classList.add("hidden");
 
 return;
-
 }
 
 const user=getUser();
@@ -870,20 +847,16 @@ localStorage.removeItem(
 startApp();
 
 return;
-
 }
 
-document
-.getElementById("loginPage")
+document.getElementById("loginPage")
 .classList.remove("active");
 
-document
-.getElementById("mainApp")
+document.getElementById("mainApp")
 .classList.remove("hidden");
 
-document.getElementById(
-"headerUser"
-).innerText=
+document.getElementById("headerUser")
+.innerText=
 "ログイン中："+currentUser;
 
 showPage("home");
@@ -909,14 +882,11 @@ document
 b=>b.classList.remove("active")
 );
 
-document
-.getElementById(page)
+document.getElementById(page)
 .classList.add("active");
 
 const nav=
-document.getElementById(
-"nav-"+page
-);
+document.getElementById("nav-"+page);
 
 if(nav)
 nav.classList.add("active");
@@ -936,36 +906,27 @@ const user=getUser();
 
 if(!user)return;
 
-document.getElementById(
-"welcome"
-).innerText=
+document.getElementById("welcome")
+.innerText=
 user.name+"さん、ようこそ！";
 
-document.getElementById(
-"homePoints"
-).innerText=user.points;
+document.getElementById("homePoints")
+.innerText=user.points;
 
-document.getElementById(
-"shopPoints"
-).innerText=user.points;
+document.getElementById("shopPoints")
+.innerText=user.points;
 
-document.getElementById(
-"profileName"
-).innerText=user.name;
+document.getElementById("profileName")
+.innerText=user.name;
 
-document.getElementById(
-"profilePoints"
-).innerText=user.points;
+document.getElementById("profilePoints")
+.innerText=user.points;
 
-document.getElementById(
-"purchaseCount"
-).innerText=
-user.history.length;
+document.getElementById("purchaseCount")
+.innerText=user.history.length;
 
-document.getElementById(
-"usedCodeCount"
-).innerText=
-user.usedCodes.length;
+document.getElementById("usedCodeCount")
+.innerText=user.usedCodes.length;
 
 renderShop();
 
@@ -982,8 +943,7 @@ function renderShop(){
 
 let html="";
 
-items.forEach(
-(item,i)=>{
+items.forEach((item,i)=>{
 
 if(!item.active){
 
@@ -1002,7 +962,6 @@ html+=`
 `;
 
 return;
-
 }
 
 html+=`
@@ -1033,9 +992,8 @@ onclick="buy(${i})">
 
 });
 
-document.getElementById(
-"shopGrid"
-).innerHTML=html;
+document.getElementById("shopGrid")
+.innerHTML=html;
 
 }
 
@@ -1047,7 +1005,6 @@ document.getElementById(
 function buy(i){
 
 const user=getUser();
-
 const item=items[i];
 
 if(!item.active){
@@ -1055,7 +1012,6 @@ if(!item.active){
 alert("この商品は購入できません。");
 
 return;
-
 }
 
 if(user.points<item.price){
@@ -1063,7 +1019,6 @@ if(user.points<item.price){
 alert("ポイント不足です。");
 
 return;
-
 }
 
 if(!confirm(
@@ -1074,7 +1029,6 @@ item.price+
 )){
 
 return;
-
 }
 
 user.points-=item.price;
@@ -1087,8 +1041,7 @@ price:item.price,
 
 message:item.message,
 
-date:new Date()
-.toLocaleString("ja-JP")
+date:new Date().toLocaleString("ja-JP")
 
 });
 
@@ -1115,26 +1068,19 @@ function renderHistory(){
 const user=getUser();
 
 const box=
-document.getElementById(
-"historyList"
-);
+document.getElementById("historyList");
 
-if(
-!user||
-user.history.length===0
-){
+if(!user||user.history.length===0){
 
 box.innerHTML=
 "<p>まだ購入履歴がありません。</p>";
 
 return;
-
 }
 
 let html="";
 
-user.history.forEach(
-h=>{
+user.history.forEach(h=>{
 
 html+=`
 
@@ -1182,19 +1128,13 @@ box.innerHTML=html;
 function usePointCode(){
 
 const input=
-document.getElementById(
-"pointCodeInput"
-);
+document.getElementById("pointCodeInput");
 
 const result=
-document.getElementById(
-"codeResult"
-);
+document.getElementById("codeResult");
 
 const code=
-input.value
-.trim()
-.toUpperCase();
+input.value.trim().toUpperCase();
 
 const user=getUser();
 
@@ -1206,12 +1146,9 @@ result.innerText=
 result.className="warning";
 
 return;
-
 }
 
-if(
-!MONEY_CODES.includes(code)
-){
+if(!MONEY_CODES.includes(code)){
 
 result.innerText=
 "❌ そのコードは存在しません。";
@@ -1219,12 +1156,9 @@ result.innerText=
 result.className="warning";
 
 return;
-
 }
 
-if(
-user.usedCodes.includes(code)
-){
+if(user.usedCodes.includes(code)){
 
 result.innerText=
 "❌ このコードはすでに使用済みです。";
@@ -1232,7 +1166,6 @@ result.innerText=
 result.className="warning";
 
 return;
-
 }
 
 user.points+=1000;
@@ -1249,8 +1182,7 @@ result.innerText=
 result.className="success";
 
 alert(
-"🎉 成功！\n\n"+
-"1000ポイント追加されました！"
+"🎉 成功！\n\n1000ポイント追加されました！"
 );
 
 updateAll();
@@ -1265,37 +1197,25 @@ updateAll();
 function adminLogin(){
 
 const code=
-document.getElementById(
-"adminCodeInput"
-).value;
+document.getElementById("adminCodeInput")
+.value;
 
 if(code!==ADMIN_CODE){
 
-alert(
-"管理者コードが違います。"
-);
+alert("管理者コードが違います。");
 
 return;
-
 }
 
 isAdmin=true;
 
-document
-.getElementById(
-"adminLoginArea"
-)
+document.getElementById("adminLoginArea")
 .classList.add("hidden");
 
-document
-.getElementById(
-"adminPanel"
-)
+document.getElementById("adminPanel")
 .classList.remove("hidden");
 
-alert(
-"👑 管理者になりました！"
-);
+alert("👑 管理者になりました！");
 
 }
 
@@ -1308,33 +1228,24 @@ function showMoneyCodes(){
 
 if(!isAdmin){
 
-alert(
-"管理者だけが見られます。"
-);
+alert("管理者だけが見られます。");
 
 return;
-
 }
 
 const box=
-document.getElementById(
-"moneyCodes"
-);
+document.getElementById("moneyCodes");
 
 box.classList.remove("hidden");
 
 let html="";
 
-MONEY_CODES.forEach(
-(code,i)=>{
+MONEY_CODES.forEach((code,i)=>{
 
 html+=`
 
 <div class="codebox">
-
-${i+1}：
-${code}
-
+${i+1}：${code}
 </div>
 
 `;
@@ -1362,27 +1273,17 @@ function adminLogout(){
 
 isAdmin=false;
 
-document
-.getElementById(
-"adminLoginArea"
-)
+document.getElementById("adminLoginArea")
 .classList.remove("hidden");
 
-document
-.getElementById(
-"adminPanel"
-)
+document.getElementById("adminPanel")
 .classList.add("hidden");
 
-document
-.getElementById(
-"moneyCodes"
-)
+document.getElementById("moneyCodes")
 .classList.add("hidden");
 
-document.getElementById(
-"adminCodeInput"
-).value="";
+document.getElementById("adminCodeInput")
+.value="";
 
 }
 
@@ -1401,26 +1302,21 @@ localStorage.removeItem(
 "naitomatsuri_current"
 );
 
-document
-.getElementById("mainApp")
+document.getElementById("mainApp")
 .classList.add("hidden");
 
-document
-.getElementById("loginPage")
+document.getElementById("loginPage")
 .classList.add("active");
 
-document.getElementById(
-"headerUser"
-).innerText=
+document.getElementById("headerUser")
+.innerText=
 "ログインしてください";
 
-document.getElementById(
-"loginName"
-).value="";
+document.getElementById("loginName")
+.value="";
 
-document.getElementById(
-"loginPass"
-).value="";
+document.getElementById("loginPass")
+.value="";
 
 }
 
